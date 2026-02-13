@@ -15,7 +15,7 @@ export interface Project {
 
 export const PROJECTS: Project[] = [
   // === Core (5) ===
-  { id: 1, slug: "openclaw", name: "OpenClaw", desc: "Core open-source AI agent framework with 182K+ stars", layer: "core", stars: 182000, status: "active", official: true, url: "github.com/openclaw/openclaw" },
+  { id: 1, slug: "openclaw", name: "OpenClaw", desc: "Core open-source AI agent framework with 182K+ stars", layer: "core", stars: 190370, status: "active", official: true, url: "github.com/openclaw/openclaw" },
   { id: 2, slug: "clawhub", name: "ClawHub", desc: "Official skill registry with 5,705+ verified skills", layer: "core", stars: null, status: "active", official: true, url: "clawhub.ai" },
   { id: 3, slug: "onlycrabs", name: "OnlyCrabs", desc: "SOUL.md registry — agent persona sharing and discovery", layer: "core", stars: null, status: "active", official: true, url: "onlycrabs.ai" },
   { id: 4, slug: "pi-mono", name: "Pi (Pi-Mono)", desc: "Minimal agent runtime inside OpenClaw for lightweight deployments", layer: "core", stars: null, status: "active", official: true, url: "openclaw.ai" },
@@ -29,7 +29,7 @@ export const PROJECTS: Project[] = [
   { id: 10, slug: "claw-digest", name: "Claw Digest", desc: "Weekly newsletter and blog covering OpenClaw ecosystem news", layer: "social", stars: null, status: "active", official: false, url: null },
 
   // === Collaboration (5) ===
-  { id: 11, slug: "claw-swarm", name: "Claw-Swarm", desc: "Multi-agent swarm orchestration with AuthGuardian security", layer: "collab", stars: 890, status: "active", official: false, url: "github.com/jovanSAPFIONEER/Network-AI" },
+  { id: 11, slug: "claw-swarm", name: "Claw-Swarm", desc: "Multi-agent swarm orchestration with AuthGuardian security", layer: "collab", stars: 5, status: "active", official: false, url: "github.com/jovanSAPFIONEER/Network-AI" },
   { id: 12, slug: "clawork", name: "Clawork", desc: "Job board and task marketplace for AI agents", layer: "collab", stars: null, status: "active", official: false, url: null },
   { id: 13, slug: "composio", name: "Composio", desc: "Integration platform connecting OpenClaw to 200+ external services", layer: "collab", stars: 15200, status: "active", official: false, url: "composio.dev" },
   { id: 14, slug: "agent-protocol", name: "Agent Protocol", desc: "Standardized communication protocol for inter-agent messaging", layer: "collab", stars: 2100, status: "active", official: false, url: null },
