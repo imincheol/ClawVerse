@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import StarField from "@/components/StarField";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -23,11 +24,14 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
-        <Header />
-        <main className="mx-auto max-w-[1200px] px-6 py-6 pb-20">
-          {children}
-        </main>
-        <Footer />
+        <StarField />
+        <div className="relative z-[1]">
+          <Header />
+          <main className="mx-auto max-w-[1200px] px-6 py-6 pb-20">
+            {children}
+          </main>
+          <Footer />
+        </div>
       </body>
     </html>
   );

@@ -1,8 +1,10 @@
 import Link from "next/link";
+import CosmicBackground from "@/components/CosmicBackground";
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">
+    <div className="relative flex min-h-[60vh] flex-col items-center justify-center text-center">
+      <CosmicBackground intensity="strong" />
       <div className="mb-6 text-6xl">&#x1F99E;</div>
       <h1
         className="mb-3 text-4xl font-bold"

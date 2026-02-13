@@ -53,3 +53,42 @@ select:focus {
   border-color: rgba(139, 92, 246, 0.5) !important;
   outline: none;
 }
+
+/* Cosmic animations */
+@keyframes drift {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-2000px);
+  }
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes nebula-float {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -20px) scale(1.05);
+  }
+  66% {
+    transform: translate(-20px, 15px) scale(0.95);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cosmic-animate {
+    animation: none !important;
+  }
+}

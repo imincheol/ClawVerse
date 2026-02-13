@@ -1,5 +1,6 @@
 import Link from "next/link";
 import WeeklyPicksBanner from "@/components/WeeklyPicksBanner";
+import CosmicBackground from "@/components/CosmicBackground";
 
 const STATS = [
   { label: "GitHub Stars", value: "182K+" },
@@ -37,7 +38,8 @@ const SECTIONS = [
 
 export default function HomePage() {
   return (
-    <div>
+    <div className="relative">
+      <CosmicBackground />
       {/* Hero */}
       <section className="py-16 text-center">
         <div className="mb-4 text-5xl">&#x1F99E;</div>
