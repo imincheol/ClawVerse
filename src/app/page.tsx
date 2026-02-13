@@ -44,9 +44,8 @@ export default function HomePage() {
       <section className="py-16 text-center">
         <div className="mb-4 text-5xl">&#x1F99E;</div>
         <h1
-          className="mb-4 text-4xl font-bold md:text-5xl"
+          className="font-display mb-4 text-4xl font-bold md:text-5xl"
           style={{
-            fontFamily: "var(--font-display)",
             background: "linear-gradient(135deg, #c084fc, #f97316)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
@@ -83,8 +82,7 @@ export default function HomePage() {
               className="rounded-xl border border-border bg-card p-4 text-center"
             >
               <div
-                className="text-2xl font-bold text-text-primary"
-                style={{ fontFamily: "var(--font-display)" }}
+                className="font-display text-2xl font-bold text-text-primary"
               >
                 {s.value}
               </div>
@@ -108,8 +106,8 @@ export default function HomePage() {
             className="group block rounded-[14px] border border-border bg-card p-6 no-underline transition-all duration-200 hover:-translate-y-0.5 hover:border-white/10"
           >
             <h2
-              className="mb-2 text-lg font-bold"
-              style={{ color: sec.accent, fontFamily: "var(--font-display)" }}
+              className="font-display mb-2 text-lg font-bold"
+              style={{ color: sec.accent }}
             >
               {sec.title}
             </h2>

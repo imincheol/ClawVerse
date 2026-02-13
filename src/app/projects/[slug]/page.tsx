@@ -70,8 +70,7 @@ export default async function ProjectDetailPage({
         <div className="mb-4 flex items-start justify-between">
           <div>
             <h1
-              className="text-2xl font-bold text-text-primary"
-              style={{ fontFamily: "var(--font-display)" }}
+              className="font-display text-2xl font-bold text-text-primary"
             >
               {project.name}
             </h1>

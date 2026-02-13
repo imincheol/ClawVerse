@@ -98,8 +98,7 @@ export default function StacksPage() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1
-            className="text-2xl font-bold text-text-primary"
-            style={{ fontFamily: "var(--font-display)" }}
+            className="font-display text-2xl font-bold text-text-primary"
           >
             Community Stacks
           </h1>

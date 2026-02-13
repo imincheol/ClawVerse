@@ -24,8 +24,7 @@ export default function ProjectsPage() {
     <div>
       <div className="mb-7">
         <h1
-          className="mb-1.5 text-[28px] font-bold"
-          style={{ fontFamily: "var(--font-display)" }}
+          className="font-display mb-1.5 text-[28px] font-bold"
         >
           Project Directory
         </h1>
@@ -80,8 +79,7 @@ export default function ProjectsPage() {
             className="rounded-xl border border-border bg-card p-4 text-center"
           >
             <div
-              className="text-xl font-bold text-text-primary"
-              style={{ fontFamily: "var(--font-display)" }}
+              className="font-display text-xl font-bold text-text-primary"
             >
               {s.value}
             </div>

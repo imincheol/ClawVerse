@@ -97,8 +97,7 @@ export default function ComparePage() {
 
       <div className="mb-7">
         <h1
-          className="mb-1.5 text-[28px] font-bold"
-          style={{ fontFamily: "var(--font-display)" }}
+          className="font-display mb-1.5 text-[28px] font-bold"
         >
           Compare Deploy Options
         </h1>

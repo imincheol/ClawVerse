@@ -4,8 +4,7 @@ export default function AboutPage() {
   return (
     <div className="mx-auto max-w-2xl">
       <h1
-        className="mb-6 text-[28px] font-bold"
-        style={{ fontFamily: "var(--font-display)" }}
+        className="font-display mb-6 text-[28px] font-bold"
       >
         About ClawVerse
       </h1>
@@ -20,8 +19,7 @@ export default function AboutPage() {
         </p>
 
         <h2
-          className="text-lg font-bold text-text-primary"
-          style={{ fontFamily: "var(--font-display)" }}
+          className="font-display text-lg font-bold text-text-primary"
         >
           What We Do
         </h2>
@@ -62,8 +60,7 @@ export default function AboutPage() {
         </div>
 
         <h2
-          className="text-lg font-bold text-text-primary"
-          style={{ fontFamily: "var(--font-display)" }}
+          className="font-display text-lg font-bold text-text-primary"
         >
           Security Rating System
         </h2>

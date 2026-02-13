@@ -53,8 +53,7 @@ export default async function DeployDetailPage({
         <div className="mb-4 flex items-start justify-between">
           <div>
             <h1
-              className="text-2xl font-bold text-text-primary"
-              style={{ fontFamily: "var(--font-display)" }}
+              className="font-display text-2xl font-bold text-text-primary"
             >
               {opt.name}
             </h1>
@@ -143,6 +142,75 @@ export default async function DeployDetailPage({
             </ul>
           </div>
         </div>
+
+        {/* Key Features */}
+        {opt.features && opt.features.length > 0 && (
+          <div className="mb-6">
+            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-accent-cyan">
+              Key Features
+            </div>
+            <ul className="space-y-1.5">
+              {opt.features.map((f, i) => (
+                <li
+                  key={i}
+                  className="flex items-start gap-2 text-[13px] text-text-secondary"
+                >
+                  <span className="mt-0.5 text-accent-cyan">&#x2726;</span>
+                  {f}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Quick Setup Guide */}
+        {opt.setupSteps && opt.setupSteps.length > 0 && (
+          <div className="mb-6">
+            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-accent-violet">
+              Quick Setup Guide
+            </div>
+            <ol className="space-y-2">
+              {opt.setupSteps.map((step, i) => (
+                <li
+                  key={i}
+                  className="flex items-start gap-3 text-[13px] text-text-secondary"
+                >
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-purple/15 text-[10px] font-bold text-accent-violet">
+                    {i + 1}
+                  </span>
+                  {step}
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
+
+        {/* Consider Also */}
+        {opt.alternatives && opt.alternatives.length > 0 && (
+          <div className="mb-6">
+            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
+              Consider Also
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {opt.alternatives.map((altSlug) => {
+                const alt = DEPLOY_OPTIONS.find((d) => d.slug === altSlug);
+                if (!alt) return null;
+                return (
+                  <Link
+                    key={altSlug}
+                    href={`/deploy/${altSlug}`}
+                    className="rounded-lg border border-border bg-card px-3 py-1.5 text-[13px] text-text-secondary no-underline transition-colors hover:border-border-hover hover:text-text-primary"
+                  >
+                    {alt.name}
+                    <span className="ml-1.5 text-[11px] text-text-muted">
+                      {"★".repeat(alt.level)}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* URL */}
         {opt.url && (

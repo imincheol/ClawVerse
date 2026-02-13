@@ -19,9 +19,9 @@
   --color-sec-red: #ef4444;
   --color-sec-dark: #991b1b;
 
-  --font-display: "Space Grotesk", sans-serif;
-  --font-body: "DM Sans", sans-serif;
-  --font-code: "JetBrains Mono", monospace;
+  --font-display: var(--font-display-face), "Apple SD Gothic Neo", "Malgun Gothic", "Hiragino Sans", "PingFang SC", system-ui, sans-serif;
+  --font-body: var(--font-body-face), "Apple SD Gothic Neo", "Malgun Gothic", "Hiragino Sans", "PingFang SC", system-ui, sans-serif;
+  --font-code: var(--font-code-face), "Noto Sans Mono CJK", monospace;
 }
 
 * {
@@ -85,6 +85,19 @@ select:focus {
   66% {
     transform: translate(-20px, 15px) scale(0.95);
   }
+}
+
+/* CJK language support for Chrome auto-translation */
+:lang(ko) body {
+  word-break: keep-all;
+}
+:lang(ja) body {
+  word-break: normal;
+}
+:lang(zh) body,
+:lang(zh-Hans) body,
+:lang(zh-Hant) body {
+  word-break: normal;
 }
 
 @media (prefers-reduced-motion: reduce) {

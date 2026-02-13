@@ -72,8 +72,7 @@ export default function SubmitPage() {
       <div className="mx-auto max-w-md py-20 text-center">
         <div className="mb-4 text-5xl">&#x1F99E;</div>
         <h2
-          className="mb-2 text-xl font-bold text-text-primary"
-          style={{ fontFamily: "var(--font-display)" }}
+          className="font-display mb-2 text-xl font-bold text-text-primary"
         >
           Submitted!
         </h2>
@@ -100,8 +99,7 @@ export default function SubmitPage() {
     <div className="mx-auto max-w-xl">
       <div className="mb-7">
         <h1
-          className="mb-1.5 text-[28px] font-bold"
-          style={{ fontFamily: "var(--font-display)" }}
+          className="font-display mb-1.5 text-[28px] font-bold"
         >
           Submit to ClawVerse
         </h1>

@@ -55,8 +55,7 @@ export default async function SkillDetailPage({
         <div className="mb-4 flex items-start justify-between">
           <div>
             <code
-              className="text-xl font-bold text-text-primary"
-              style={{ fontFamily: "var(--font-code)" }}
+              className="font-code text-xl font-bold text-text-primary"
             >
               {skill.name}
             </code>

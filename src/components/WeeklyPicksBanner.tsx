@@ -52,9 +52,8 @@ export default function WeeklyPicksBanner() {
     <section className="mb-8">
       <div className="mb-4 flex items-center gap-2">
         <span
-          className="text-sm font-bold uppercase tracking-wider"
+          className="font-display text-sm font-bold uppercase tracking-wider"
           style={{
-            fontFamily: "var(--font-display)",
             background: "linear-gradient(135deg, #fbbf24, #f97316)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",

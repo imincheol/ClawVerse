@@ -97,8 +97,7 @@ export default function DeployQuizPage() {
     return (
       <div className="mx-auto max-w-2xl">
         <h1
-          className="mb-2 text-[28px] font-bold"
-          style={{ fontFamily: "var(--font-display)" }}
+          className="font-display mb-2 text-[28px] font-bold"
         >
           Your Results
         </h1>
@@ -183,8 +182,7 @@ export default function DeployQuizPage() {
       </Link>
 
       <h1
-        className="mb-2 text-[28px] font-bold"
-        style={{ fontFamily: "var(--font-display)" }}
+        className="font-display mb-2 text-[28px] font-bold"
       >
         Find Your Deploy Method
       </h1>
