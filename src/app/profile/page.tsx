@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
 interface Profile {
@@ -108,10 +109,12 @@ export default function MyProfilePage() {
       <div className="mb-6 rounded-2xl border border-border bg-card p-6">
         <div className="flex items-start gap-4">
           {profile.avatar_url ? (
-            <img
+            <Image
               src={profile.avatar_url}
               alt={profile.display_name || profile.username}
-              className="h-16 w-16 rounded-full border border-border"
+              width={64}
+              height={64}
+              className="rounded-full border border-border"
             />
           ) : (
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent-purple/20 text-2xl text-accent-violet">

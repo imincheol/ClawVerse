@@ -145,12 +145,21 @@ export default async function DeployDetailPage({
         </div>
 
         {/* URL */}
-        <div className="mb-5">
-          <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
-            Official Website
+        {opt.url && (
+          <div className="mb-5">
+            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
+              Official Website
+            </div>
+            <a
+              href={opt.url.startsWith("http") ? opt.url : `https://${opt.url}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[13px] text-accent-cyan hover:underline"
+            >
+              {opt.url}
+            </a>
           </div>
-          <span className="text-[13px] text-accent-cyan">{opt.url}</span>
-        </div>
+        )}
 
         {/* Quiz CTA */}
         <div className="mt-5 flex flex-wrap gap-3">

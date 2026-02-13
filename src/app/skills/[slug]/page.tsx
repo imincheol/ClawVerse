@@ -5,8 +5,11 @@ import {
   SKILLS,
   SECURITY_CONFIG,
   PERMISSION_LABELS,
+  CATEGORIES,
+  VT_STATUS_CONFIG,
 } from "@/data/skills";
 import SecurityBadge from "@/components/SecurityBadge";
+import SkillCard from "@/components/SkillCard";
 import ReviewSection from "@/components/ReviewSection";
 
 export function generateStaticParams() {
@@ -147,6 +150,44 @@ export default async function SkillDetailPage({
           </div>
         )}
 
+        {/* VirusTotal Security Analysis */}
+        {(() => {
+          const vtStatus = skill.virustotal_status ?? "unscanned";
+          const vt = VT_STATUS_CONFIG[vtStatus];
+          return (
+            <div className="mb-5">
+              <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
+                Security Analysis
+              </div>
+              <div
+                className="rounded-[10px] border p-4"
+                style={{ borderColor: vt.color + "30", background: vt.color + "08" }}
+              >
+                <div className="mb-2 flex items-center gap-2">
+                  <span
+                    className="flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold"
+                    style={{ background: vt.color + "20", color: vt.color }}
+                  >
+                    {vt.icon}
+                  </span>
+                  <span className="text-sm font-semibold" style={{ color: vt.color }}>
+                    VirusTotal: {vt.label}
+                  </span>
+                </div>
+                <p className="text-[12px] leading-relaxed text-text-muted">
+                  {vt.desc}
+                </p>
+                <div className="mt-3 flex items-center gap-3">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] text-text-muted">Overall Security:</span>
+                    <SecurityBadge level={skill.security} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
         {/* Report Button */}
         <Link
           href="/submit"
@@ -158,6 +199,27 @@ export default async function SkillDetailPage({
         {/* Reviews */}
         <ReviewSection targetType="skill" targetId={skill.slug} />
       </div>
+
+      {/* Similar Skills */}
+      {(() => {
+        const categoryLabel = CATEGORIES.find((c) => c.id === skill.category)?.label ?? skill.category;
+        const similarSkills = SKILLS.filter(
+          (s) => s.category === skill.category && s.id !== skill.id
+        ).slice(0, 4);
+        if (similarSkills.length === 0) return null;
+        return (
+          <div className="mt-8">
+            <div className="mb-4 text-xs font-semibold uppercase tracking-wide text-text-muted">
+              Similar {categoryLabel} Skills
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {similarSkills.map((s) => (
+                <SkillCard key={s.id} skill={s} />
+              ))}
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
