@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { scanUnreviewedSkills } from "@/lib/integrations/virustotal";
+import { verifyCronRequest } from "@/lib/security/cron-signature";
 
-export async function GET(request: NextRequest) {
-  // Verify cron secret
-  const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+export async function POST(request: NextRequest) {
+  const authorized = await verifyCronRequest(request, "/api/cron/virustotal-scan");
+  if (!authorized) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

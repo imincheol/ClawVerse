@@ -14,9 +14,9 @@ jobs:
     name: Update Static Data (GitHub Stars)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: 20
 
@@ -53,12 +53,22 @@ jobs:
     steps:
       - name: Trigger GitHub Stars Sync
         run: |
-          curl -sf -X GET "${{ vars.SITE_URL }}/api/cron/github-sync" \
+          TS=$(date +%s)
+          PAYLOAD="${TS}.POST./api/cron/github-sync"
+          SIG=$(printf "%s" "$PAYLOAD" | openssl dgst -sha256 -hmac "${{ secrets.CRON_SECRET }}" -binary | openssl base64 -A | tr '+/' '-_' | tr -d '=')
+          curl -sf -X POST "${{ vars.SITE_URL }}/api/cron/github-sync" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "x-cron-timestamp: ${TS}" \
+            -H "x-cron-signature: ${SIG}" \
             || echo "GitHub sync skipped (endpoint not ready)"
 
       - name: Trigger ClawHub Sync
         run: |
-          curl -sf -X GET "${{ vars.SITE_URL }}/api/cron/clawhub-sync" \
+          TS=$(date +%s)
+          PAYLOAD="${TS}.POST./api/cron/clawhub-sync"
+          SIG=$(printf "%s" "$PAYLOAD" | openssl dgst -sha256 -hmac "${{ secrets.CRON_SECRET }}" -binary | openssl base64 -A | tr '+/' '-_' | tr -d '=')
+          curl -sf -X POST "${{ vars.SITE_URL }}/api/cron/clawhub-sync" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "x-cron-timestamp: ${TS}" \
+            -H "x-cron-signature: ${SIG}" \
             || echo "ClawHub sync skipped (endpoint not ready)"
