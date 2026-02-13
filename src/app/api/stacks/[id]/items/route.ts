@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { rateLimit, getClientIp, RATE_LIMITS } from "@/lib/rate-limit";
+import { guardMutationRequest } from "@/lib/security/request-guard";
 
 let supabaseModule: typeof import("@/lib/supabase/server") | null = null;
 
@@ -19,6 +21,18 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const guard = await guardMutationRequest(request, { requireCsrf: true, requireJson: false });
+  if (guard) return guard;
+
+  const ip = getClientIp(request);
+  const rl = await rateLimit(`stack-item-delete:${ip}`, RATE_LIMITS.stacksWrite);
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfter) } }
+    );
+  }
+
   const { id: stackId } = await params;
   const itemId = request.nextUrl.searchParams.get("item_id");
 

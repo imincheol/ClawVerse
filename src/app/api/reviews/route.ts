@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { rateLimit, getClientIp, RATE_LIMITS } from "@/lib/rate-limit";
+import { guardMutationRequest } from "@/lib/security/request-guard";
 
 let supabaseModule: typeof import("@/lib/supabase/server") | null = null;
 
@@ -20,6 +21,9 @@ export async function GET(request: NextRequest) {
   const targetType = searchParams.get("target_type");
   const targetId = searchParams.get("target_id");
   const sort = searchParams.get("sort") || "newest";
+  const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "20", 10) || 20));
+  const offset = (page - 1) * limit;
 
   if (!targetType || !targetId) {
     return NextResponse.json(
@@ -30,13 +34,20 @@ export async function GET(request: NextRequest) {
 
   const supabase = await getSupabase();
   if (!supabase) {
-    return NextResponse.json({ reviews: [], count: 0 });
+    return NextResponse.json({ reviews: [], count: 0, page, limit, hasMore: false });
   }
 
   // Get current user for vote status
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  // Get total count
+  const { count: totalCount } = await supabase
+    .from("reviews")
+    .select("*", { count: "exact", head: true })
+    .eq("target_type", targetType)
+    .eq("target_id", targetId);
 
   let query = supabase
     .from("reviews")
@@ -53,10 +64,13 @@ export async function GET(request: NextRequest) {
     query = query.order("created_at", { ascending: false });
   }
 
+  // Apply pagination
+  query = query.range(offset, offset + limit - 1);
+
   const { data, error } = await query;
 
   if (error) {
-    return NextResponse.json({ reviews: [], count: 0 });
+    return NextResponse.json({ reviews: [], count: 0, page, limit, hasMore: false });
   }
 
   // Enrich with vote counts and user's vote
@@ -101,12 +115,22 @@ export async function GET(request: NextRequest) {
     enriched.sort((a, b) => b.helpful_count - a.helpful_count);
   }
 
-  return NextResponse.json({ reviews: enriched, count: enriched.length });
+  const total = totalCount || 0;
+  return NextResponse.json({
+    reviews: enriched,
+    count: total,
+    page,
+    limit,
+    hasMore: offset + limit < total,
+  });
 }
 
 export async function POST(request: NextRequest) {
+  const guard = await guardMutationRequest(request, { requireCsrf: true });
+  if (guard) return guard;
+
   const ip = getClientIp(request);
-  const rl = rateLimit(`reviews:${ip}`, RATE_LIMITS.reviews);
+  const rl = await rateLimit(`reviews:${ip}`, RATE_LIMITS.reviews);
   if (!rl.success) {
     return NextResponse.json(
       { error: "Too many requests. Please try again later." },
@@ -159,7 +183,8 @@ export async function POST(request: NextRequest) {
     });
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      console.error("Failed to submit review:", error.message);
+      return NextResponse.json({ error: "Failed to submit review" }, { status: 500 });
     }
 
     return NextResponse.json({ success: true }, { status: 201 });

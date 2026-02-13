@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { rateLimit, getClientIp, RATE_LIMITS } from "@/lib/rate-limit";
+import { guardMutationRequest } from "@/lib/security/request-guard";
 
 let supabaseModule: typeof import("@/lib/supabase/server") | null = null;
 
@@ -68,6 +70,18 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const guard = await guardMutationRequest(request, { requireCsrf: true });
+  if (guard) return guard;
+
+  const ip = getClientIp(request);
+  const rl = await rateLimit(`stack-item-add:${ip}`, RATE_LIMITS.stacksWrite);
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfter) } }
+    );
+  }
+
   const { id } = await params;
   const supabase = await getSupabase();
   if (!supabase) {
@@ -132,6 +146,18 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const guard = await guardMutationRequest(request, { requireCsrf: true });
+  if (guard) return guard;
+
+  const ip = getClientIp(request);
+  const rl = await rateLimit(`stack-update:${ip}`, RATE_LIMITS.stacksWrite);
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfter) } }
+    );
+  }
+
   const { id } = await params;
   const supabase = await getSupabase();
   if (!supabase) {
@@ -187,9 +213,21 @@ export async function PATCH(
 
 // Delete stack
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const guard = await guardMutationRequest(request, { requireCsrf: true, requireJson: false });
+  if (guard) return guard;
+
+  const ip = getClientIp(request);
+  const rl = await rateLimit(`stack-delete:${ip}`, RATE_LIMITS.stacksWrite);
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfter) } }
+    );
+  }
+
   const { id } = await params;
   const supabase = await getSupabase();
   if (!supabase) {

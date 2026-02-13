@@ -1,12 +1,57 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import {
+  createSignedCsrfToken,
+  getCsrfCookieName,
+  getCsrfSessionCookieName,
+  getCsrfTtlSeconds,
+} from "@/lib/security/csrf-token";
 
-export async function middleware(request: NextRequest) {
+function applySecurityHeaders(response: NextResponse) {
+  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+}
+
+async function ensureCsrfCookies(request: NextRequest, response: NextResponse) {
+  const sessionCookieName = getCsrfSessionCookieName();
+  const csrfCookieName = getCsrfCookieName();
+  let sessionId = request.cookies.get(sessionCookieName)?.value;
+
+  if (!sessionId) {
+    sessionId = crypto.randomUUID();
+    response.cookies.set(sessionCookieName, sessionId, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: getCsrfTtlSeconds(),
+    });
+  }
+
+  const csrfToken = await createSignedCsrfToken(sessionId);
+  response.cookies.set(csrfCookieName, csrfToken, {
+    httpOnly: false,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: getCsrfTtlSeconds(),
+  });
+}
+
+async function finalizeResponse(request: NextRequest, response: NextResponse): Promise<NextResponse> {
+  applySecurityHeaders(response);
+  await ensureCsrfCookies(request, response);
+  return response;
+}
+
+export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
-  // Skip if no Supabase config
+  // Skip if no Supabase config.
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    return supabaseResponse;
+    return finalizeResponse(request, supabaseResponse);
   }
 
   const supabase = createServerClient(
@@ -30,10 +75,8 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Refresh session if expired
   await supabase.auth.getUser();
 
-  // Protect admin route — require authenticated admin
   if (request.nextUrl.pathname.startsWith("/admin")) {
     const {
       data: { user },
@@ -42,10 +85,9 @@ export async function middleware(request: NextRequest) {
     if (!user) {
       const url = request.nextUrl.clone();
       url.pathname = "/";
-      return NextResponse.redirect(url);
+      return finalizeResponse(request, NextResponse.redirect(url));
     }
 
-    // Check admin allowlist (comma-separated emails in env)
     const adminEmails = (process.env.ADMIN_EMAILS || "")
       .split(",")
       .map((e) => e.trim().toLowerCase())
@@ -54,11 +96,11 @@ export async function middleware(request: NextRequest) {
     if (adminEmails.length > 0 && !adminEmails.includes(user.email?.toLowerCase() || "")) {
       const url = request.nextUrl.clone();
       url.pathname = "/";
-      return NextResponse.redirect(url);
+      return finalizeResponse(request, NextResponse.redirect(url));
     }
   }
 
-  return supabaseResponse;
+  return finalizeResponse(request, supabaseResponse);
 }
 
 export const config = {

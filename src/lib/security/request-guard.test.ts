@@ -7,6 +7,7 @@ import {
   guardMutationRequest,
   SECURITY_CONSTANTS,
 } from "./request-guard";
+import { createSignedCsrfToken } from "./csrf-token";
 
 describe("request guard", () => {
   it("allows trusted origin", () => {
@@ -43,28 +44,34 @@ describe("request guard", () => {
     expect(() => assertJsonRequest(request)).toThrow("Content-Type must be application/json");
   });
 
-  it("validates matching csrf cookie/header", () => {
+  it("validates matching signed csrf cookie/header", async () => {
+    const sessionId = "session-abc";
+    const token = await createSignedCsrfToken(sessionId);
+
     const request = new NextRequest("http://localhost:3000/api/reviews", {
       method: "POST",
       headers: {
-        cookie: `${SECURITY_CONSTANTS.csrfCookieName}=abc123`,
-        [SECURITY_CONSTANTS.csrfHeaderName]: "abc123",
+        cookie: `${SECURITY_CONSTANTS.csrfSessionCookieName}=${sessionId}; ${SECURITY_CONSTANTS.csrfCookieName}=${token}`,
+        [SECURITY_CONSTANTS.csrfHeaderName]: token,
       },
     });
 
-    expect(() => assertCsrf(request)).not.toThrow();
+    await expect(assertCsrf(request)).resolves.toBeUndefined();
   });
 
-  it("blocks csrf mismatch", () => {
+  it("blocks csrf mismatch", async () => {
+    const sessionId = "session-abc";
+    const token = await createSignedCsrfToken(sessionId);
+
     const request = new NextRequest("http://localhost:3000/api/reviews", {
       method: "POST",
       headers: {
-        cookie: `${SECURITY_CONSTANTS.csrfCookieName}=abc123`,
+        cookie: `${SECURITY_CONSTANTS.csrfSessionCookieName}=${sessionId}; ${SECURITY_CONSTANTS.csrfCookieName}=${token}`,
         [SECURITY_CONSTANTS.csrfHeaderName]: "zzz",
       },
     });
 
-    expect(() => assertCsrf(request)).toThrow("CSRF validation failed");
+    await expect(assertCsrf(request)).rejects.toThrow("CSRF validation failed");
   });
 
   it("guardMutationRequest returns json error response", async () => {
@@ -76,7 +83,7 @@ describe("request guard", () => {
       },
     });
 
-    const response = guardMutationRequest(request, { requireCsrf: false });
+    const response = await guardMutationRequest(request, { requireCsrf: false });
     expect(response?.status).toBe(403);
     const body = await response?.json();
     expect(body).toEqual({ error: "Origin not allowed" });

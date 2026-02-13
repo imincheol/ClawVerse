@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { rateLimit, getClientIp, RATE_LIMITS } from "@/lib/rate-limit";
+import { guardMutationRequest } from "@/lib/security/request-guard";
 
 let supabaseModule: typeof import("@/lib/supabase/server") | null = null;
 
@@ -61,6 +63,18 @@ export async function GET() {
 }
 
 export async function PATCH(request: NextRequest) {
+  const guard = await guardMutationRequest(request, { requireCsrf: true });
+  if (guard) return guard;
+
+  const ip = getClientIp(request);
+  const rl = await rateLimit(`profile:${ip}`, RATE_LIMITS.profileWrite);
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfter) } }
+    );
+  }
+
   const supabase = await getSupabase();
   if (!supabase) {
     return NextResponse.json({ error: "Not configured" }, { status: 503 });
