@@ -33,27 +33,158 @@ function mapDbToDeploy(row: Record<string, unknown>): DeployOption {
   };
 }
 
-export async function getDeployOptions(level?: number): Promise<DeployOption[]> {
+export interface DeployFilters {
+  search?: string;
+  level?: number;
+  security?: string;
+  sort?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface DeployQueryResult {
+  options: DeployOption[];
+  count: number;
+  page: number;
+  limit: number;
+  hasMore: boolean;
+}
+
+const SECURITY_ORDER: Record<string, number> = {
+  "Very High": 0,
+  High: 1,
+  Medium: 2,
+  Low: 3,
+  Varies: 4,
+  "N/A": 5,
+};
+
+function parseSetupMinutes(s: string): number {
+  if (s.includes("min")) {
+    const n = parseInt(s, 10);
+    return Number.isNaN(n) ? 5 : n;
+  }
+  if (s.includes("hr")) {
+    const n = parseInt(s, 10);
+    return Number.isNaN(n) ? 60 : n * 60;
+  }
+  return 999;
+}
+
+function sortDeploy(items: DeployOption[], sort: string): DeployOption[] {
+  const result = [...items];
+  switch (sort) {
+    case "cost":
+      result.sort((a, b) => a.cost.localeCompare(b.cost));
+      break;
+    case "setup":
+      result.sort((a, b) => parseSetupMinutes(a.setup) - parseSetupMinutes(b.setup));
+      break;
+    case "name":
+      result.sort((a, b) => a.name.localeCompare(b.name));
+      break;
+    case "security":
+      result.sort(
+        (a, b) => (SECURITY_ORDER[a.security] ?? 9) - (SECURITY_ORDER[b.security] ?? 9)
+      );
+      break;
+    case "level":
+    default:
+      result.sort((a, b) => a.level - b.level);
+  }
+  return result;
+}
+
+function filterStaticDeploy(filters: DeployFilters): DeployQueryResult {
+  const page = Math.max(1, filters.page || 1);
+  const limit = Math.min(100, Math.max(1, filters.limit || 20));
+  const search = (filters.search || "").trim().toLowerCase();
+
+  let result = [...STATIC_DEPLOY];
+  if (filters.level) result = result.filter((d) => d.level === filters.level);
+  if (filters.security && filters.security !== "all") {
+    result = result.filter((d) => d.security === filters.security);
+  }
+  if (search) {
+    result = result.filter((d) => {
+      const url = (d.url || "").toLowerCase();
+      return (
+        d.name.toLowerCase().includes(search) ||
+        d.desc.toLowerCase().includes(search) ||
+        d.slug.toLowerCase().includes(search) ||
+        url.includes(search)
+      );
+    });
+  }
+
+  result = sortDeploy(result, filters.sort || "level");
+  const count = result.length;
+  const offset = (page - 1) * limit;
+  const options = result.slice(offset, offset + limit);
+  return { options, count, page, limit, hasMore: offset + limit < count };
+}
+
+export async function getDeployOptions(filters: DeployFilters = {}): Promise<DeployQueryResult> {
   const supabase = await getSupabase();
 
   if (!supabase) {
-    if (level) return STATIC_DEPLOY.filter((d) => d.level === level);
-    return STATIC_DEPLOY;
+    return filterStaticDeploy(filters);
   }
 
   try {
-    let query = supabase.from("deploy_options").select("*").order("skill_level", { ascending: true });
-    if (level) query = query.eq("skill_level", level);
+    const page = Math.max(1, filters.page || 1);
+    const limit = Math.min(100, Math.max(1, filters.limit || 20));
+    const offset = (page - 1) * limit;
+    const search = (filters.search || "").trim();
 
-    const { data, error } = await query;
-    if (error || !data) {
-      if (level) return STATIC_DEPLOY.filter((d) => d.level === level);
-      return STATIC_DEPLOY;
+    let query = supabase.from("deploy_options").select("*", { count: "exact" });
+    if (filters.level) query = query.eq("skill_level", filters.level);
+    if (filters.security && filters.security !== "all") {
+      query = query.eq("security", filters.security);
+    }
+    if (search) {
+      const safe = search.replace(/,/g, " ");
+      query = query.or(
+        `name.ilike.%${safe}%,description.ilike.%${safe}%,slug.ilike.%${safe}%,url.ilike.%${safe}%`
+      );
     }
 
-    return data.map(mapDbToDeploy);
+    switch (filters.sort) {
+      case "name":
+        query = query.order("name", { ascending: true });
+        break;
+      case "cost":
+        query = query.order("cost", { ascending: true });
+        break;
+      case "setup":
+        query = query.order("setup_time", { ascending: true });
+        break;
+      case "security":
+        query = query.order("security", { ascending: true });
+        break;
+      case "level":
+      default:
+        query = query.order("skill_level", { ascending: true });
+    }
+    query = query.range(offset, offset + limit - 1);
+
+    const { data, error, count } = await query;
+    if (error || !data) return filterStaticDeploy(filters);
+
+    let options = data.map(mapDbToDeploy);
+    if (filters.sort === "setup" || filters.sort === "security" || filters.sort === "cost") {
+      options = sortDeploy(options, filters.sort);
+    }
+
+    return {
+      options,
+      count: count ?? options.length,
+      page,
+      limit,
+      hasMore: offset + options.length < (count ?? options.length),
+    };
   } catch {
-    return STATIC_DEPLOY;
+    return filterStaticDeploy(filters);
   }
 }
 

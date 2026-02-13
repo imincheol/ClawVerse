@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { DEPLOY_OPTIONS } from "@/data/deploy";
+import { useRouter, useSearchParams } from "next/navigation";
+import type { DeployOption } from "@/data/deploy";
 import DeployCard from "@/components/DeployCard";
 
 const LEVEL_FILTERS = [
@@ -29,62 +30,89 @@ const SORT_OPTIONS = [
   { value: "security", label: "Security" },
 ] as const;
 
-const SECURITY_ORDER: Record<string, number> = {
-  "Very High": 0,
-  "High": 1,
-  "Medium": 2,
-  "Low": 3,
-  "Varies": 4,
-  "N/A": 5,
-};
-
-const COST_ORDER: Record<string, number> = {
-  "Free": 0,
-  "Free+": 1,
-  "$5/mo+": 2,
-  "$12/mo+": 3,
-  "Paid": 4,
-};
+const PAGE_SIZE = 20;
 
 export default function DeployPage() {
-  const [search, setSearch] = useState("");
-  const [levelFilter, setLevelFilter] = useState("all");
-  const [secFilter, setSecFilter] = useState("all");
-  const [sortBy, setSortBy] = useState("level");
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const filtered = useMemo(() => {
-    const result = DEPLOY_OPTIONS.filter((d) => {
-      if (
-        search &&
-        !d.name.toLowerCase().includes(search.toLowerCase()) &&
-        !d.desc.toLowerCase().includes(search.toLowerCase())
-      )
-        return false;
-      if (levelFilter !== "all" && d.level !== parseInt(levelFilter))
-        return false;
-      if (secFilter !== "all" && d.security !== secFilter) return false;
-      return true;
+  const [search, setSearch] = useState(searchParams.get("search") || "");
+  const [levelFilter, setLevelFilter] = useState(searchParams.get("level") || "all");
+  const [secFilter, setSecFilter] = useState(searchParams.get("security") || "all");
+  const [sortBy, setSortBy] = useState(searchParams.get("sort") || "level");
+  const [page, setPage] = useState<number>(Math.max(1, Number(searchParams.get("page") || "1")));
+
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
+  const [options, setOptions] = useState<DeployOption[]>([]);
+  const [count, setCount] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const requestIdRef = useRef(0);
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search), 250);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (debouncedSearch.trim()) params.set("search", debouncedSearch.trim());
+    if (levelFilter !== "all") params.set("level", levelFilter);
+    if (secFilter !== "all") params.set("security", secFilter);
+    if (sortBy !== "level") params.set("sort", sortBy);
+    if (page > 1) params.set("page", String(page));
+    const q = params.toString();
+    router.replace(q ? `/deploy?${q}` : "/deploy", { scroll: false });
+  }, [router, debouncedSearch, levelFilter, secFilter, sortBy, page]);
+
+  const loadDeployOptions = useCallback(async (input: {
+    page: number;
+    sortBy: string;
+    levelFilter: string;
+    secFilter: string;
+    search: string;
+  }) => {
+    const requestId = ++requestIdRef.current;
+    setLoading(true);
+    const params = new URLSearchParams({
+      page: String(input.page),
+      limit: String(PAGE_SIZE),
+      sort: input.sortBy,
+      level: input.levelFilter,
+      security: input.secFilter,
     });
+    if (input.search.trim()) params.set("search", input.search.trim());
 
-    return result.sort((a, b) => {
-      switch (sortBy) {
-        case "cost":
-          return (COST_ORDER[a.cost] ?? 9) - (COST_ORDER[b.cost] ?? 9);
-        case "setup":
-          return parseSetup(a.setup) - parseSetup(b.setup);
-        case "name":
-          return a.name.localeCompare(b.name);
-        case "security":
-          return (
-            (SECURITY_ORDER[a.security] ?? 9) -
-            (SECURITY_ORDER[b.security] ?? 9)
-          );
-        case "level":
-        default:
-          return a.level - b.level;
+    try {
+      const r = await fetch(`/api/deploy?${params.toString()}`);
+      const data = await r.json();
+      if (requestId === requestIdRef.current) {
+        setOptions(data.options || []);
+        setCount(data.count || 0);
+        setHasMore(Boolean(data.hasMore));
       }
+    } catch {
+      if (requestId === requestIdRef.current) {
+        setOptions([]);
+        setCount(0);
+        setHasMore(false);
+      }
+    } finally {
+      if (requestId === requestIdRef.current) {
+        setLoading(false);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadDeployOptions({
+      page,
+      sortBy,
+      levelFilter,
+      secFilter,
+      search: debouncedSearch,
     });
-  }, [search, levelFilter, secFilter, sortBy]);
+  }, [debouncedSearch, levelFilter, secFilter, sortBy, page, loadDeployOptions]);
 
   return (
     <div>
@@ -93,24 +121,28 @@ export default function DeployPage() {
           Deploy Hub
         </h1>
         <p className="text-sm text-text-secondary">
-          {DEPLOY_OPTIONS.length} deployment options compared neutrally. Find the
-          right method for you.
+          Search by name, description, slug, or URL across deploy options.
         </p>
       </div>
 
-      {/* Search + Filters Row */}
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <div className="relative min-w-[240px] flex-1">
           <input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search deploy options... (name, description)"
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            placeholder="Search deploy options... (name, description, slug, url)"
             className="w-full rounded-xl border border-border bg-card py-2.5 pl-4 pr-3.5 text-sm text-text-primary"
           />
         </div>
         <select
           value={secFilter}
-          onChange={(e) => setSecFilter(e.target.value)}
+          onChange={(e) => {
+            setSecFilter(e.target.value);
+            setPage(1);
+          }}
           className="cursor-pointer rounded-xl border border-border bg-void py-2.5 pl-3.5 pr-8 text-[13px] text-text-primary"
         >
           {SECURITY_FILTERS.map((f) => (
@@ -121,7 +153,10 @@ export default function DeployPage() {
         </select>
         <select
           value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
+          onChange={(e) => {
+            setSortBy(e.target.value);
+            setPage(1);
+          }}
           className="cursor-pointer rounded-xl border border-border bg-void py-2.5 pl-3.5 pr-8 text-[13px] text-text-primary"
         >
           {SORT_OPTIONS.map((o) => (
@@ -132,12 +167,14 @@ export default function DeployPage() {
         </select>
       </div>
 
-      {/* Level Filter */}
       <div className="mb-6 flex flex-wrap gap-2">
         {LEVEL_FILTERS.map((f) => (
           <button
             key={f.value}
-            onClick={() => setLevelFilter(f.value)}
+            onClick={() => {
+              setLevelFilter(f.value);
+              setPage(1);
+            }}
             className={`rounded-full border px-4 py-1.5 text-xs transition-all ${
               levelFilter === f.value
                 ? "border-accent-purple/40 bg-accent-purple/[0.12] text-accent-violet"
@@ -149,59 +186,13 @@ export default function DeployPage() {
         ))}
       </div>
 
-      {/* Quick Recommendation */}
-      <div
-        className="mb-6 rounded-[14px] border border-accent-purple/15 p-5"
-        style={{
-          background:
-            "linear-gradient(135deg, rgba(139,92,246,0.08), rgba(249,115,22,0.05))",
-        }}
-      >
-        <div className="mb-2 text-sm font-semibold text-[#c084fc]">
-          Quick Recommendation
-        </div>
-        <div className="grid gap-4 text-[13px] md:grid-cols-3">
-          <div>
-            <span className="text-text-muted">First time?</span>
-            <br />
-            <span className="font-semibold text-text-primary">
-              SimpleClaw
-            </span>{" "}
-            — 1 min deploy
-          </div>
-          <div>
-            <span className="text-text-muted">Production?</span>
-            <br />
-            <span className="font-semibold text-text-primary">
-              DigitalOcean
-            </span>{" "}
-            — Official partner
-          </div>
-          <div>
-            <span className="text-text-muted">Max security?</span>
-            <br />
-            <span className="font-semibold text-text-primary">
-              NanoClaw
-            </span>{" "}
-            — Container isolation
-          </div>
-        </div>
-      </div>
-
-      {/* Results Count */}
       <div className="mb-3.5 text-xs text-text-muted">
-        Showing {filtered.length} of {DEPLOY_OPTIONS.length} deploy options
+        {loading ? "Loading..." : `Showing ${options.length} of ${count} deploy options`}
       </div>
 
-      {/* Deploy Grid */}
-      <div className="grid gap-3.5 md:grid-cols-2">
-        {filtered.map((d) => (
-          <DeployCard key={d.id} opt={d} />
-        ))}
-      </div>
-
-      {/* Empty State */}
-      {filtered.length === 0 && (
+      {loading ? (
+        <div className="py-16 text-center text-text-muted">Loading deploy options...</div>
+      ) : options.length === 0 ? (
         <div className="py-16 text-center text-text-muted">
           <p className="text-sm">No deploy options found matching your criteria.</p>
           <Link
@@ -211,38 +202,33 @@ export default function DeployPage() {
             Submit a deploy service →
           </Link>
         </div>
+      ) : (
+        <div className="grid gap-3.5 md:grid-cols-2">
+          {options.map((d) => (
+            <DeployCard key={d.id} opt={d} />
+          ))}
+        </div>
       )}
 
-      {/* Quiz + Submit CTA */}
-      {filtered.length > 0 && (
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-          <Link
-            href="/deploy/quiz"
-            className="inline-block rounded-[10px] border border-accent-purple/40 bg-accent-purple/10 px-5 py-2 text-[13px] text-accent-violet no-underline transition-colors hover:bg-accent-purple/20"
+      {!loading && count > PAGE_SIZE && (
+        <div className="mt-6 flex items-center justify-center gap-3">
+          <button
+            onClick={() => setPage((v) => Math.max(1, v - 1))}
+            disabled={page === 1}
+            className="rounded-lg border border-border px-4 py-2 text-xs text-text-secondary disabled:opacity-40"
           >
-            Take the Deploy Quiz →
-          </Link>
-          <Link
-            href="/submit"
-            className="inline-block rounded-[10px] border border-accent-orange/40 bg-accent-orange/10 px-5 py-2 text-[13px] text-[#fb923c] no-underline transition-colors hover:bg-accent-orange/20"
+            Previous
+          </button>
+          <span className="text-xs text-text-muted">Page {page}</span>
+          <button
+            onClick={() => setPage((v) => v + 1)}
+            disabled={!hasMore}
+            className="rounded-lg border border-border px-4 py-2 text-xs text-text-secondary disabled:opacity-40"
           >
-            Submit a deploy service →
-          </Link>
+            Next
+          </button>
         </div>
       )}
     </div>
   );
-}
-
-/** Parse setup time string to minutes for sorting */
-function parseSetup(s: string): number {
-  if (s.includes("min")) {
-    const n = parseInt(s);
-    return isNaN(n) ? 5 : n;
-  }
-  if (s.includes("hr")) {
-    const n = parseInt(s);
-    return isNaN(n) ? 60 : n * 60;
-  }
-  return 999;
 }
