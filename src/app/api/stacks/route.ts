@@ -18,8 +18,12 @@ async function getSupabase() {
 export async function GET() {
   const supabase = await getSupabase();
   if (!supabase) {
-    return NextResponse.json({ stacks: [] });
+    return NextResponse.json({ stacks: [], has_user: false });
   }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const { data: stacks } = await supabase
     .from("user_stacks")
@@ -28,7 +32,7 @@ export async function GET() {
     .order("created_at", { ascending: false })
     .limit(50);
 
-  if (!stacks) return NextResponse.json({ stacks: [] });
+  if (!stacks) return NextResponse.json({ stacks: [], has_user: !!user });
 
   // Enrich with owner names and item counts
   const enriched = await Promise.all(
@@ -49,11 +53,12 @@ export async function GET() {
         ...stack,
         owner_name: profile?.display_name || profile?.username || "Anonymous",
         item_count: count || 0,
+        is_mine: user?.id === stack.user_id,
       };
     })
   );
 
-  return NextResponse.json({ stacks: enriched });
+  return NextResponse.json({ stacks: enriched, has_user: !!user });
 }
 
 // Create a new stack

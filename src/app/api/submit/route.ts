@@ -1,7 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSubmission } from "@/lib/data/submissions";
+import { rateLimit, getClientIp, RATE_LIMITS } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
+  const ip = getClientIp(request);
+  const rl = rateLimit(`submit:${ip}`, RATE_LIMITS.submit);
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfter) } }
+    );
+  }
+
   try {
     const body = await request.json();
 

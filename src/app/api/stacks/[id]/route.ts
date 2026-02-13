@@ -35,6 +35,11 @@ export async function GET(
     return NextResponse.json({ stack: null, items: [] });
   }
 
+  // Get current user to check ownership
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   const [{ data: items }, { data: profile }] = await Promise.all([
     supabase
       .from("stack_items")
@@ -52,6 +57,7 @@ export async function GET(
     stack: {
       ...stack,
       owner_name: profile?.display_name || profile?.username || "Anonymous",
+      is_owner: user?.id === stack.user_id,
     },
     items: items || [],
   });
@@ -119,4 +125,102 @@ export async function POST(
   } catch {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
+}
+
+// Update stack (name, description, is_public)
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const supabase = await getSupabase();
+  if (!supabase) {
+    return NextResponse.json({ error: "Not configured" }, { status: 503 });
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+  }
+
+  const { data: stack } = await supabase
+    .from("user_stacks")
+    .select("user_id")
+    .eq("id", id)
+    .single();
+
+  if (!stack || stack.user_id !== user.id) {
+    return NextResponse.json({ error: "Not your stack" }, { status: 403 });
+  }
+
+  try {
+    const body = await request.json();
+    const updates: Record<string, unknown> = {};
+
+    if (body.name !== undefined) updates.name = body.name.trim();
+    if (body.description !== undefined) updates.description = body.description?.trim() || null;
+    if (body.is_public !== undefined) updates.is_public = body.is_public;
+
+    if (Object.keys(updates).length === 0) {
+      return NextResponse.json({ error: "No fields to update" }, { status: 400 });
+    }
+
+    const { data: updated, error } = await supabase
+      .from("user_stacks")
+      .update(updates)
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ stack: updated });
+  } catch {
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  }
+}
+
+// Delete stack
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const supabase = await getSupabase();
+  if (!supabase) {
+    return NextResponse.json({ error: "Not configured" }, { status: 503 });
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+  }
+
+  const { data: stack } = await supabase
+    .from("user_stacks")
+    .select("user_id")
+    .eq("id", id)
+    .single();
+
+  if (!stack || stack.user_id !== user.id) {
+    return NextResponse.json({ error: "Not your stack" }, { status: 403 });
+  }
+
+  // Delete items first, then the stack
+  await supabase.from("stack_items").delete().eq("stack_id", id);
+  const { error } = await supabase.from("user_stacks").delete().eq("id", id);
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true });
 }

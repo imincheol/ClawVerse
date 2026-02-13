@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 
 interface Stack {
@@ -10,8 +10,12 @@ interface Stack {
   is_public: boolean;
   item_count: number;
   owner_name: string;
+  is_mine?: boolean;
   created_at: string;
 }
+
+type TabType = "all" | "mine";
+type SortType = "newest" | "items";
 
 export default function StacksPage() {
   const [stacks, setStacks] = useState<Stack[]>([]);
@@ -21,10 +25,18 @@ export default function StacksPage() {
   const [newDesc, setNewDesc] = useState("");
   const [creating, setCreating] = useState(false);
 
+  const [tab, setTab] = useState<TabType>("all");
+  const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState<SortType>("newest");
+  const [hasUser, setHasUser] = useState(false);
+
   useEffect(() => {
     fetch("/api/stacks")
       .then((r) => r.json())
-      .then((data) => setStacks(data.stacks || []))
+      .then((data) => {
+        setStacks(data.stacks || []);
+        setHasUser(data.has_user || false);
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -42,7 +54,7 @@ export default function StacksPage() {
 
       if (res.ok) {
         const data = await res.json();
-        setStacks((prev) => [{ ...data.stack, item_count: 0, owner_name: "You" }, ...prev]);
+        setStacks((prev) => [{ ...data.stack, item_count: 0, owner_name: "You", is_mine: true }, ...prev]);
         setNewName("");
         setNewDesc("");
         setShowCreate(false);
@@ -53,6 +65,33 @@ export default function StacksPage() {
       setCreating(false);
     }
   };
+
+  const filtered = useMemo(() => {
+    let list = stacks;
+
+    // Tab filter
+    if (tab === "mine") {
+      list = list.filter((s) => s.is_mine);
+    }
+
+    // Search
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      list = list.filter(
+        (s) =>
+          s.name.toLowerCase().includes(q) ||
+          (s.description && s.description.toLowerCase().includes(q))
+      );
+    }
+
+    // Sort
+    list = [...list].sort((a, b) => {
+      if (sortBy === "items") return b.item_count - a.item_count;
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+
+    return list;
+  }, [stacks, tab, search, sortBy]);
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -113,15 +152,71 @@ export default function StacksPage() {
         </div>
       )}
 
+      {/* Tabs + Search + Sort */}
+      <div className="mb-5 flex flex-wrap items-center gap-3">
+        {/* Tabs */}
+        <div className="flex gap-1.5">
+          <button
+            onClick={() => setTab("all")}
+            className={`rounded-full border px-4 py-1.5 text-xs transition-all ${
+              tab === "all"
+                ? "border-accent-purple/40 bg-accent-purple/[0.12] text-accent-violet"
+                : "border-border text-text-secondary hover:border-border-hover"
+            }`}
+          >
+            All Stacks
+          </button>
+          {hasUser && (
+            <button
+              onClick={() => setTab("mine")}
+              className={`rounded-full border px-4 py-1.5 text-xs transition-all ${
+                tab === "mine"
+                  ? "border-accent-purple/40 bg-accent-purple/[0.12] text-accent-violet"
+                  : "border-border text-text-secondary hover:border-border-hover"
+              }`}
+            >
+              My Stacks
+            </button>
+          )}
+        </div>
+
+        {/* Search */}
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search stacks..."
+          className="flex-1 rounded-lg border border-border bg-void px-3 py-1.5 text-sm text-text-primary placeholder:text-text-muted"
+        />
+
+        {/* Sort */}
+        <div className="flex gap-1.5">
+          <span className="self-center text-[11px] text-text-muted">Sort:</span>
+          {([["newest", "Newest"], ["items", "Most Items"]] as const).map(([val, label]) => (
+            <button
+              key={val}
+              onClick={() => setSortBy(val)}
+              className={`rounded-md px-2.5 py-1 text-[11px] transition-colors ${
+                sortBy === val
+                  ? "bg-accent-purple/15 text-accent-violet"
+                  : "text-text-muted hover:text-text-secondary"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Stack List */}
       {loading ? (
         <div className="py-12 text-center text-text-muted">
           Loading stacks...
         </div>
-      ) : stacks.length === 0 ? (
+      ) : filtered.length === 0 ? (
         <div className="py-12 text-center">
           <p className="mb-2 text-text-secondary">
-            No public stacks yet.
+            {search ? "No stacks match your search." : tab === "mine" ? "You haven't created any stacks yet." : "No public stacks yet."}
           </p>
           <p className="text-xs text-text-muted">
             Create the first one and start curating your favorite skills and
@@ -130,7 +225,7 @@ export default function StacksPage() {
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {stacks.map((stack) => (
+          {filtered.map((stack) => (
             <Link
               key={stack.id}
               href={`/stacks/${stack.id}`}

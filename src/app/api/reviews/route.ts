@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { rateLimit, getClientIp, RATE_LIMITS } from "@/lib/rate-limit";
 
 let supabaseModule: typeof import("@/lib/supabase/server") | null = null;
 
@@ -104,6 +105,15 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const ip = getClientIp(request);
+  const rl = rateLimit(`reviews:${ip}`, RATE_LIMITS.reviews);
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfter) } }
+    );
+  }
+
   const supabase = await getSupabase();
   if (!supabase) {
     return NextResponse.json(

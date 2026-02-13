@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { PROJECTS, LAYERS } from "@/data/projects";
 import AddToStackButton from "@/components/AddToStackButton";
+import ReviewSection from "@/components/ReviewSection";
 
 export function generateStaticParams() {
   return PROJECTS.map((p) => ({ slug: p.slug }));
@@ -124,9 +125,14 @@ export default async function ProjectDetailPage({
             <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
               Website
             </div>
-            <span className="text-[13px] text-accent-cyan">
-              {project.url}
-            </span>
+            <a
+              href={project.url.startsWith("http") ? project.url : `https://${project.url}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[13px] text-accent-cyan no-underline hover:underline"
+            >
+              {project.url} ↗
+            </a>
           </div>
         )}
 
@@ -165,6 +171,9 @@ export default async function ProjectDetailPage({
             Submit an update →
           </Link>
         </div>
+
+        {/* Reviews */}
+        <ReviewSection targetType="project" targetId={project.slug} />
       </div>
     </div>
   );
