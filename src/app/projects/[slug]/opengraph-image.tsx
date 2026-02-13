@@ -151,7 +151,7 @@ export default async function ProjectOGImage({
           {stars && (
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ fontSize: 24, fontWeight: 700, color: "#fbbf24", display: "flex" }}>
-                ★ {stars}
+                {stars}
               </span>
               <span style={{ fontSize: 20, color: "#64748b", display: "flex" }}>
                 stars

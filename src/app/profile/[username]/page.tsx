@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 
 interface Profile {
   username: string;
@@ -111,9 +112,11 @@ export default async function PublicProfilePage({
       <div className="mb-6 rounded-2xl border border-border bg-card p-6">
         <div className="flex items-start gap-4">
           {profile.avatar_url ? (
-            <img
+            <Image
               src={profile.avatar_url}
               alt={profile.display_name || profile.username}
+              width={64}
+              height={64}
               className="h-16 w-16 rounded-full border border-border"
             />
           ) : (

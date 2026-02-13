@@ -161,7 +161,7 @@ export default async function SkillOGImage({
               Rating
             </span>
             <span style={{ fontSize: 24, fontWeight: 700, color: "#fbbf24", display: "flex" }}>
-              ★ {skill.rating}
+              {skill.rating}
             </span>
           </div>
           <div

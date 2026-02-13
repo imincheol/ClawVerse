@@ -85,7 +85,11 @@ export async function GET(request: NextRequest) {
   const paged = results.slice(offset, offset + limit);
 
   return NextResponse.json({
-    data: paged.map(({ score: _score, ...rest }) => rest),
+    data: paged.map((item) => {
+      const { score, ...rest } = item;
+      void score;
+      return rest;
+    }),
     total,
     page,
     limit,
