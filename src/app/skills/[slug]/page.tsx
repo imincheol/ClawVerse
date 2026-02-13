@@ -11,6 +11,7 @@ import {
 import SecurityBadge from "@/components/SecurityBadge";
 import SkillCard from "@/components/SkillCard";
 import ReviewSection from "@/components/ReviewSection";
+import AddToStackButton from "@/components/AddToStackButton";
 
 export function generateStaticParams() {
   return SKILLS.map((s) => ({ slug: s.slug }));
@@ -188,13 +189,16 @@ export default async function SkillDetailPage({
           );
         })()}
 
-        {/* Report Button */}
-        <Link
-          href="/submit"
-          className="mt-2 inline-block rounded-[10px] border border-sec-red/30 bg-sec-red/10 px-4 py-2 text-[13px] text-[#fca5a5] no-underline transition-colors hover:bg-sec-red/20"
-        >
-          Report Security Issue
-        </Link>
+        {/* Actions */}
+        <div className="mt-2 flex flex-wrap items-center gap-3">
+          <AddToStackButton itemType="skill" itemSlug={skill.slug} />
+          <Link
+            href="/submit"
+            className="inline-block rounded-[10px] border border-sec-red/30 bg-sec-red/10 px-4 py-2 text-[13px] text-[#fca5a5] no-underline transition-colors hover:bg-sec-red/20"
+          >
+            Report Security Issue
+          </Link>
+        </div>
 
         {/* Reviews */}
         <ReviewSection targetType="skill" targetId={skill.slug} />

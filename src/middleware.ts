@@ -33,13 +33,25 @@ export async function middleware(request: NextRequest) {
   // Refresh session if expired
   await supabase.auth.getUser();
 
-  // Protect admin route
+  // Protect admin route — require authenticated admin
   if (request.nextUrl.pathname.startsWith("/admin")) {
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
     if (!user) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/";
+      return NextResponse.redirect(url);
+    }
+
+    // Check admin allowlist (comma-separated emails in env)
+    const adminEmails = (process.env.ADMIN_EMAILS || "")
+      .split(",")
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean);
+
+    if (adminEmails.length > 0 && !adminEmails.includes(user.email?.toLowerCase() || "")) {
       const url = request.nextUrl.clone();
       url.pathname = "/";
       return NextResponse.redirect(url);

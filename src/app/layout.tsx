@@ -5,6 +5,9 @@ import StarField from "@/components/StarField";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "https://clawverse.io",
+  ),
   title: "ClawVerse — Every Claw. One Universe.",
   description:
     "Discover, share, and connect every project built on the OpenClaw universe. Skills Hub, Deploy comparison, Project Directory, and more.",

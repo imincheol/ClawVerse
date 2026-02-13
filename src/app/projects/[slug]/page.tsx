@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { PROJECTS, LAYERS } from "@/data/projects";
+import AddToStackButton from "@/components/AddToStackButton";
 
 export function generateStaticParams() {
   return PROJECTS.map((p) => ({ slug: p.slug }));
@@ -154,8 +155,9 @@ export default async function ProjectDetailPage({
           </div>
         )}
 
-        {/* Submit */}
-        <div className="mt-5">
+        {/* Actions */}
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          <AddToStackButton itemType="project" itemSlug={project.slug} />
           <Link
             href="/submit"
             className="inline-block rounded-[10px] border border-accent-orange/40 bg-accent-orange/10 px-4 py-2 text-[13px] text-[#fb923c] no-underline transition-colors hover:bg-accent-orange/20"
