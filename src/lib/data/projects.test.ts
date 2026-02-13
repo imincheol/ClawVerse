@@ -3,31 +3,32 @@ import { getProjects, getProjectBySlug } from "./projects";
 
 describe("getProjects", () => {
   it("should return all projects when no filter", async () => {
-    const projects = await getProjects();
-    expect(projects.length).toBeGreaterThan(0);
+    const result = await getProjects();
+    expect(result.projects.length).toBeGreaterThan(0);
+    expect(result.count).toBeGreaterThan(0);
   });
 
   it('should filter by layer "core"', async () => {
-    const core = await getProjects("core");
-    expect(core.length).toBeGreaterThan(0);
-    expect(core.every((p) => p.layer === "core")).toBe(true);
+    const core = await getProjects({ layer: "core" });
+    expect(core.projects.length).toBeGreaterThan(0);
+    expect(core.projects.every((p) => p.layer === "core")).toBe(true);
   });
 
   it('should filter by layer "trust"', async () => {
-    const trust = await getProjects("trust");
-    expect(trust.length).toBeGreaterThan(0);
-    expect(trust.every((p) => p.layer === "trust")).toBe(true);
+    const trust = await getProjects({ layer: "trust" });
+    expect(trust.projects.length).toBeGreaterThan(0);
+    expect(trust.projects.every((p) => p.layer === "trust")).toBe(true);
   });
 
   it('"all" filter should return everything', async () => {
-    const all = await getProjects("all");
+    const all = await getProjects({ layer: "all" });
     const unfiltered = await getProjects();
-    expect(all.length).toBe(unfiltered.length);
+    expect(all.count).toBe(unfiltered.count);
   });
 
   it("should return empty for non-existent layer", async () => {
-    const result = await getProjects("nonexistent");
-    expect(result).toHaveLength(0);
+    const result = await getProjects({ layer: "nonexistent" });
+    expect(result.projects).toHaveLength(0);
   });
 });
 

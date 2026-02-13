@@ -29,27 +29,142 @@ function mapDbToProject(row: Record<string, unknown>): Project {
   };
 }
 
-export async function getProjects(layer?: string): Promise<Project[]> {
+export interface ProjectFilters {
+  search?: string;
+  layer?: string;
+  status?: string;
+  sort?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface ProjectQueryResult {
+  projects: Project[];
+  count: number;
+  page: number;
+  limit: number;
+  hasMore: boolean;
+}
+
+const STATUS_ORDER: Record<string, number> = {
+  viral: 0,
+  active: 1,
+  research: 2,
+  inactive: 3,
+};
+
+function sortProjects(items: Project[], sort: string): Project[] {
+  const result = [...items];
+  switch (sort) {
+    case "name":
+      result.sort((a, b) => a.name.localeCompare(b.name));
+      break;
+    case "newest":
+      result.sort((a, b) => b.id - a.id);
+      break;
+    case "status":
+      result.sort(
+        (a, b) => (STATUS_ORDER[a.status] ?? 9) - (STATUS_ORDER[b.status] ?? 9)
+      );
+      break;
+    case "stars":
+    default:
+      result.sort((a, b) => (b.stars ?? 0) - (a.stars ?? 0));
+  }
+  return result;
+}
+
+function filterStaticProjects(filters: ProjectFilters): ProjectQueryResult {
+  const page = Math.max(1, filters.page || 1);
+  const limit = Math.min(100, Math.max(1, filters.limit || 20));
+  const search = (filters.search || "").trim().toLowerCase();
+
+  let result = [...STATIC_PROJECTS];
+
+  if (filters.layer && filters.layer !== "all") {
+    result = result.filter((p) => p.layer === filters.layer);
+  }
+  if (filters.status && filters.status !== "all") {
+    result = result.filter((p) => p.status === filters.status);
+  }
+  if (search) {
+    result = result.filter((p) => {
+      const url = (p.url || "").toLowerCase();
+      return (
+        p.name.toLowerCase().includes(search) ||
+        p.desc.toLowerCase().includes(search) ||
+        p.slug.toLowerCase().includes(search) ||
+        url.includes(search)
+      );
+    });
+  }
+
+  result = sortProjects(result, filters.sort || "stars");
+
+  const count = result.length;
+  const offset = (page - 1) * limit;
+  const projects = result.slice(offset, offset + limit);
+  return { projects, count, page, limit, hasMore: offset + limit < count };
+}
+
+export async function getProjects(filters: ProjectFilters = {}): Promise<ProjectQueryResult> {
   const supabase = await getSupabase();
 
   if (!supabase) {
-    if (layer && layer !== "all") return STATIC_PROJECTS.filter((p) => p.layer === layer);
-    return STATIC_PROJECTS;
+    return filterStaticProjects(filters);
   }
 
   try {
-    let query = supabase.from("projects").select("*").order("is_official", { ascending: false });
-    if (layer && layer !== "all") query = query.eq("layer", layer);
+    const page = Math.max(1, filters.page || 1);
+    const limit = Math.min(100, Math.max(1, filters.limit || 20));
+    const offset = (page - 1) * limit;
+    const search = (filters.search || "").trim();
 
-    const { data, error } = await query;
-    if (error || !data) {
-      if (layer && layer !== "all") return STATIC_PROJECTS.filter((p) => p.layer === layer);
-      return STATIC_PROJECTS;
+    let query = supabase.from("projects").select("*", { count: "exact" });
+
+    if (filters.layer && filters.layer !== "all") query = query.eq("layer", filters.layer);
+    if (filters.status && filters.status !== "all") query = query.eq("status", filters.status);
+    if (search) {
+      const safe = search.replace(/,/g, " ");
+      query = query.or(
+        `name.ilike.%${safe}%,description.ilike.%${safe}%,slug.ilike.%${safe}%,url.ilike.%${safe}%`
+      );
     }
 
-    return data.map(mapDbToProject);
+    switch (filters.sort) {
+      case "name":
+        query = query.order("name", { ascending: true });
+        break;
+      case "newest":
+        query = query.order("created_at", { ascending: false });
+        break;
+      case "status":
+        query = query.order("status", { ascending: true });
+        break;
+      case "stars":
+      default:
+        query = query.order("github_stars", { ascending: false, nullsFirst: false });
+    }
+
+    query = query.range(offset, offset + limit - 1);
+
+    const { data, error, count } = await query;
+    if (error || !data) return filterStaticProjects(filters);
+
+    let projects = data.map(mapDbToProject);
+    if (filters.sort === "status") {
+      projects = sortProjects(projects, "status");
+    }
+
+    return {
+      projects,
+      count: count ?? projects.length,
+      page,
+      limit,
+      hasMore: offset + projects.length < (count ?? projects.length),
+    };
   } catch {
-    return STATIC_PROJECTS;
+    return filterStaticProjects(filters);
   }
 }
 
