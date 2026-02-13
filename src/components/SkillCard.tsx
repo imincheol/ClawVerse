@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Skill, SECURITY_CONFIG, PERMISSION_LABELS } from "@/data/skills";
 import SecurityBadge from "./SecurityBadge";
+import AddToStackButton from "./AddToStackButton";
 
 export default function SkillCard({ skill }: { skill: Skill }) {
   const sec = SECURITY_CONFIG[skill.security];
@@ -29,7 +30,10 @@ export default function SkillCard({ skill }: { skill: Skill }) {
         <code className="font-code text-[15px] font-bold text-text-primary">
           {skill.name}
         </code>
-        <SecurityBadge level={skill.security} />
+        <div className="flex items-center gap-1.5">
+          <AddToStackButton itemType="skill" itemSlug={skill.slug} />
+          <SecurityBadge level={skill.security} />
+        </div>
       </div>
 
       <p className="mb-3 text-[13px] leading-relaxed text-text-secondary">

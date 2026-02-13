@@ -1,4 +1,8 @@
+"use client";
+
+import Link from "next/link";
 import { Project, LAYERS } from "@/data/projects";
+import AddToStackButton from "./AddToStackButton";
 
 function formatStars(count: number | null): string | null {
   if (!count) return null;
@@ -17,8 +21,9 @@ export default function ProjectCard({ project }: { project: Project }) {
   const stars = formatStars(project.stars);
 
   return (
-    <div
-      className="group rounded-[14px] border border-border bg-card p-5 transition-all duration-200 hover:-translate-y-0.5"
+    <Link
+      href={`/projects/${project.slug}`}
+      className="group block rounded-[14px] border border-border bg-card p-5 no-underline transition-all duration-200 hover:-translate-y-0.5"
       onMouseEnter={(e) => {
         (e.currentTarget as HTMLElement).style.borderColor = layer.color + "50";
       }}
@@ -30,16 +35,19 @@ export default function ProjectCard({ project }: { project: Project }) {
         <span className="text-[15px] font-bold text-text-primary">
           {project.name}
         </span>
-        <span
-          className="rounded-full px-2.5 py-0.5 text-[11px]"
-          style={{
-            color: layer.color,
-            background: layer.color + "18",
-            border: `1px solid ${layer.color}30`,
-          }}
-        >
-          {layer.label}
-        </span>
+        <div className="flex items-center gap-1.5">
+          <AddToStackButton itemType="project" itemSlug={project.slug} />
+          <span
+            className="rounded-full px-2.5 py-0.5 text-[11px]"
+            style={{
+              color: layer.color,
+              background: layer.color + "18",
+              border: `1px solid ${layer.color}30`,
+            }}
+          >
+            {layer.label}
+          </span>
+        </div>
       </div>
 
       <p className="mb-2.5 text-[13px] leading-snug text-text-secondary">
@@ -56,6 +64,6 @@ export default function ProjectCard({ project }: { project: Project }) {
           {project.status}
         </span>
       </div>
-    </div>
+    </Link>
   );
 }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import WeeklyPicksBanner from "@/components/WeeklyPicksBanner";
 
 const STATS = [
   { label: "GitHub Stars", value: "182K+" },
@@ -92,6 +93,9 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+
+      {/* Weekly Picks */}
+      <WeeklyPicksBanner />
 
       {/* Section Cards */}
       <section className="grid gap-4 md:grid-cols-2">

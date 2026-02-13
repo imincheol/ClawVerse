@@ -14,10 +14,35 @@ const SECURITY_FILTERS = [
   { value: "blocked", label: "Blocked" },
 ] as const;
 
+const SOURCE_FILTERS = [
+  { value: "all", label: "Source: All" },
+  { value: "ClawHub", label: "ClawHub" },
+  { value: "GitHub", label: "GitHub" },
+  { value: "Community", label: "Community" },
+] as const;
+
+const SORT_OPTIONS = [
+  { value: "installs", label: "Most Installs" },
+  { value: "rating", label: "Highest Rating" },
+  { value: "newest", label: "Newest" },
+  { value: "name", label: "Name (A-Z)" },
+  { value: "security", label: "Security Level" },
+] as const;
+
+const SECURITY_ORDER: Record<string, number> = {
+  verified: 0,
+  reviewed: 1,
+  unreviewed: 2,
+  flagged: 3,
+  blocked: 4,
+};
+
 export default function SkillsPage() {
   const [search, setSearch] = useState("");
   const [secFilter, setSecFilter] = useState<string>("all");
   const [catFilter, setCatFilter] = useState<string>("all");
+  const [sourceFilter, setSourceFilter] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<string>("installs");
 
   const stats = useMemo(
     () => ({
@@ -30,7 +55,7 @@ export default function SkillsPage() {
   );
 
   const filteredSkills = useMemo(() => {
-    return SKILLS.filter((s) => {
+    const filtered = SKILLS.filter((s) => {
       if (
         search &&
         !s.name.toLowerCase().includes(search.toLowerCase()) &&
@@ -39,9 +64,26 @@ export default function SkillsPage() {
         return false;
       if (secFilter !== "all" && s.security !== secFilter) return false;
       if (catFilter !== "all" && s.category !== catFilter) return false;
+      if (sourceFilter !== "all" && s.source !== sourceFilter) return false;
       return true;
-    }).sort((a, b) => b.installs - a.installs);
-  }, [search, secFilter, catFilter]);
+    });
+
+    return filtered.sort((a, b) => {
+      switch (sortBy) {
+        case "rating":
+          return b.rating - a.rating;
+        case "newest":
+          return b.id - a.id;
+        case "name":
+          return a.name.localeCompare(b.name);
+        case "security":
+          return (SECURITY_ORDER[a.security] ?? 9) - (SECURITY_ORDER[b.security] ?? 9);
+        case "installs":
+        default:
+          return b.installs - a.installs;
+      }
+    });
+  }, [search, secFilter, catFilter, sourceFilter, sortBy]);
 
   return (
     <div>
@@ -76,7 +118,7 @@ export default function SkillsPage() {
         </span>
       </div>
 
-      {/* Search + Security Filter */}
+      {/* Search + Filters Row */}
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <div className="relative min-w-[240px] flex-1">
           <input
@@ -94,6 +136,28 @@ export default function SkillsPage() {
           {SECURITY_FILTERS.map((f) => (
             <option key={f.value} value={f.value}>
               {f.label}
+            </option>
+          ))}
+        </select>
+        <select
+          value={sourceFilter}
+          onChange={(e) => setSourceFilter(e.target.value)}
+          className="cursor-pointer rounded-xl border border-border bg-void py-2.5 pl-3.5 pr-8 text-[13px] text-text-primary"
+        >
+          {SOURCE_FILTERS.map((f) => (
+            <option key={f.value} value={f.value}>
+              {f.label}
+            </option>
+          ))}
+        </select>
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          className="cursor-pointer rounded-xl border border-border bg-void py-2.5 pl-3.5 pr-8 text-[13px] text-text-primary"
+        >
+          {SORT_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
             </option>
           ))}
         </select>

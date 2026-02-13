@@ -99,8 +99,14 @@ export default function DeployPage() {
         ))}
       </div>
 
-      {/* Submit CTA */}
-      <div className="mt-6 text-center">
+      {/* Quiz + Submit CTA */}
+      <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+        <Link
+          href="/deploy/quiz"
+          className="inline-block rounded-[10px] border border-accent-purple/40 bg-accent-purple/10 px-5 py-2 text-[13px] text-accent-violet no-underline transition-colors hover:bg-accent-purple/20"
+        >
+          Take the Deploy Quiz →
+        </Link>
         <Link
           href="/submit"
           className="inline-block rounded-[10px] border border-accent-orange/40 bg-accent-orange/10 px-5 py-2 text-[13px] text-[#fb923c] no-underline transition-colors hover:bg-accent-orange/20"

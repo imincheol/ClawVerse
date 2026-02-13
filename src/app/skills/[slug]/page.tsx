@@ -1,14 +1,30 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import type { Metadata } from "next";
 import {
   SKILLS,
   SECURITY_CONFIG,
   PERMISSION_LABELS,
 } from "@/data/skills";
 import SecurityBadge from "@/components/SecurityBadge";
+import ReviewSection from "@/components/ReviewSection";
 
 export function generateStaticParams() {
   return SKILLS.map((s) => ({ slug: s.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const skill = SKILLS.find((s) => s.slug === slug);
+  if (!skill) return { title: "Skill Not Found — ClawVerse" };
+  return {
+    title: `${skill.name} — ClawVerse Skills`,
+    description: skill.desc,
+  };
 }
 
 export default async function SkillDetailPage({
@@ -138,6 +154,9 @@ export default async function SkillDetailPage({
         >
           Report Security Issue
         </Link>
+
+        {/* Reviews */}
+        <ReviewSection targetType="skill" targetId={skill.slug} />
       </div>
     </div>
   );

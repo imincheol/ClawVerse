@@ -23,6 +23,8 @@ const SEVERITY_OPTIONS = [
 export default function SubmitPage() {
   const [type, setType] = useState<SubmitType>("skill");
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     url: "",
@@ -33,6 +35,37 @@ export default function SubmitPage() {
 
   const update = (field: string, value: string) =>
     setFormData((prev) => ({ ...prev, [field]: value }));
+
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: type === "report" ? "security_report" : type,
+          name: formData.name,
+          url: formData.url || undefined,
+          description: formData.desc || undefined,
+          category: formData.category || undefined,
+          severity: type === "report" ? formData.severity || undefined : undefined,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || "Submission failed");
+      } else {
+        setSubmitted(true);
+      }
+    } catch {
+      setError("Network error. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   if (submitted) {
     return (
@@ -94,6 +127,13 @@ export default function SubmitPage() {
           </button>
         ))}
       </div>
+
+      {/* Error */}
+      {error && (
+        <div className="mb-4 rounded-[10px] border border-sec-red/20 bg-sec-red/10 px-4 py-2.5 text-[13px] text-[#fca5a5]">
+          {error}
+        </div>
+      )}
 
       {/* Form */}
       <div className="flex flex-col gap-4">
@@ -180,8 +220,9 @@ export default function SubmitPage() {
       </div>
 
       <button
-        onClick={() => setSubmitted(true)}
-        className="mt-6 w-full rounded-xl border-none py-3 text-[15px] font-bold text-white transition-opacity hover:opacity-90"
+        onClick={handleSubmit}
+        disabled={submitting || !formData.name}
+        className="mt-6 w-full rounded-xl border-none py-3 text-[15px] font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
         style={{
           background:
             type === "report"
@@ -189,7 +230,11 @@ export default function SubmitPage() {
               : "linear-gradient(135deg, #8b5cf6, #6366f1)",
         }}
       >
-        {type === "report" ? "Submit Security Report" : "Submit"}
+        {submitting
+          ? "Submitting..."
+          : type === "report"
+          ? "Submit Security Report"
+          : "Submit"}
       </button>
     </div>
   );

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { DeployOption } from "@/data/deploy";
 
 function getSecurityColor(security: string): string {
@@ -11,7 +12,10 @@ export default function DeployCard({ opt }: { opt: DeployOption }) {
   const secColor = getSecurityColor(opt.security);
 
   return (
-    <div className="group rounded-[14px] border border-border bg-card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-accent-purple/40">
+    <Link
+      href={`/deploy/${opt.slug}`}
+      className="group block rounded-[14px] border border-border bg-card p-5 no-underline transition-all duration-200 hover:-translate-y-0.5 hover:border-accent-purple/40"
+    >
       <div className="mb-1.5 flex items-center justify-between">
         <span className="text-base font-bold text-text-primary">{opt.name}</span>
         <span className="text-xs text-accent-purple">
@@ -42,6 +46,6 @@ export default function DeployCard({ opt }: { opt: DeployOption }) {
       <div className="rounded-lg bg-accent-purple/[0.08] px-2.5 py-1.5 text-xs text-accent-violet">
         Best for: {opt.bestFor}
       </div>
-    </div>
+    </Link>
   );
 }
