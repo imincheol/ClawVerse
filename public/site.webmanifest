@@ -1,0 +1,16 @@
+{
+  "name": "ClawVerse",
+  "short_name": "ClawVerse",
+  "description": "Discover, share, and connect every project built on the OpenClaw universe.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#09090f",
+  "theme_color": "#09090f",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}
