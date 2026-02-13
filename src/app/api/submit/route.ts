@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSubmission } from "@/lib/data/submissions";
 import { rateLimit, getClientIp, RATE_LIMITS } from "@/lib/rate-limit";
+import { sendEmail } from "@/lib/email/client";
+import { submissionConfirmation, securityAlert } from "@/lib/email/templates";
 
 export async function POST(request: NextRequest) {
   const ip = getClientIp(request);
@@ -44,10 +46,34 @@ export async function POST(request: NextRequest) {
       description: body.description,
       category: body.category,
       severity: body.severity,
+      submitted_by: body.email,
     });
 
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 500 });
+    }
+
+    // Send confirmation email to submitter
+    if (body.email) {
+      const { subject, html } = submissionConfirmation(body.name, body.type);
+      sendEmail({ to: body.email, subject, html }).catch(() => {});
+    }
+
+    // Critical/High security reports: notify admin immediately
+    if (
+      body.type === "security_report" &&
+      body.severity &&
+      ["critical", "high"].includes(body.severity.toLowerCase())
+    ) {
+      const adminEmail = process.env.ADMIN_EMAIL;
+      if (adminEmail) {
+        const { subject, html } = securityAlert(
+          body.name,
+          body.severity,
+          body.description || "No description provided"
+        );
+        sendEmail({ to: adminEmail, subject, html }).catch(() => {});
+      }
     }
 
     return NextResponse.json({ success: true }, { status: 201 });
