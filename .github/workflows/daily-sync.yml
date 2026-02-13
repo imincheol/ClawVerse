@@ -1,0 +1,64 @@
+name: Daily Data Sync
+
+on:
+  schedule:
+    # Every day at 09:00 UTC (KST 18:00)
+    - cron: '0 9 * * *'
+  workflow_dispatch: # Manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  update-static-data:
+    name: Update Static Data (GitHub Stars)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install tsx
+        run: npm install -g tsx
+
+      - name: Update GitHub Stars
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: tsx scripts/update-stars.ts
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet src/data/projects.ts; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit and push
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/data/projects.ts
+          git commit -m "chore: update GitHub star counts [skip ci]"
+          git push
+
+  sync-supabase:
+    name: Sync Supabase Data
+    runs-on: ubuntu-latest
+    if: vars.SITE_URL != ''
+    steps:
+      - name: Trigger GitHub Stars Sync
+        run: |
+          curl -sf -X GET "${{ vars.SITE_URL }}/api/cron/github-sync" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            || echo "GitHub sync skipped (endpoint not ready)"
+
+      - name: Trigger ClawHub Sync
+        run: |
+          curl -sf -X GET "${{ vars.SITE_URL }}/api/cron/clawhub-sync" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            || echo "ClawHub sync skipped (endpoint not ready)"
