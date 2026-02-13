@@ -46,20 +46,23 @@ function getSecret(): string {
   return secret;
 }
 
-let cachedKeyPromise: Promise<CryptoKey> | null = null;
+const keyCache = new Map<string, Promise<CryptoKey>>();
 
 async function getHmacKey(): Promise<CryptoKey> {
-  if (!cachedKeyPromise) {
-    const data = new TextEncoder().encode(getSecret());
-    cachedKeyPromise = crypto.subtle.importKey(
+  const secret = getSecret();
+  const existing = keyCache.get(secret);
+  if (existing) return existing;
+
+  const data = new TextEncoder().encode(secret);
+  const keyPromise = crypto.subtle.importKey(
       "raw",
       data,
       { name: "HMAC", hash: "SHA-256" },
       false,
       ["sign", "verify"]
-    );
-  }
-  return cachedKeyPromise;
+  );
+  keyCache.set(secret, keyPromise);
+  return keyPromise;
 }
 
 async function sign(input: string): Promise<string> {
@@ -74,7 +77,7 @@ async function verify(input: string, signature: string): Promise<boolean> {
     const key = await getHmacKey();
     const data = new TextEncoder().encode(input);
     const sigBytes = base64UrlToBytes(signature);
-    return crypto.subtle.verify("HMAC", key, sigBytes.buffer as ArrayBuffer, data);
+    return crypto.subtle.verify("HMAC", key, sigBytes, data);
   } catch {
     return false;
   }

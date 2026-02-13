@@ -32,20 +32,22 @@ function base64UrlToBytes(input: string): Uint8Array {
   return bytes;
 }
 
-let cachedKeyPromise: Promise<CryptoKey> | null = null;
+const keyCache = new Map<string, Promise<CryptoKey>>();
 
 async function getHmacKey(secret: string): Promise<CryptoKey> {
-  if (!cachedKeyPromise) {
-    const data = new TextEncoder().encode(secret);
-    cachedKeyPromise = crypto.subtle.importKey(
+  const existing = keyCache.get(secret);
+  if (existing) return existing;
+
+  const data = new TextEncoder().encode(secret);
+  const keyPromise = crypto.subtle.importKey(
       "raw",
       data,
       { name: "HMAC", hash: "SHA-256" },
       false,
       ["sign", "verify"]
-    );
-  }
-  return cachedKeyPromise;
+  );
+  keyCache.set(secret, keyPromise);
+  return keyPromise;
 }
 
 function pruneReplayCache(nowSec: number) {
@@ -56,6 +58,7 @@ function pruneReplayCache(nowSec: number) {
 
 export function resetCronReplayCacheForTest() {
   replayCache.clear();
+  keyCache.clear();
 }
 
 export async function createCronSignature(
@@ -109,7 +112,7 @@ export async function verifyCronRequest(
     const data = new TextEncoder().encode(payload);
     const actualSigBytes = base64UrlToBytes(signature);
     const expectedSigBytes = base64UrlToBytes(expectedSig);
-    const ok = await crypto.subtle.verify("HMAC", key, actualSigBytes.buffer as ArrayBuffer, data);
+    const ok = await crypto.subtle.verify("HMAC", key, actualSigBytes, data);
 
     if (!ok) return false;
 
