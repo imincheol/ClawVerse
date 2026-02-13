@@ -109,6 +109,9 @@ export const PROJECTS: Project[] = [
   { id: 76, slug: "moltbook-web-client", name: "Moltbook Web Client", desc: "Modern web application for browsing and interacting with Moltbook", layer: "social", stars: 97, status: "active", official: false, url: "github.com/moltbook/moltbook-web-client-application" },
   { id: 77, slug: "payment-skill", name: "Payment Skill", desc: "Payment processing skill for OpenClaw and Claude Code via x402 protocol", layer: "experimental", stars: 86, status: "active", official: false, url: "github.com/second-state/payment-skill" },
   { id: 78, slug: "clawdchat-analysis", name: "ClawdChat Analysis", desc: "Deep analysis skill for Moltbook conversations and agent behavior", layer: "social", stars: 81, status: "active", official: false, url: "github.com/yangliu2060/clawdchat-analysis" },
+  { id: 79, slug: "oc-memory", name: "Oc-Memory", desc: "Long-term memory module for OpenClaw workflows and autonomous agent context.", layer: "trust", stars: 14, status: "active", official: false, url: "github.com/chaos1358/Oc-Memory" },
+  { id: 80, slug: "serverless-openclaw", name: "Serverless OpenClaw", desc: "Serverless deployment template and runtime setup for OpenClaw on cloud functions.", layer: "collab", stars: 43, status: "active", official: false, url: "github.com/serithemage/serverless-openclaw" },
+  { id: 81, slug: "octo", name: "Octo", desc: "Cost reduction toolkit for OpenClaw with prompt caching, model tiering, and optional semantic memory.", layer: "experimental", stars: 0, status: "active", official: false, url: "github.com/trinsiklabs/octo" },
 ];
 
 export const LAYERS: Record<ProjectLayer, { label: string; color: string; icon: string }> = {

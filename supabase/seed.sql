@@ -221,7 +221,7 @@ ON CONFLICT (slug) DO UPDATE SET
 
 
 -- ============================================================
--- Projects (26 records)
+-- Projects (29 records)
 -- ============================================================
 
 INSERT INTO projects (slug, name, description, layer, github_stars, status, is_official, url)
@@ -254,13 +254,16 @@ VALUES
   ('agent-id', 'Agent ID', 'Decentralized identity system for verifying agent authenticity', 'trust', 780, 'research', false, NULL),
   ('permission-guard', 'Permission Guard', 'Runtime permission monitoring and anomaly detection for skills', 'trust', 450, 'active', false, NULL),
 
-  -- Experimental (6)
+  -- Experimental + recent additions (9)
   ('gibberlink', 'Gibberlink', 'AI-to-AI audio communication protocol using sonic data transfer', 'experimental', NULL, 'research', false, NULL),
   ('clawgrid', 'ClawGrid', '1000x1000 grid environment for hosting and visualizing OpenClaw agents', 'experimental', NULL, 'active', false, 'claw-grid.com'),
   ('nanobot', 'NanoBot', 'Ultra-lightweight AI assistant in ~4,000 lines of code', 'experimental', NULL, 'active', false, NULL),
   ('claw-vision', 'Claw Vision', 'Computer vision pipeline enabling agents to process images and video', 'experimental', 1200, 'research', false, NULL),
   ('neural-shell', 'Neural Shell', 'Natural language terminal that translates commands to shell operations', 'experimental', 3400, 'active', false, NULL),
-  ('claw-benchmark', 'Claw Benchmark', 'Standardized benchmark suite for comparing agent performance', 'experimental', 560, 'research', false, NULL)
+  ('claw-benchmark', 'Claw Benchmark', 'Standardized benchmark suite for comparing agent performance', 'experimental', 560, 'research', false, NULL),
+  ('oc-memory', 'Oc-Memory', 'Long-term memory module for OpenClaw workflows and autonomous agent context.', 'trust', 14, 'active', false, 'github.com/chaos1358/Oc-Memory'),
+  ('serverless-openclaw', 'Serverless OpenClaw', 'Serverless deployment template and runtime setup for OpenClaw on cloud functions.', 'collab', 43, 'active', false, 'github.com/serithemage/serverless-openclaw'),
+  ('octo', 'Octo', 'Cost reduction toolkit for OpenClaw with prompt caching, model tiering, and optional semantic memory.', 'experimental', 0, 'active', false, 'github.com/trinsiklabs/octo')
 ON CONFLICT (slug) DO UPDATE SET
   name = EXCLUDED.name,
   description = EXCLUDED.description,
