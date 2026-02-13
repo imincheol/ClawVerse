@@ -1,10 +1,10 @@
-import type { Metadata } from "next";
+import { generatePageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "About — ClawVerse",
-  description:
-    "ClawVerse.io is a meta-platform for the OpenClaw ecosystem. Aggregate, verify, categorize, and connect.",
-};
+export const metadata = generatePageMetadata(
+  "About",
+  "ClawVerse.io is a meta-platform for the OpenClaw ecosystem. Aggregate, verify, categorize, and connect.",
+  "/about",
+);
 
 export default function AboutLayout({
   children,

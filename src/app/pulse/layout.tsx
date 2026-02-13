@@ -1,10 +1,10 @@
-import type { Metadata } from "next";
+import { generatePageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Pulse — ClawVerse",
-  description:
-    "OpenClaw ecosystem news, trends, and security alerts. Stay updated on the latest developments.",
-};
+export const metadata = generatePageMetadata(
+  "Pulse",
+  "OpenClaw ecosystem news, trends, and security alerts. Stay updated on the latest developments.",
+  "/pulse",
+);
 
 export default function PulseLayout({
   children,

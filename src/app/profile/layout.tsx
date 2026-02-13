@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
+import { generatePageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Profile — ClawVerse",
-  description: "Your ClawVerse profile — reviews, stacks, and activity.",
-};
+export const metadata = generatePageMetadata(
+  "Profile",
+  "Your ClawVerse profile — reviews, stacks, and activity.",
+  "/profile",
+);
 
 export default function ProfileLayout({ children }: { children: React.ReactNode }) {
   return children;

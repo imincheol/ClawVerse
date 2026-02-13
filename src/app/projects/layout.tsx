@@ -1,10 +1,10 @@
-import type { Metadata } from "next";
+import { generatePageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Project Directory — ClawVerse",
-  description:
-    "The complete OpenClaw ecosystem map. 26+ projects from core to experimental layers.",
-};
+export const metadata = generatePageMetadata(
+  "Project Directory",
+  "The complete OpenClaw ecosystem map. 26+ projects from core to experimental layers.",
+  "/projects",
+);
 
 export default function ProjectsLayout({
   children,
