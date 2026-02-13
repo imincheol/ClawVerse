@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { Skill, SECURITY_CONFIG, PERMISSION_LABELS } from "@/data/skills";
+import { Skill, SECURITY_CONFIG, PROTOCOL_CONFIG, MAINTAINER_CONFIG } from "@/data/skills";
 import SecurityBadge from "./SecurityBadge";
 import AddToStackButton from "./AddToStackButton";
+import PermissionTooltip from "./PermissionTooltip";
 
 export default function SkillCard({ skill }: { skill: Skill }) {
   const sec = SECURITY_CONFIG[skill.security];
   const isBlocked = skill.security === "blocked";
+  const maint = MAINTAINER_CONFIG[skill.maintainerActivity];
 
   return (
     <Link
@@ -40,25 +42,53 @@ export default function SkillCard({ skill }: { skill: Skill }) {
         {skill.desc}
       </p>
 
+      {/* Permissions with risk tooltips */}
       <div className="mb-2.5 flex flex-wrap gap-1.5">
         {skill.permissions.map((p) => (
-          <span
-            key={p}
-            className="rounded-md border border-white/[0.08] bg-white/[0.06] px-2 py-0.5 text-[11px] text-text-secondary"
-          >
-            {PERMISSION_LABELS[p] || p}
-          </span>
+          <PermissionTooltip key={p} permission={p} compact />
         ))}
       </div>
+
+      {/* Protocol badges */}
+      {skill.protocols.length > 0 && (
+        <div className="mb-2.5 flex flex-wrap gap-1">
+          {skill.protocols.map((proto) => {
+            const pc = PROTOCOL_CONFIG[proto];
+            return (
+              <span
+                key={proto}
+                className="rounded-md px-1.5 py-0.5 text-[10px] font-semibold"
+                style={{
+                  color: pc.color,
+                  background: pc.bg,
+                  border: `1px solid ${pc.color}25`,
+                }}
+              >
+                {pc.label}
+              </span>
+            );
+          })}
+        </div>
+      )}
 
       <div className="flex items-center justify-between text-xs text-text-muted">
         <span>{skill.installs.toLocaleString()} installs</span>
         <span>
           {skill.rating} ({skill.reviews})
         </span>
-        <span className="rounded-md bg-white/[0.05] px-2 py-0.5 text-[11px]">
-          {skill.source}
-        </span>
+        <div className="flex items-center gap-2">
+          {/* Health indicator */}
+          <span
+            className="flex items-center gap-1 text-[10px]"
+            style={{ color: maint.color }}
+            title={`Maintainer: ${maint.label} | Updated: ${skill.lastUpdated}`}
+          >
+            {maint.icon}
+          </span>
+          <span className="rounded-md bg-white/[0.05] px-2 py-0.5 text-[11px]">
+            {skill.source}
+          </span>
+        </div>
       </div>
 
       {isBlocked && (

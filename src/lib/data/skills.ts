@@ -39,6 +39,9 @@ function mapDbToSkill(row: Record<string, unknown>): Skill {
     category: row.category as Skill["category"],
     permissions: (row.permissions as string[]) || [],
     platforms: (row.platforms as string[]) || [],
+    protocols: (row.protocols as Skill["protocols"]) || ["MCP"],
+    lastUpdated: (row.last_updated as string) || new Date().toISOString().slice(0, 10),
+    maintainerActivity: (row.maintainer_activity as Skill["maintainerActivity"]) || "moderate",
   };
 }
 

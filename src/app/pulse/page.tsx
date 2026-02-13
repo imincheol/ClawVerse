@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense } from "react";
 import { PULSE_ITEMS, PULSE_TAG_CONFIG, type PulseTag } from "@/data/pulse";
@@ -19,10 +20,11 @@ function PulseContent() {
   const router = useRouter();
   const activeTag = (searchParams.get("tag") as PulseTag | null) ?? "all";
 
+  const sorted = [...PULSE_ITEMS].sort((a, b) => b.date.localeCompare(a.date));
   const filteredItems =
     activeTag === "all"
-      ? PULSE_ITEMS
-      : PULSE_ITEMS.filter((item) => item.tag === activeTag);
+      ? sorted
+      : sorted.filter((item) => item.tag === activeTag);
 
   function handleTagClick(tag: PulseTag | "all") {
     if (tag === "all") {
@@ -35,14 +37,24 @@ function PulseContent() {
   return (
     <div>
       <div className="mb-7">
-        <h1
-          className="font-display mb-1.5 text-[28px] font-bold"
-        >
-          Pulse
-        </h1>
-        <p className="text-sm text-text-secondary">
-          OpenClaw ecosystem news, trends, and security alerts.
-        </p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h1
+              className="font-display mb-1.5 text-[28px] font-bold"
+            >
+              Pulse
+            </h1>
+            <p className="text-sm text-text-secondary">
+              OpenClaw ecosystem news, trends, and security alerts.
+            </p>
+          </div>
+          <Link
+            href="/pulse/security"
+            className="shrink-0 rounded-xl border border-sec-red/20 bg-sec-red/[0.06] px-4 py-2 text-[12px] font-semibold text-[#fca5a5] no-underline transition-colors hover:bg-sec-red/10"
+          >
+            Security Intelligence Center &rarr;
+          </Link>
+        </div>
       </div>
 
       {/* Tag Filter Buttons */}
