@@ -112,7 +112,12 @@ export async function verifyCronRequest(
     const data = new TextEncoder().encode(payload);
     const actualSigBytes = base64UrlToBytes(signature);
     const expectedSigBytes = base64UrlToBytes(expectedSig);
-    const ok = await crypto.subtle.verify("HMAC", key, actualSigBytes, data);
+    const ok = await crypto.subtle.verify(
+      "HMAC",
+      key,
+      actualSigBytes as BufferSource,
+      data
+    );
 
     if (!ok) return false;
 
