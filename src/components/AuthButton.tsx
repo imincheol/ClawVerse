@@ -6,15 +6,12 @@ import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 
 export default function AuthButton() {
+  const hasSupabase = !!process.env.NEXT_PUBLIC_SUPABASE_URL;
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(hasSupabase);
 
   useEffect(() => {
-    // Skip if no Supabase config
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-      setLoading(false);
-      return;
-    }
+    if (!hasSupabase) return;
 
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -29,7 +26,7 @@ export default function AuthButton() {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [hasSupabase]);
 
   const handleLogin = async () => {
     const supabase = createClient();
@@ -51,7 +48,7 @@ export default function AuthButton() {
   if (loading) return null;
 
   // No Supabase configured — don't show button
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return null;
+  if (!hasSupabase) return null;
 
   if (user) {
     return (

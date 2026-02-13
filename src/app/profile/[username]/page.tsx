@@ -23,7 +23,7 @@ interface PublicStack {
   id: string;
   name: string;
   description: string | null;
-  item_count: number;
+  item_count?: number;
 }
 
 async function fetchProfile(username: string): Promise<{

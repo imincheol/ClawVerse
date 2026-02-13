@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { sendBatchEmails } from "@/lib/email/client";
 import { weeklyNewsletter } from "@/lib/email/templates";
 import crypto from "crypto";
+import { verifyCronRequest } from "@/lib/security/cron-signature";
 
 let supabaseModule: typeof import("@/lib/supabase/server") | null = null;
 
@@ -23,10 +24,8 @@ function generateUnsubscribeToken(email: string): string {
 }
 
 export async function POST(request: NextRequest) {
-  const authHeader = request.headers.get("authorization");
-  const expectedToken = process.env.NEWSLETTER_CRON_SECRET || process.env.CRON_SECRET;
-
-  if (!expectedToken || authHeader !== `Bearer ${expectedToken}`) {
+  const authorized = await verifyCronRequest(request, "/api/newsletter/send");
+  if (!authorized) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

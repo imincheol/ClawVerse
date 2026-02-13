@@ -11,7 +11,7 @@ CREATE POLICY submissions_insert ON submissions
 
 -- Set default for submitted_by to the current user's ID
 ALTER TABLE submissions
-  ALTER COLUMN submitted_by SET DEFAULT auth.uid()::text;
+  ALTER COLUMN submitted_by SET DEFAULT auth.uid();
 
 -- Allow anon inserts to newsletter_subscribers (for newsletter signup without login)
 DROP POLICY IF EXISTS newsletter_subscribers_insert ON newsletter_subscribers;

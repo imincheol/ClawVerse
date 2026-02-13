@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSubmissions, updateSubmissionStatus } from "@/lib/data/submissions";
+import {
+  getSubmissions,
+  getSubmissionById,
+  updateSubmissionStatus,
+  processApprovedSubmission,
+} from "@/lib/data/submissions";
 import { rateLimit, getClientIp, RATE_LIMITS } from "@/lib/rate-limit";
 import { guardMutationRequest } from "@/lib/security/request-guard";
+import { sendEmail } from "@/lib/email/client";
+import { submissionApproved, submissionRejected } from "@/lib/email/templates";
 
 let supabaseModule: typeof import("@/lib/supabase/server") | null = null;
 
@@ -80,11 +87,38 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const result = await updateSubmissionStatus(body.id, body.status);
+    const submission = await getSubmissionById(body.id);
+    if (!submission) {
+      return NextResponse.json({ error: "Submission not found" }, { status: 404 });
+    }
 
+    const result = await updateSubmissionStatus(body.id, body.status);
     if (!result.success) {
-      console.error("Failed to update submission:", result.error);
-      return NextResponse.json({ error: "Failed to update submission" }, { status: 500 });
+      return NextResponse.json({ error: result.error || "Failed to update submission" }, { status: 500 });
+    }
+
+    if (body.status === "approved") {
+      const processResult = await processApprovedSubmission(submission);
+      if (!processResult.success) {
+        console.error(
+          `[Admin] Failed to process approved submission ${body.id}:`,
+          processResult.error
+        );
+      }
+
+      if (submission.submitted_email) {
+        const { subject, html } = submissionApproved(submission.name, submission.type);
+        sendEmail({ to: submission.submitted_email, subject, html }).catch(() => {});
+      }
+    } else if (body.status === "rejected") {
+      if (submission.submitted_email) {
+        const { subject, html } = submissionRejected(
+          submission.name,
+          submission.type,
+          body.reason
+        );
+        sendEmail({ to: submission.submitted_email, subject, html }).catch(() => {});
+      }
     }
 
     return NextResponse.json({ success: true });

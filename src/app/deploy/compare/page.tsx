@@ -28,6 +28,29 @@ function getSecurityColor(security: string): string {
   return "#f97316";
 }
 
+function SortHeader({
+  label,
+  col,
+  sortKey,
+  sortAsc,
+  onSort,
+}: {
+  label: string;
+  col: SortKey;
+  sortKey: SortKey;
+  sortAsc: boolean;
+  onSort: (key: SortKey) => void;
+}) {
+  return (
+    <th
+      className="cursor-pointer px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-text-muted transition-colors hover:text-text-primary"
+      onClick={() => onSort(col)}
+    >
+      {label} {sortKey === col ? (sortAsc ? "▲" : "▼") : ""}
+    </th>
+  );
+}
+
 export default function ComparePage() {
   const [sortKey, setSortKey] = useState<SortKey>("level");
   const [sortAsc, setSortAsc] = useState(true);
@@ -69,21 +92,6 @@ export default function ComparePage() {
     }
   };
 
-  const SortHeader = ({
-    label,
-    col,
-  }: {
-    label: string;
-    col: SortKey;
-  }) => (
-    <th
-      className="cursor-pointer px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-text-muted transition-colors hover:text-text-primary"
-      onClick={() => handleSort(col)}
-    >
-      {label} {sortKey === col ? (sortAsc ? "▲" : "▼") : ""}
-    </th>
-  );
-
   return (
     <div>
       <div className="mb-4">
@@ -111,14 +119,14 @@ export default function ComparePage() {
         <table className="w-full min-w-[700px] border-collapse">
           <thead>
             <tr className="border-b border-border">
-              <SortHeader label="Provider" col="name" />
-              <SortHeader label="Level" col="level" />
-              <SortHeader label="Cost" col="cost" />
+              <SortHeader label="Provider" col="name" sortKey={sortKey} sortAsc={sortAsc} onSort={handleSort} />
+              <SortHeader label="Level" col="level" sortKey={sortKey} sortAsc={sortAsc} onSort={handleSort} />
+              <SortHeader label="Cost" col="cost" sortKey={sortKey} sortAsc={sortAsc} onSort={handleSort} />
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-text-muted">
                 Setup
               </th>
-              <SortHeader label="Security" col="security" />
-              <SortHeader label="Scale" col="scalability" />
+              <SortHeader label="Security" col="security" sortKey={sortKey} sortAsc={sortAsc} onSort={handleSort} />
+              <SortHeader label="Scale" col="scalability" sortKey={sortKey} sortAsc={sortAsc} onSort={handleSort} />
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-text-muted">
                 Best For
               </th>

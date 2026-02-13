@@ -15,10 +15,6 @@ export default function MobileNav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
 
   useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
     } else {
@@ -74,6 +70,7 @@ export default function MobileNav({ items }: { items: NavItem[] }) {
                   <Link
                     key={item.href}
                     href={item.href}
+                    onClick={() => setOpen(false)}
                     className={`flex items-center justify-between rounded-lg px-3 py-2.5 text-sm no-underline transition-colors ${
                       isActive
                         ? "bg-accent-purple/15 font-semibold text-accent-violet"
@@ -97,6 +94,7 @@ export default function MobileNav({ items }: { items: NavItem[] }) {
               })}
               <Link
                 href="/submit"
+                onClick={() => setOpen(false)}
                 className="mt-2 rounded-[10px] border border-accent-orange/40 bg-accent-orange/10 px-4 py-2.5 text-center text-[13px] font-semibold text-[#fb923c] no-underline transition-colors hover:bg-accent-orange/20"
               >
                 + Submit

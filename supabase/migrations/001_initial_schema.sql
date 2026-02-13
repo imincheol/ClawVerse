@@ -99,7 +99,7 @@ CREATE INDEX IF NOT EXISTS idx_submissions_type ON submissions(type);
 CREATE TABLE IF NOT EXISTS reviews (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   target_type TEXT NOT NULL, -- 'skill', 'project', 'deploy'
-  target_id UUID NOT NULL,
+  target_id TEXT NOT NULL,
   user_id UUID REFERENCES auth.users(id),
   rating INTEGER CHECK (rating >= 1 AND rating <= 5),
   comment TEXT,

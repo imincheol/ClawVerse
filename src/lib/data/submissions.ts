@@ -32,6 +32,7 @@ export interface SubmissionInput {
   category?: string;
   severity?: string;
   submitted_by?: string;
+  submitted_email?: string;
 }
 
 export interface Submission extends SubmissionInput {
@@ -57,6 +58,7 @@ export async function createSubmission(input: SubmissionInput): Promise<{ succes
       category: input.category || null,
       severity: input.severity || null,
       submitted_by: input.submitted_by || null,
+      submitted_email: input.submitted_email || null,
     });
 
     if (error) return { success: false, error: error.message };
