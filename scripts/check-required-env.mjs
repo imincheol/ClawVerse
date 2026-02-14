@@ -18,11 +18,10 @@ if (has("NEXT_PUBLIC_SUPABASE_URL") !== has("NEXT_PUBLIC_SUPABASE_ANON_KEY")) {
 }
 
 if (isProdDeploy) {
-  if (!has("CSRF_SECRET")) {
-    errors.push("CSRF_SECRET is required for production deploys.");
-  }
-  if (!has("CRON_SECRET")) {
-    errors.push("CRON_SECRET is required for production deploys.");
+  if (!has("CSRF_SECRET") && !has("CRON_SECRET")) {
+    errors.push(
+      "CSRF_SECRET or CRON_SECRET is required for production deploys."
+    );
   }
 }
 
