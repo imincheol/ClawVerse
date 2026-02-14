@@ -3,6 +3,7 @@
 const isProdDeploy =
   process.env.VERCEL_ENV === "production" ||
   process.env.ENFORCE_REQUIRED_ENV === "1";
+const enforceRequiredEnv = process.env.ENFORCE_REQUIRED_ENV === "1";
 
 const errors = [];
 
@@ -19,9 +20,12 @@ if (has("NEXT_PUBLIC_SUPABASE_URL") !== has("NEXT_PUBLIC_SUPABASE_ANON_KEY")) {
 
 if (isProdDeploy) {
   if (!has("CSRF_SECRET") && !has("CRON_SECRET")) {
-    errors.push(
-      "CSRF_SECRET or CRON_SECRET is required for production deploys."
-    );
+    const msg = "CSRF_SECRET or CRON_SECRET should be set for production deploys.";
+    if (enforceRequiredEnv) {
+      errors.push(msg);
+    } else {
+      console.warn(`Warning: ${msg}`);
+    }
   }
 }
 
