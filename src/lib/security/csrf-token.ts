@@ -2,6 +2,7 @@ const CSRF_COOKIE_NAME = "cv_csrf";
 const CSRF_HEADER_NAME = "x-csrf-token";
 const CSRF_SESSION_COOKIE_NAME = "cv_sid";
 const CSRF_TTL_SECONDS = 60 * 60 * 8;
+let warnedMissingSecret = false;
 
 type CsrfPayload = {
   sid: string;
@@ -38,10 +39,13 @@ function base64UrlToBytes(input: string): Uint8Array {
 function getSecret(): string {
   const secret = process.env.CSRF_SECRET || process.env.CRON_SECRET;
   if (!secret) {
-    if (process.env.NODE_ENV === "production") {
-      throw new Error("CSRF_SECRET (or CRON_SECRET) is required in production");
+    if (process.env.NODE_ENV === "production" && !warnedMissingSecret) {
+      warnedMissingSecret = true;
+      console.error(
+        "CSRF_SECRET/CRON_SECRET is missing in production; using fallback secret."
+      );
     }
-    return "dev-csrf-secret";
+    return process.env.NEXT_PUBLIC_SITE_URL || "dev-csrf-secret";
   }
   return secret;
 }

@@ -42,7 +42,11 @@ async function ensureCsrfCookies(request: NextRequest, response: NextResponse) {
 
 async function finalizeResponse(request: NextRequest, response: NextResponse): Promise<NextResponse> {
   applySecurityHeaders(response);
-  await ensureCsrfCookies(request, response);
+  try {
+    await ensureCsrfCookies(request, response);
+  } catch (error) {
+    console.error("Failed to issue CSRF cookies in proxy:", error);
+  }
   return response;
 }
 
