@@ -36,16 +36,17 @@ function base64UrlToBytes(input: string): Uint8Array {
   return bytes;
 }
 
-function getSecret(): string {
+function getSecret(): string | null {
   const secret = process.env.CSRF_SECRET || process.env.CRON_SECRET;
   if (!secret) {
     if (process.env.NODE_ENV === "production" && !warnedMissingSecret) {
       warnedMissingSecret = true;
       console.error(
-        "CSRF_SECRET/CRON_SECRET is missing in production; using fallback secret."
+        "CSRF_SECRET/CRON_SECRET is missing in production; CSRF cookie issuance is disabled."
       );
     }
-    return process.env.NEXT_PUBLIC_SITE_URL || "dev-csrf-secret";
+    if (process.env.NODE_ENV === "production") return null;
+    return "dev-csrf-secret";
   }
   return secret;
 }
@@ -54,6 +55,9 @@ const keyCache = new Map<string, Promise<CryptoKey>>();
 
 async function getHmacKey(): Promise<CryptoKey> {
   const secret = getSecret();
+  if (!secret) {
+    throw new Error("CSRF secret is not configured");
+  }
   const existing = keyCache.get(secret);
   if (existing) return existing;
 
@@ -104,6 +108,10 @@ export function getCsrfTtlSeconds(): number {
 }
 
 export async function createSignedCsrfToken(sessionId: string): Promise<string> {
+  if (!getSecret()) {
+    throw new Error("CSRF secret is not configured");
+  }
+
   const now = Math.floor(Date.now() / 1000);
   const payload: CsrfPayload = {
     sid: sessionId,

@@ -1,0 +1,55 @@
+name: Post-Deploy Smoke
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 20
+
+      - name: Wait for Vercel status
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 60); do
+            state=$(curl -sS \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$REPO/commits/$SHA/status" | jq -r '.state')
+            vercel=$(curl -sS \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$REPO/commits/$SHA/status" | jq -r '.statuses[]? | select(.context=="Vercel") | .state' | head -n 1)
+            echo "attempt=$i state=$state vercel=${vercel:-missing}"
+            if [ "${vercel:-}" = "success" ]; then
+              exit 0
+            fi
+            if [ "${vercel:-}" = "failure" ] || [ "${vercel:-}" = "error" ]; then
+              echo "Vercel deployment failed"
+              exit 1
+            fi
+            sleep 10
+          done
+          echo "Timed out waiting for Vercel status"
+          exit 1
+
+      - name: Run production smoke checks
+        env:
+          SITE_URL: ${{ vars.SITE_URL || 'https://www.clawverse.io' }}
+        run: |
+          EXPECT_COMMIT="${GITHUB_SHA::7}" node scripts/smoke-production.mjs
