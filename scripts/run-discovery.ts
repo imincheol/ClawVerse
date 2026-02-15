@@ -58,61 +58,75 @@ const MAX_RESULTS = Number(getEnv("DISCOVERY_MAX_RESULTS") || "12");
 const DRY_RUN = getEnv("DISCOVERY_DRY_RUN") === "1";
 
 async function fetchGitHubCandidates(token: string | null): Promise<GitHubRepoItem[]> {
-  const headers: Record<string, string> = {
-    Accept: "application/vnd.github+json",
-    "User-Agent": "ClawVerse-Discovery",
-  };
-  if (token) headers.Authorization = `token ${token}`;
+  try {
+    const headers: Record<string, string> = {
+      Accept: "application/vnd.github+json",
+      "User-Agent": "ClawVerse-Discovery",
+    };
+    if (token) headers.Authorization = `token ${token}`;
 
-  const perPage = Math.min(25, Math.max(5, Math.ceil(MAX_RESULTS / 2)));
-  const resp = await fetch(
-    `https://api.github.com/search/repositories?q=${encodeURIComponent(
-      `${GH_QUERY} in:name,description`
-    )}&sort=stars&order=desc&per_page=${perPage}`,
-    { headers }
-  );
+    const perPage = Math.min(25, Math.max(5, Math.ceil(MAX_RESULTS / 2)));
+    const resp = await fetch(
+      `https://api.github.com/search/repositories?q=${encodeURIComponent(
+        `${GH_QUERY} in:name,description`
+      )}&sort=stars&order=desc&per_page=${perPage}`,
+      { headers }
+    );
 
-  if (!resp.ok) {
-    throw new Error(`GitHub search failed: ${resp.status} ${resp.statusText}`);
+    if (!resp.ok) {
+      throw new Error(`GitHub search failed: ${resp.status} ${resp.statusText}`);
+    }
+
+    const payload = (await resp.json()) as { items: GitHubRepoItem[] };
+    return (payload.items || []).slice(0, MAX_RESULTS);
+  } catch (error) {
+    console.warn("[discovery] GitHub search failed:", error);
+    return [];
   }
-
-  const payload = (await resp.json()) as { items: GitHubRepoItem[] };
-  return (payload.items || []).slice(0, MAX_RESULTS);
 }
 
 async function fetchClawHubCandidates() {
-  const headers: Record<string, string> = {
-    Accept: "application/json",
-  };
-  const key = getEnv("CLAWHUB_API_KEY");
-  if (key) headers.Authorization = `Bearer ${key}`;
+  try {
+    const headers: Record<string, string> = {
+      Accept: "application/json",
+    };
+    const key = getEnv("CLAWHUB_API_KEY");
+    if (key) headers.Authorization = `Bearer ${key}`;
 
-  const resp = await fetch(
-    `https://api.clawhub.ai/v1/skills?page=1&limit=${Math.max(
-      5,
-      Math.min(50, MAX_RESULTS)
-    )}`,
-    { headers }
-  );
+    const resp = await fetch(
+      `https://api.clawhub.ai/v1/skills?page=1&limit=${Math.max(
+        5,
+        Math.min(50, MAX_RESULTS)
+      )}`,
+      { headers }
+    );
 
-  if (!resp.ok) return [] as ClawHubItem[];
-  const json = (await resp.json()) as { skills?: ClawHubItem[]; data?: ClawHubItem[] };
-  return (json.skills || json.data || []).slice(0, MAX_RESULTS);
+    if (!resp.ok) return [] as ClawHubItem[];
+    const json = (await resp.json()) as { skills?: ClawHubItem[]; data?: ClawHubItem[] };
+    return (json.skills || json.data || []).slice(0, MAX_RESULTS);
+  } catch (error) {
+    console.warn("[discovery] ClawHub candidate fetch failed:", error);
+    return [] as ClawHubItem[];
+  }
 }
 
 async function fetchReadmeContainsClawClues(repo: string, token: string | null) {
-  const headers: Record<string, string> = {
-    Accept: "application/vnd.github.v3.raw+json",
-    "User-Agent": "ClawVerse-Discovery",
-  };
-  if (token) headers.Authorization = `token ${token}`;
+  try {
+    const headers: Record<string, string> = {
+      Accept: "application/vnd.github.v3.raw+json",
+      "User-Agent": "ClawVerse-Discovery",
+    };
+    if (token) headers.Authorization = `token ${token}`;
 
-  const url = `https://api.github.com/repos/${repo}/readme`;
-  const resp = await fetch(url, { headers });
-  if (!resp.ok) return false;
+    const url = `https://api.github.com/repos/${repo}/readme`;
+    const resp = await fetch(url, { headers });
+    if (!resp.ok) return false;
 
-  const text = await resp.text();
-  return hasKeyword(text, KEYWORDS);
+    const text = await resp.text();
+    return hasKeyword(text, KEYWORDS);
+  } catch {
+    return false;
+  }
 }
 
 async function main() {
