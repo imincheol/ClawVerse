@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { withCsrfHeaders } from "@/lib/security/csrf";
 
 interface Review {
   id: string;
@@ -92,7 +93,7 @@ export default function ReviewSection({
     try {
       const res = await fetch("/api/reviews", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: withCsrfHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({
           target_type: targetType,
           target_id: targetId,
@@ -121,7 +122,7 @@ export default function ReviewSection({
     try {
       const res = await fetch("/api/reviews/vote", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: withCsrfHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({ review_id: reviewId, vote }),
       });
       if (res.ok) {

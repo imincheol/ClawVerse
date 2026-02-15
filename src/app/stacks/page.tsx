@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { withCsrfHeaders } from "@/lib/security/csrf";
 
 interface Stack {
   id: string;
@@ -48,7 +49,7 @@ export default function StacksPage() {
     try {
       const res = await fetch("/api/stacks", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: withCsrfHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({ name: newName, description: newDesc || undefined }),
       });
 

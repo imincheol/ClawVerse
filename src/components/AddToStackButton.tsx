@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { withCsrfHeaders } from "@/lib/security/csrf";
 
 interface Stack {
   id: string;
@@ -31,7 +32,7 @@ export default function AddToStackButton({
     try {
       const res = await fetch(`/api/stacks/${stackId}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: withCsrfHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({ item_type: itemType, item_slug: itemSlug }),
       });
       if (res.ok) {

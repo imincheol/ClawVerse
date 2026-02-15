@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { withCsrfHeaders } from "@/lib/security/csrf";
 
 interface Profile {
   username: string;
@@ -62,7 +63,7 @@ export default function MyProfilePage() {
   const handleSave = async () => {
     const res = await fetch("/api/profile", {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: withCsrfHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({ display_name: displayName, bio }),
     });
     if (res.ok) {

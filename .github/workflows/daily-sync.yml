@@ -49,14 +49,16 @@ jobs:
   sync-supabase:
     name: Sync Supabase Data
     runs-on: ubuntu-latest
-    if: vars.SITE_URL != ''
+    if: secrets.CRON_SECRET != ''
+    env:
+      SITE_URL: ${{ vars.SITE_URL || 'https://www.clawverse.io' }}
     steps:
       - name: Trigger GitHub Stars Sync
         run: |
           TS=$(date +%s)
           PAYLOAD="${TS}.POST./api/cron/github-sync"
           SIG=$(printf "%s" "$PAYLOAD" | openssl dgst -sha256 -hmac "${{ secrets.CRON_SECRET }}" -binary | openssl base64 -A | tr '+/' '-_' | tr -d '=')
-          curl -sf -X POST "${{ vars.SITE_URL }}/api/cron/github-sync" \
+          curl -sf -X POST "${SITE_URL}/api/cron/github-sync" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             -H "x-cron-timestamp: ${TS}" \
             -H "x-cron-signature: ${SIG}" \
@@ -67,7 +69,7 @@ jobs:
           TS=$(date +%s)
           PAYLOAD="${TS}.POST./api/cron/clawhub-sync"
           SIG=$(printf "%s" "$PAYLOAD" | openssl dgst -sha256 -hmac "${{ secrets.CRON_SECRET }}" -binary | openssl base64 -A | tr '+/' '-_' | tr -d '=')
-          curl -sf -X POST "${{ vars.SITE_URL }}/api/cron/clawhub-sync" \
+          curl -sf -X POST "${SITE_URL}/api/cron/clawhub-sync" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             -H "x-cron-timestamp: ${TS}" \
             -H "x-cron-signature: ${SIG}" \

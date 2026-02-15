@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { withCsrfHeaders } from "@/lib/security/csrf";
 
 interface StackDetail {
   id: string;
@@ -69,7 +70,7 @@ export default function StackDetailPage() {
     try {
       const res = await fetch(`/api/stacks/${stackId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: withCsrfHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({
           name: editName,
           description: editDesc || null,
@@ -101,6 +102,10 @@ export default function StackDetailPage() {
     setDeleting(true);
     try {
       const res = await fetch(`/api/stacks/${stackId}`, { method: "DELETE" });
+      const res = await fetch(`/api/stacks/${stackId}`, {
+        method: "DELETE",
+        headers: withCsrfHeaders(),
+      });
       if (res.ok) {
         router.push("/stacks");
       }
@@ -115,6 +120,7 @@ export default function StackDetailPage() {
     try {
       const res = await fetch(`/api/stacks/${stackId}/items?item_id=${itemId}`, {
         method: "DELETE",
+        headers: withCsrfHeaders(),
       });
       if (res.ok) {
         setItems((prev) => prev.filter((i) => i.id !== itemId));

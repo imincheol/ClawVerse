@@ -18,7 +18,7 @@ async function getSupabase() {
 
 // Get stack detail with items
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
@@ -37,10 +37,14 @@ export async function GET(
     return NextResponse.json({ stack: null, items: [] });
   }
 
-  // Get current user to check ownership
+  // Get current user to enforce visibility and ownership checks
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  if (!stack.is_public && user?.id !== stack.user_id) {
+    return NextResponse.json({ stack: null, items: [] }, { status: 404 });
+  }
 
   const [{ data: items }, { data: profile }] = await Promise.all([
     supabase

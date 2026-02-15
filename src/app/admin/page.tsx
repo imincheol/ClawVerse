@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { withCsrfHeaders } from "@/lib/security/csrf";
 
 interface Submission {
   id: string;
@@ -64,7 +65,7 @@ export default function AdminPage() {
     try {
       const res = await fetch("/api/admin/submissions", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: withCsrfHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({ id, status: action }),
       });
       if (res.ok) {

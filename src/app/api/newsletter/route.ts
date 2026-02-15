@@ -25,7 +25,8 @@ async function getSupabase() {
 }
 
 function verifyUnsubscribeToken(email: string, token: string): boolean {
-  const secret = process.env.NEWSLETTER_CRON_SECRET || "dev-secret";
+  const secret = process.env.NEWSLETTER_CRON_SECRET || process.env.CRON_SECRET;
+  if (!secret) return false;
   const expected = crypto.createHmac("sha256", secret).update(email).digest("hex");
   return crypto.timingSafeEqual(Buffer.from(token), Buffer.from(expected));
 }
