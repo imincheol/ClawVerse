@@ -49,17 +49,18 @@ jobs:
   sync-supabase:
     name: Sync Supabase Data
     runs-on: ubuntu-latest
-    if: secrets.CRON_SECRET != ''
+    if: secrets.CRON_HMAC_SECRET != '' || secrets.CRON_SECRET != ''
     env:
       SITE_URL: ${{ vars.SITE_URL || 'https://www.clawverse.io' }}
+      CRON_SYNC_SECRET: ${{ secrets.CRON_HMAC_SECRET || secrets.CRON_SECRET }}
     steps:
       - name: Trigger GitHub Stars Sync
         run: |
           TS=$(date +%s)
           PAYLOAD="${TS}.POST./api/cron/github-sync"
-          SIG=$(printf "%s" "$PAYLOAD" | openssl dgst -sha256 -hmac "${{ secrets.CRON_SECRET }}" -binary | openssl base64 -A | tr '+/' '-_' | tr -d '=')
+          SIG=$(printf "%s" "$PAYLOAD" | openssl dgst -sha256 -hmac "${{ env.CRON_SYNC_SECRET }}" -binary | openssl base64 -A | tr '+/' '-_' | tr -d '=')
           curl -sf -X POST "${SITE_URL}/api/cron/github-sync" \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Authorization: Bearer ${CRON_SYNC_SECRET}" \
             -H "x-cron-timestamp: ${TS}" \
             -H "x-cron-signature: ${SIG}" \
             || echo "GitHub sync skipped (endpoint not ready)"
@@ -68,9 +69,9 @@ jobs:
         run: |
           TS=$(date +%s)
           PAYLOAD="${TS}.POST./api/cron/clawhub-sync"
-          SIG=$(printf "%s" "$PAYLOAD" | openssl dgst -sha256 -hmac "${{ secrets.CRON_SECRET }}" -binary | openssl base64 -A | tr '+/' '-_' | tr -d '=')
+          SIG=$(printf "%s" "$PAYLOAD" | openssl dgst -sha256 -hmac "${{ env.CRON_SYNC_SECRET }}" -binary | openssl base64 -A | tr '+/' '-_' | tr -d '=')
           curl -sf -X POST "${SITE_URL}/api/cron/clawhub-sync" \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Authorization: Bearer ${CRON_SYNC_SECRET}" \
             -H "x-cron-timestamp: ${TS}" \
             -H "x-cron-signature: ${SIG}" \
             || echo "ClawHub sync skipped (endpoint not ready)"
