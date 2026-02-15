@@ -24,7 +24,10 @@ function generateUnsubscribeToken(email: string): string {
 }
 
 export async function POST(request: NextRequest) {
-  const authorized = await verifyCronRequest(request, "/api/newsletter/send");
+  const sendSecret = process.env.NEWSLETTER_CRON_SECRET || process.env.CRON_HMAC_SECRET || process.env.CRON_SECRET;
+  const authorized = await verifyCronRequest(request, "/api/newsletter/send", {
+    secrets: [sendSecret],
+  });
   if (!authorized) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

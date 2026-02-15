@@ -76,10 +76,16 @@ export async function createCronSignature(
 
 export async function verifyCronRequest(
   request: NextRequest,
-  expectedPath: string
+  expectedPath: string,
+  options: { secrets?: Array<string | null | undefined> } = {}
 ): Promise<boolean> {
-  const secret = getSecret();
-  if (!secret) return false;
+  const candidates = options.secrets && options.secrets.length > 0
+    ? options.secrets
+    : [getSecret()];
+  const secretList = candidates
+    .filter((secret): secret is string => Boolean(secret))
+    .filter((secret, index, self) => self.indexOf(secret) === index);
+  if (secretList.length === 0) return false;
 
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${secret}`) return false;
@@ -99,34 +105,40 @@ export async function verifyCronRequest(
   const replayKey = `${expectedPath}:${timestamp}:${signature}`;
   if (replayCache.has(replayKey)) return false;
 
-  try {
-    const expectedSig = await createCronSignature(
-      request.method,
-      expectedPath,
-      timestamp,
-      secret
-    );
+  const actualSigBytes = base64UrlToBytes(signature);
+  for (const secret of secretList) {
+    if (token.length !== secret.length) continue;
 
-    const key = await getHmacKey(secret);
-    const payload = `${timestamp}.${request.method.toUpperCase()}.${expectedPath}`;
-    const data = new TextEncoder().encode(payload);
-    const actualSigBytes = base64UrlToBytes(signature);
-    const expectedSigBytes = base64UrlToBytes(expectedSig);
-    const ok = await crypto.subtle.verify(
-      "HMAC",
-      key,
-      actualSigBytes as BufferSource,
-      data
-    );
+    try {
+      const expectedSig = await createCronSignature(
+        request.method,
+        expectedPath,
+        timestamp,
+        secret
+      );
+  
+      const key = await getHmacKey(secret);
+      const payload = `${timestamp}.${request.method.toUpperCase()}.${expectedPath}`;
+      const data = new TextEncoder().encode(payload);
+      const expectedSigBytes = base64UrlToBytes(expectedSig);
+      const ok = await crypto.subtle.verify(
+        "HMAC",
+        key,
+        actualSigBytes as BufferSource,
+        data
+      );
 
-    if (!ok) return false;
+      if (!ok) continue;
 
-    // Guard against equivalent but malformed encodings.
-    if (expectedSigBytes.length !== actualSigBytes.length) return false;
-  } catch {
-    return false;
+      // Guard against equivalent but malformed encodings.
+      if (expectedSigBytes.length !== actualSigBytes.length) continue;
+
+      replayCache.set(replayKey, nowSec + WINDOW_SECONDS);
+      return true;
+    } catch {
+      continue;
+    }
   }
 
-  replayCache.set(replayKey, nowSec + WINDOW_SECONDS);
-  return true;
+  return false;
 }
