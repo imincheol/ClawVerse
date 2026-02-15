@@ -240,7 +240,15 @@ async function main() {
       status: "pending",
     });
 
-    if (!error) inserted += 1;
+    if (!error) {
+      inserted += 1;
+      continue;
+    }
+
+    console.warn(
+      `[discovery] Failed to insert submission for ${item.type}:${item.name}:`,
+      error.message
+    );
   }
 
   console.log(`Discovered ${pendingInserts.length} raw candidates, inserted ${inserted} submissions.`);
