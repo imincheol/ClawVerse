@@ -101,7 +101,6 @@ export default function StackDetailPage() {
   const handleDelete = async () => {
     setDeleting(true);
     try {
-      const res = await fetch(`/api/stacks/${stackId}`, { method: "DELETE" });
       const res = await fetch(`/api/stacks/${stackId}`, {
         method: "DELETE",
         headers: withCsrfHeaders(),
