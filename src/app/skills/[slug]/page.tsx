@@ -15,6 +15,8 @@ import SkillCard from "@/components/SkillCard";
 import ReviewSection from "@/components/ReviewSection";
 import AddToStackButton from "@/components/AddToStackButton";
 import PermissionTooltip from "@/components/PermissionTooltip";
+import PageViewTracker from "@/components/PageViewTracker";
+import { getPageViewStatsForPath } from "@/lib/data/metrics";
 
 export function generateStaticParams() {
   return SKILLS.map((s) => ({ slug: s.slug }));
@@ -47,6 +49,8 @@ export default async function SkillDetailPage({
   const { slug } = await params;
   const skill = SKILLS.find((s) => s.slug === slug);
   if (!skill) notFound();
+  const path = `/skills/${skill.slug}`;
+  const pageViews = await getPageViewStatsForPath(path, 30);
 
   const sec = SECURITY_CONFIG[skill.security];
   const maint = MAINTAINER_CONFIG[skill.maintainerActivity];
@@ -67,6 +71,12 @@ export default async function SkillDetailPage({
       </Link>
 
       <div className="rounded-2xl border p-8" style={{ borderColor: sec.color + "30" }}>
+        <PageViewTracker
+          path={path}
+          targetType="skill"
+          targetSlug={skill.slug}
+        />
+
         <div className="mb-4 flex items-start justify-between">
           <div>
             <code
@@ -101,6 +111,15 @@ export default async function SkillDetailPage({
             <div className="mb-1 text-[11px] text-text-muted">Installs</div>
             <div className="text-lg font-bold text-text-primary">
               {skill.installs.toLocaleString()}
+            </div>
+          </div>
+          <div className="rounded-[10px] bg-card p-3">
+            <div className="mb-1 text-[11px] text-text-muted">Page Views</div>
+            <div className="text-lg font-bold text-text-primary">
+              {pageViews.totalViews.toLocaleString()}
+            </div>
+            <div className="text-[10px] text-text-muted">
+              {pageViews.recentViews.toLocaleString()} in last {pageViews.windowDays}d
             </div>
           </div>
           <div className="rounded-[10px] bg-card p-3">

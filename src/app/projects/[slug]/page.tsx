@@ -4,6 +4,9 @@ import type { Metadata } from "next";
 import { PROJECTS, LAYERS } from "@/data/projects";
 import AddToStackButton from "@/components/AddToStackButton";
 import ReviewSection from "@/components/ReviewSection";
+import PageViewTracker from "@/components/PageViewTracker";
+import { getProjectBySlug } from "@/lib/data/projects";
+import { getPageViewStatsForPath, getProjectGrowthBySlug } from "@/lib/data/metrics";
 
 export function generateStaticParams() {
   return PROJECTS.map((p) => ({ slug: p.slug }));
@@ -43,14 +46,20 @@ export default async function ProjectDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const project = PROJECTS.find((p) => p.slug === slug);
+  const project = await getProjectBySlug(slug);
   if (!project) notFound();
 
   const layer = LAYERS[project.layer];
   const stars = formatStars(project.stars);
+  const path = `/projects/${project.slug}`;
+  const [growth, pageViews] = await Promise.all([
+    getProjectGrowthBySlug(project.slug, 30),
+    getPageViewStatsForPath(path, 30),
+  ]);
+  const growthRows = [...growth].reverse();
 
   const relatedProjects = PROJECTS.filter(
-    (p) => p.layer === project.layer && p.id !== project.id
+    (p) => p.layer === project.layer && p.slug !== project.slug
   ).slice(0, 3);
 
   return (
@@ -66,6 +75,12 @@ export default async function ProjectDetailPage({
         className="rounded-2xl border p-8"
         style={{ borderColor: layer.color + "30" }}
       >
+        <PageViewTracker
+          path={path}
+          targetType="project"
+          targetSlug={project.slug}
+        />
+
         {/* Header */}
         <div className="mb-4 flex items-start justify-between">
           <div>
@@ -108,6 +123,32 @@ export default async function ProjectDetailPage({
               {project.official ? "Official" : "Community"}
             </div>
           </div>
+          <div className="rounded-[10px] bg-card p-3">
+            <div className="mb-1 text-[11px] text-text-muted">Page Views</div>
+            <div className="text-lg font-bold text-text-primary">
+              {pageViews.totalViews.toLocaleString()}
+            </div>
+            <div className="text-[10px] text-text-muted">
+              {pageViews.recentViews.toLocaleString()} in last {pageViews.windowDays}d
+            </div>
+          </div>
+          {growthRows[0] ? (
+            <div className="rounded-[10px] bg-card p-3">
+              <div className="mb-1 text-[11px] text-text-muted">Latest Growth</div>
+              <div className="text-lg font-bold text-text-primary">
+                {growthRows[0].stars.toLocaleString()}
+              </div>
+              <div className="text-[10px] text-text-muted">
+                Δ {growthRows[0].delta >= 0 ? "+" : "-"}
+                {Math.abs(growthRows[0].delta)} vs previous
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-[10px] bg-card p-3">
+              <div className="mb-1 text-[11px] text-text-muted">Latest Growth</div>
+              <div className="text-lg font-bold text-text-primary">No snapshot yet</div>
+            </div>
+          )}
           <div className="rounded-[10px] bg-card p-3">
             <div className="mb-1 text-[11px] text-text-muted">
               GitHub Stars
@@ -173,6 +214,28 @@ export default async function ProjectDetailPage({
 
         {/* Reviews */}
         <ReviewSection targetType="project" targetId={project.slug} />
+
+        {growthRows.length > 0 && (
+          <div className="mt-6 border-t border-border pt-6">
+            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
+              Growth Snapshot (latest {growthRows.length})
+            </div>
+            <div className="space-y-2 text-sm">
+              {growthRows.slice(0, 8).map((row) => (
+                <div key={`${row.snapshotDate}-${row.source}`} className="rounded-md bg-card px-3 py-2">
+                  <span className="text-text-muted">{row.snapshotDate}</span>
+                  <span className="ml-2 font-semibold text-text-primary">
+                    {row.stars.toLocaleString()} ⭐
+                  </span>
+                  <span className="ml-2 text-xs text-text-muted">
+                    ({row.delta >= 0 ? "+" : "-"}
+                    {Math.abs(row.delta)})
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

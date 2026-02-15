@@ -2,6 +2,12 @@
  * GitHub API integration — sync project star counts
  */
 
+function normalizeGitHubUrl(repoUrl: string) {
+  const trimmed = repoUrl.replace(/^https?:\/\//, "").replace(/\.git$/, "");
+  const match = trimmed.match(/github\.com\/([^/]+\/[^/]+)/);
+  return match ? match[1] : null;
+}
+
 interface GitHubRepo {
   stargazers_count: number;
   updated_at: string;
@@ -48,6 +54,8 @@ export async function syncProjectStars(supabase: any) {
     const githubUrl = project.github_url || project.url;
     if (!githubUrl?.includes("github.com")) continue;
 
+    if (!normalizeGitHubUrl(githubUrl)) continue;
+
     const stars = await fetchGitHubStars(githubUrl);
     if (stars !== null) {
       const { error } = await supabase
@@ -55,8 +63,24 @@ export async function syncProjectStars(supabase: any) {
         .update({ github_stars: stars })
         .eq("id", project.id);
 
-      if (error) errors++;
-      else synced++;
+      if (error) {
+        errors++;
+      } else {
+        synced++;
+        await supabase
+          .from("project_growth_snapshots")
+          .upsert(
+            {
+              project_id: project.id,
+              snapshot_date: new Date().toISOString().slice(0, 10),
+              stars,
+              source: "github-api",
+            },
+            { onConflict: "project_id,snapshot_date,source" }
+          )
+          .then(() => undefined)
+          .catch(() => undefined);
+      }
     }
 
     // Rate limiting — 1 request per second

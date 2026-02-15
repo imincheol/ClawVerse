@@ -194,6 +194,7 @@ export const RATE_LIMITS = {
   reviewsVote: { limit: 40, windowSec: 60, onStoreError: "fail-open" } as RateLimitConfig,
   newsletter: { limit: 5, windowSec: 60, onStoreError: "fail-closed" } as RateLimitConfig,
   cspReport: { limit: 120, windowSec: 60, onStoreError: "fail-open" } as RateLimitConfig,
+  pageView: { limit: 30, windowSec: 60, onStoreError: "fail-open" } as RateLimitConfig,
   stacksWrite: { limit: 30, windowSec: 60, onStoreError: "fail-open" } as RateLimitConfig,
   profileWrite: { limit: 20, windowSec: 60, onStoreError: "fail-open" } as RateLimitConfig,
   adminWrite: { limit: 20, windowSec: 60, onStoreError: "fail-closed" } as RateLimitConfig,
