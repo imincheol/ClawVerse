@@ -88,7 +88,8 @@ export async function verifyCronRequest(
   if (secretList.length === 0) return false;
 
   const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${secret}`) return false;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) return false;
+  const token = authHeader.slice(7);
 
   const timestamp = request.headers.get("x-cron-timestamp");
   const signature = request.headers.get("x-cron-signature");
@@ -107,7 +108,7 @@ export async function verifyCronRequest(
 
   const actualSigBytes = base64UrlToBytes(signature);
   for (const secret of secretList) {
-    if (token.length !== secret.length) continue;
+    if (!token || token.length !== secret.length) continue;
 
     try {
       const expectedSig = await createCronSignature(
