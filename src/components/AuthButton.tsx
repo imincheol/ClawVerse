@@ -12,12 +12,19 @@ function hasAuthEnv() {
   );
 }
 
+function isAuthProviderEnabled() {
+  const flag = process.env.NEXT_PUBLIC_GITHUB_AUTH_ENABLED;
+  if (!flag) return true;
+  return ["1", "true", "yes", "on"].includes(flag.toLowerCase());
+}
+
 export default function AuthButton() {
   const hasSupabase = hasAuthEnv();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(hasSupabase);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [providerEnabled, setProviderEnabled] = useState(() => isAuthProviderEnabled());
 
   useEffect(() => {
     if (!hasSupabase) {
@@ -32,7 +39,7 @@ export default function AuthButton() {
       .then(({ data: { user }, error }) => {
         if (error) {
           console.error("[AuthButton] getUser failed:", error);
-          setError("로그인 상태를 확인할 수 없습니다.");
+          setError("Unable to read auth session.");
           setUser(null);
           return;
         }
@@ -40,7 +47,7 @@ export default function AuthButton() {
       })
       .catch((e) => {
         console.error("[AuthButton] getUser exception:", e);
-        setError("로그인 상태를 확인할 수 없습니다.");
+        setError("Unable to read auth session.");
         setUser(null);
       })
       .finally(() => setLoading(false));
@@ -70,13 +77,20 @@ export default function AuthButton() {
       });
 
       if (error) {
-        console.error("[AuthButton] OAuth start failed:", error);
-        setError(error.message || "GitHub 로그인을 시작할 수 없습니다.");
+        const msg = error.message || "Unable to start GitHub sign in.";
+        const isUnsupportedProvider =
+          /Unsupported provider/i.test(msg) || /provider is not enabled/i.test(msg);
+        if (isUnsupportedProvider) {
+          setProviderEnabled(false);
+          setError("GitHub OAuth is not enabled in Supabase Auth providers.");
+        } else {
+          setError(msg);
+        }
         setBusy(false);
       }
     } catch (e) {
       console.error("[AuthButton] OAuth start exception:", e);
-      setError("GitHub 로그인 요청 중 오류가 발생했습니다.");
+      setError("GitHub login request failed.");
       setBusy(false);
     }
   };
@@ -91,13 +105,13 @@ export default function AuthButton() {
       const { error } = await supabase.auth.signOut();
       if (error) {
         console.error("[AuthButton] signOut failed:", error);
-        setError(error.message || "로그아웃에 실패했습니다.");
+        setError(error.message || "Failed to sign out.");
       } else {
         setUser(null);
       }
     } catch (e) {
       console.error("[AuthButton] signOut exception:", e);
-      setError("로그아웃 중 오류가 발생했습니다.");
+      setError("Failed to sign out.");
     } finally {
       setBusy(false);
     }
@@ -107,6 +121,9 @@ export default function AuthButton() {
 
   // No Supabase configured — don't show button
   if (!hasSupabase) return null;
+
+  // Hide login button if GitHub provider is intentionally or practically unavailable
+  if (!providerEnabled && !user) return null;
 
   if (user) {
     return (
