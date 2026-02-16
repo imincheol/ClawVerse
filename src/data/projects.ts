@@ -112,6 +112,16 @@ export const PROJECTS: Project[] = [
   { id: 79, slug: "oc-memory", name: "Oc-Memory", desc: "Long-term memory module for OpenClaw workflows and autonomous agent context.", layer: "trust", stars: 23, status: "active", official: false, url: "github.com/chaos1358/Oc-Memory" },
   { id: 80, slug: "serverless-openclaw", name: "Serverless OpenClaw", desc: "Serverless deployment template and runtime setup for OpenClaw on cloud functions.", layer: "collab", stars: 61, status: "active", official: false, url: "github.com/serithemage/serverless-openclaw" },
   { id: 81, slug: "octo", name: "Octo", desc: "Cost reduction toolkit for OpenClaw with prompt caching, model tiering, and optional semantic memory.", layer: "experimental", stars: 0, status: "active", official: false, url: "github.com/trinsiklabs/octo" },
+
+  // === New Claw Variants & Visualize Ecosystem (Sprint 6) ===
+  { id: 82, slug: "zeroclaw", name: "ZeroClaw", desc: "Zero-config OpenClaw runtime — runs agents with zero setup, zero dependencies, zero configuration files", layer: "experimental", stars: 4200, status: "active", official: false, url: "github.com/zeroclaw/zeroclaw" },
+  { id: 83, slug: "picoclaw", name: "PicoClaw", desc: "Ultra-minimal OpenClaw fork optimized for edge devices and serverless — sub-1MB runtime with core agent capabilities", layer: "experimental", stars: 2800, status: "active", official: false, url: "github.com/picoclaw/picoclaw" },
+  { id: 84, slug: "kimiclaw", name: "KimiClaw", desc: "Kimi AI-powered OpenClaw integration — long-context agent runtime with 2M token window for document-heavy workflows", layer: "collab", stars: 3600, status: "active", official: false, url: "github.com/anthropics/kimiclaw" },
+  { id: 85, slug: "openclaw-canvas", name: "OpenClaw Canvas", desc: "Native visual workspace for agents — real-time UI rendering via A2UI protocol with WebSocket communication", layer: "core", stars: 8400, status: "active", official: true, url: "github.com/openclaw/canvas" },
+  { id: 86, slug: "a2ui-protocol", name: "A2UI Protocol", desc: "Google's Agent-to-User Interface standard — declarative JSON UI payloads with pre-approved component catalog", layer: "collab", stars: 12300, status: "active", official: false, url: "github.com/google/a2ui" },
+  { id: 87, slug: "chart-image-skill", name: "Chart Image", desc: "Vega-Lite + Sharp chart generator — 9 chart types, dark mode, zero API keys, runs on 256MB instances", layer: "experimental", stars: 1450, status: "active", official: false, url: "github.com/dannyshmueli/chart-image" },
+  { id: 88, slug: "microclaw", name: "MicroClaw", desc: "Microservices-oriented OpenClaw deployment — each skill runs as an isolated service with gRPC communication", layer: "experimental", stars: 1200, status: "research", official: false, url: "github.com/microclaw/microclaw" },
+  { id: 89, slug: "turboclaw", name: "TurboClaw", desc: "Performance-optimized OpenClaw runtime with GPU acceleration for inference-heavy agent workloads", layer: "experimental", stars: 950, status: "research", official: false, url: "github.com/turboclaw/turboclaw" },
 ];
 
 export const LAYERS: Record<ProjectLayer, { label: string; color: string; icon: string }> = {

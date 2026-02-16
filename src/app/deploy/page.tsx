@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { DeployOption } from "@/data/deploy";
+import { DATA_LAST_UPDATED } from "@/data/metadata";
 import DeployCard from "@/components/DeployCard";
 
 const LEVEL_FILTERS = [
@@ -117,9 +118,14 @@ export default function DeployPage() {
   return (
     <div>
       <div className="mb-7">
-        <h1 className="font-display mb-1.5 text-[28px] font-bold">
-          Deploy Hub
-        </h1>
+        <div className="flex items-baseline justify-between gap-4">
+          <h1 className="font-display mb-1.5 text-[28px] font-bold">
+            Deploy Hub
+          </h1>
+          <span className="shrink-0 text-[11px] text-text-muted">
+            Last updated: {DATA_LAST_UPDATED}
+          </span>
+        </div>
         <p className="text-sm text-text-secondary">
           Search by name, description, slug, or URL across deploy options.
         </p>

@@ -1,12 +1,13 @@
 import Link from "next/link";
 import WeeklyPicksBanner from "@/components/WeeklyPicksBanner";
 import CosmicBackground from "@/components/CosmicBackground";
+import { DATA_LAST_UPDATED } from "@/data/metadata";
 
 const STATS = [
-  { label: "GitHub Stars", value: "182K+" },
+  { label: "GitHub Stars", value: "195K+" },
   { label: "ClawHub Skills", value: "5,705" },
-  { label: "Moltbook Agents", value: "37K+" },
-  { label: "Deploy Options", value: "10+" },
+  { label: "Moltbook Agents", value: "2.5M+" },
+  { label: "Deploy Options", value: "24" },
 ];
 
 const SECTIONS = [
@@ -60,6 +61,10 @@ export default function HomePage() {
           Discover, share, and connect every project built on the OpenClaw
           universe. Aggregated skills, verified security, neutral deploy
           comparison, and a complete project directory.
+        </p>
+
+        <p className="mb-6 text-[11px] text-text-muted">
+          Data last updated: {DATA_LAST_UPDATED}
         </p>
 
         {/* Security Alert */}

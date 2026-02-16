@@ -1,3 +1,4 @@
+import { DATA_LAST_UPDATED } from "@/data/metadata";
 import NewsletterSignup from "./NewsletterSignup";
 
 export default function Footer() {
@@ -15,7 +16,7 @@ export default function Footer() {
           </div>
           <div className="mt-1 text-[11px] text-text-muted">
             Release {releaseVersion} · {releaseDate}
-            {commit ? ` · ${commit}` : ""}
+            {commit ? ` · ${commit}` : ""} · Data updated: {DATA_LAST_UPDATED}
           </div>
         </div>
         <NewsletterSignup />

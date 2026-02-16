@@ -1,5 +1,5 @@
 export type SecurityLevel = "verified" | "reviewed" | "unreviewed" | "flagged" | "blocked";
-export type SkillCategory = "browser" | "productivity" | "media" | "design" | "communication" | "agent" | "social" | "finance" | "iot" | "utility";
+export type SkillCategory = "browser" | "productivity" | "media" | "design" | "communication" | "agent" | "social" | "finance" | "iot" | "utility" | "visualize";
 
 export type VirusTotalStatus = "clean" | "suspicious" | "malicious" | "pending" | "unscanned";
 export type Protocol = "MCP" | "A2A" | "REST" | "GraphQL" | "WebSocket";
@@ -97,6 +97,14 @@ export const SKILLS: Skill[] = [
   { id: 51, slug: "database-connector", name: "database-connector", desc: "Connect to PostgreSQL, MySQL, MongoDB, and Redis databases", source: "ClawHub", installs: 4600, rating: 4.5, reviews: 98, security: "verified", category: "utility", permissions: ["network"], platforms: ["OpenClaw", "Claude Code"], virustotal_status: "clean", protocols: ["MCP", "REST"], lastUpdated: "2026-02-08", maintainerActivity: "active" },
   { id: 52, slug: "fake-gpt-unlimited", name: "fake-gpt-unlimited", desc: "Unlimited GPT-4 access through unofficial proxy endpoints", source: "GitHub", installs: 1200, rating: 2.1, reviews: 19, security: "blocked", category: "utility", permissions: ["network", "shell", "file"], platforms: ["OpenClaw"], virustotal_status: "malicious", protocols: ["REST"], lastUpdated: "2025-08-15", maintainerActivity: "abandoned" },
   { id: 53, slug: "ssh-key-exporter", name: "ssh-key-exporter", desc: "Export and backup SSH keys to cloud storage", source: "GitHub", installs: 340, rating: 1.5, reviews: 8, security: "blocked", category: "utility", permissions: ["file", "shell", "network"], platforms: ["OpenClaw"], virustotal_status: "malicious", protocols: ["REST"], lastUpdated: "2025-07-20", maintainerActivity: "abandoned" },
+
+  // === Visualize (6) ===
+  { id: 54, slug: "chart-image", name: "chart-image", desc: "Generate chart PNGs locally using Vega-Lite — 9 chart types, dark mode, no API key required", source: "ClawHub", installs: 5800, rating: 4.7, reviews: 124, security: "verified", category: "visualize", permissions: ["file"], platforms: ["OpenClaw", "Claude Code"], virustotal_status: "clean", protocols: ["MCP"], lastUpdated: "2026-02-14", maintainerActivity: "active" },
+  { id: 55, slug: "excalidraw-flowchart", name: "excalidraw-flowchart", desc: "Generate Excalidraw flowcharts and diagrams from text descriptions — supports DSL, DOT, and JSON", source: "ClawHub", installs: 3900, rating: 4.5, reviews: 78, security: "verified", category: "visualize", permissions: ["file"], platforms: ["OpenClaw", "Claude Code"], virustotal_status: "clean", protocols: ["MCP"], lastUpdated: "2026-02-10", maintainerActivity: "active" },
+  { id: 56, slug: "a2ui-canvas-renderer", name: "a2ui-canvas-renderer", desc: "Render interactive UI components on OpenClaw Canvas via Google A2UI protocol — charts, dashboards, forms", source: "ClawHub", installs: 4200, rating: 4.6, reviews: 91, security: "verified", category: "visualize", permissions: ["network"], platforms: ["OpenClaw"], virustotal_status: "clean", protocols: ["MCP", "A2A", "WebSocket"], lastUpdated: "2026-02-12", maintainerActivity: "active" },
+  { id: 57, slug: "mermaid-diagram", name: "mermaid-diagram", desc: "Create Mermaid.js diagrams — flowcharts, sequence, Gantt, class, ER, and state diagrams from text", source: "GitHub", installs: 3400, rating: 4.4, reviews: 65, security: "reviewed", category: "visualize", permissions: ["file"], platforms: ["OpenClaw", "Claude Code", "Codex"], virustotal_status: "clean", protocols: ["MCP"], lastUpdated: "2026-02-08", maintainerActivity: "active" },
+  { id: 58, slug: "obsidian-visual-pack", name: "obsidian-visual-pack", desc: "Excalidraw diagrams, Mermaid visualizations, and Canvas generation inside Obsidian vaults", source: "ClawHub", installs: 2600, rating: 4.3, reviews: 42, security: "reviewed", category: "visualize", permissions: ["file"], platforms: ["OpenClaw"], virustotal_status: "clean", protocols: ["MCP"], lastUpdated: "2026-01-28", maintainerActivity: "moderate" },
+  { id: 59, slug: "d3-data-viz", name: "d3-data-viz", desc: "Generate D3.js interactive data visualizations — scatter plots, treemaps, network graphs, and geographic maps", source: "GitHub", installs: 1900, rating: 4.2, reviews: 34, security: "reviewed", category: "visualize", permissions: ["file", "network"], platforms: ["OpenClaw"], virustotal_status: "clean", protocols: ["MCP", "REST"], lastUpdated: "2026-01-20", maintainerActivity: "active" },
 ];
 
 export const CATEGORIES = [
@@ -111,6 +119,7 @@ export const CATEGORIES = [
   { id: "finance", label: "Finance", icon: "coins" },
   { id: "iot", label: "IoT", icon: "home" },
   { id: "utility", label: "Utility", icon: "wrench" },
+  { id: "visualize", label: "Visualize", icon: "bar-chart" },
 ] as const;
 
 export const SECURITY_CONFIG: Record<SecurityLevel, { label: string; color: string; bg: string }> = {

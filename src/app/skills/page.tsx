@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { SKILLS, CATEGORIES } from "@/data/skills";
+import { DATA_LAST_UPDATED } from "@/data/metadata";
 import SkillCard from "@/components/SkillCard";
 
 const SECURITY_FILTERS = [
@@ -88,11 +89,16 @@ export default function SkillsPage() {
   return (
     <div>
       <div className="mb-7">
-        <h1
-          className="font-display mb-1.5 text-[28px] font-bold"
-        >
-          Skills Hub
-        </h1>
+        <div className="flex items-baseline justify-between gap-4">
+          <h1
+            className="font-display mb-1.5 text-[28px] font-bold"
+          >
+            Skills Hub
+          </h1>
+          <span className="shrink-0 text-[11px] text-text-muted">
+            Last updated: {DATA_LAST_UPDATED}
+          </span>
+        </div>
         <p className="text-sm text-text-secondary">
           ClawHub + GitHub + Community — all skills in one place. Security
           verified.

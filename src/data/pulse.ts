@@ -115,6 +115,48 @@ export const PULSE_ITEMS: PulseItem[] = [
     desc: "The EU AI Act reaches full enforcement on August 2, 2026. Organizations using AI agents must ensure compliance with risk management and transparency requirements.",
     date: "2026-02-13",
   },
+  {
+    id: 16,
+    tag: "new",
+    title: "ZeroClaw Launches — Zero-Config Agent Runtime",
+    desc: "ZeroClaw brings zero-configuration agent deployment: single binary, no setup files, no dependencies. Download and run. Already 4.2K GitHub stars in the first week.",
+    date: "2026-02-14",
+  },
+  {
+    id: 17,
+    tag: "new",
+    title: "PicoClaw: Sub-1MB Runtime for Edge Deployments",
+    desc: "PicoClaw enables OpenClaw agents on Cloudflare Workers, AWS Lambda, and Deno Deploy with sub-50ms cold starts. WebAssembly-compiled core runtime under 1MB.",
+    date: "2026-02-14",
+  },
+  {
+    id: 18,
+    tag: "trending",
+    title: "KimiClaw Integrates 2M Token Context Window",
+    desc: "KimiClaw, powered by Kimi AI's long-context engine, enables document-heavy agent workflows with a 2M token window. Growing fast in enterprise and research use cases.",
+    date: "2026-02-15",
+  },
+  {
+    id: 19,
+    tag: "release",
+    title: "OpenClaw Canvas + A2UI Protocol Go Live",
+    desc: "OpenClaw's native visual workspace (Canvas) and Google's A2UI protocol are now production-ready. Agents can render interactive charts, dashboards, and forms in real-time via WebSocket.",
+    date: "2026-02-15",
+  },
+  {
+    id: 20,
+    tag: "trending",
+    title: "Visualize Category Explodes — chart-image Hits 5.8K Installs",
+    desc: "The new Visualize skill category on ClawHub is booming. chart-image leads with 5.8K installs, followed by a2ui-canvas-renderer and excalidraw-flowchart.",
+    date: "2026-02-16",
+  },
+  {
+    id: 21,
+    tag: "new",
+    title: "MicroClaw & TurboClaw Enter Research Phase",
+    desc: "Two new Claw variants: MicroClaw (microservices-oriented with gRPC) and TurboClaw (GPU-accelerated inference). Both in early research phase.",
+    date: "2026-02-16",
+  },
 ];
 
 export const PULSE_TAG_CONFIG: Record<PulseTag, { label: string; color: string }> = {
