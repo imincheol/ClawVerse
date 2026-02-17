@@ -2,15 +2,7 @@
 
 import { useState } from "react";
 import type { Skill } from "@/data/skills";
-import { SOURCE_REGISTRY, getSource, getInstallCommands, type SourceRef } from "@/data/sources";
-
-function getEffectiveSources(skill: Skill): SourceRef[] {
-  if (skill.sources && skill.sources.length > 0) return skill.sources;
-  // Fallback: derive from primary source field
-  const normalized = skill.source.toLowerCase().replace(/\s+/g, "-");
-  const sourceId = normalized === "clawhub" ? "clawhub" : normalized === "github" ? "github" : "community";
-  return [{ sourceId }];
-}
+import { getInstallCommands, getEffectiveSources } from "@/data/sources";
 
 export default function InstallButton({ skill }: { skill: Skill }) {
   const [open, setOpen] = useState(false);

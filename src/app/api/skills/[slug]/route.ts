@@ -1,13 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSkillBySlug } from "@/lib/data/skills";
-import { getInstallCommands, getSource, type SourceRef } from "@/data/sources";
-
-function getEffectiveSources(skill: { source: string; sources?: SourceRef[] }): SourceRef[] {
-  if (skill.sources && skill.sources.length > 0) return skill.sources;
-  const normalized = skill.source.toLowerCase().replace(/\s+/g, "-");
-  const sourceId = normalized === "clawhub" ? "clawhub" : normalized === "github" ? "github" : "community";
-  return [{ sourceId }];
-}
+import { getInstallCommands, getSource, getEffectiveSources } from "@/data/sources";
 
 export async function GET(
   _request: NextRequest,

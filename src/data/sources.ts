@@ -118,6 +118,45 @@ export function getSource(sourceId: string): SkillSource | null {
   return SOURCE_REGISTRY[normalized] || null;
 }
 
+/**
+ * Infer effective sources for a skill.
+ * If the skill has explicit sources[], use those.
+ * Otherwise, apply heuristic rules based on primary source + popularity.
+ */
+export function getEffectiveSources(skill: {
+  source: string;
+  sources?: SourceRef[];
+  installs: number;
+  security: string;
+}): SourceRef[] {
+  if (skill.sources && skill.sources.length > 0) return skill.sources;
+
+  const refs: SourceRef[] = [];
+  const primary = skill.source.toLowerCase().replace(/\s+/g, "-");
+  const primaryId = primary === "clawhub" ? "clawhub" : primary === "github" ? "github" : "community";
+  refs.push({ sourceId: primaryId });
+
+  // Popular ClawHub skills (1000+ installs, not blocked) are likely also on awesome-openclaw-skills
+  if (primaryId === "clawhub" && skill.installs >= 1000 && skill.security !== "blocked") {
+    refs.push({ sourceId: "awesome-openclaw-skills" });
+  }
+
+  // Popular GitHub skills (2000+ installs) are likely curated in awesome-openclaw-skills
+  if (primaryId === "github" && skill.installs >= 2000 && skill.security !== "blocked" && skill.security !== "flagged") {
+    refs.push({ sourceId: "awesome-openclaw-skills" });
+  }
+
+  // Verified ClawHub skills with 3000+ installs are likely on Moltbooks and OpenClawSkill
+  if (primaryId === "clawhub" && skill.security === "verified" && skill.installs >= 3000) {
+    refs.push({ sourceId: "moltbooks" });
+  }
+  if ((primaryId === "clawhub" || primaryId === "github") && skill.installs >= 4000 && skill.security !== "blocked") {
+    refs.push({ sourceId: "openclawskill" });
+  }
+
+  return refs;
+}
+
 /** Get install commands for a skill across its sources */
 export function getInstallCommands(
   slug: string,

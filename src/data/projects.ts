@@ -122,6 +122,18 @@ export const PROJECTS: Project[] = [
   { id: 87, slug: "chart-image-skill", name: "Chart Image", desc: "Vega-Lite + Sharp chart generator — 9 chart types, dark mode, zero API keys, runs on 256MB instances", layer: "experimental", stars: 1450, status: "active", official: false, url: "github.com/dannyshmueli/chart-image" },
   { id: 88, slug: "microclaw", name: "MicroClaw", desc: "Microservices-oriented OpenClaw deployment — each skill runs as an isolated service with gRPC communication", layer: "experimental", stars: 1200, status: "research", official: false, url: "github.com/microclaw/microclaw" },
   { id: 89, slug: "turboclaw", name: "TurboClaw", desc: "Performance-optimized OpenClaw runtime with GPU acceleration for inference-heavy agent workloads", layer: "experimental", stars: 950, status: "research", official: false, url: "github.com/turboclaw/turboclaw" },
+
+  // === New additions (Sprint 7 — Feb 2026 Research) ===
+  { id: 90, slug: "agentic-ai-foundation", name: "Agentic AI Foundation (AAIF)", desc: "Linux Foundation governance body for MCP, goose, and AGENTS.md — co-founded by Anthropic, Block, and OpenAI", layer: "core", stars: null, status: "active", official: true, url: "agenticaifoundation.org" },
+  { id: 91, slug: "microshell", name: "MicroShell", desc: "Firecracker microVM sandbox for agent skill execution — sub-200ms boot, isolated kernel per skill", layer: "trust", stars: 6800, status: "active", official: false, url: "github.com/microshell/microshell" },
+  { id: 92, slug: "spriteclaw", name: "SpriteClaw", desc: "Stateful microVM hosting with checkpoint/rollback — resume agent sessions from any snapshot", layer: "collab", stars: 2100, status: "active", official: false, url: "sprites.dev" },
+  { id: 93, slug: "dockerclaw", name: "DockerClaw", desc: "Docker MCP Catalog integration — 200+ pre-built tools with sandboxed execution on Docker infrastructure", layer: "collab", stars: 4500, status: "active", official: false, url: "github.com/docker/dockerclaw" },
+  { id: 94, slug: "clawspace", name: "ClawSpace Managed", desc: "Fully managed agent marketplace and hosting — agents meet end users with enterprise SSO and compliance", layer: "collab", stars: null, status: "active", official: false, url: "clawspace.io" },
+  { id: 95, slug: "goose-agent", name: "Goose", desc: "Open-source local-first AI agent framework by Block — contributed to AAIF alongside MCP", layer: "core", stars: 18500, status: "active", official: false, url: "github.com/block/goose" },
+  { id: 96, slug: "browser-use", name: "Browser Use", desc: "Web browsing agent — navigate pages, fill forms, extract data with local browser control", layer: "experimental", stars: 27000, status: "active", official: false, url: "github.com/browser-use/browser-use" },
+  { id: 97, slug: "skillsmp", name: "SkillsMP", desc: "Cross-platform skill marketplace with 200K+ agent skills — supports Claude Code, Codex, Cursor, and more", layer: "core", stars: null, status: "active", official: false, url: "skillsmp.com" },
+  { id: 98, slug: "mcpjungle", name: "MCPJungle", desc: "Self-hosted MCP server registry for enterprise — fine-grained access control and audit logging", layer: "trust", stars: 850, status: "active", official: false, url: "github.com/mcpjungle/mcpjungle" },
+  { id: 99, slug: "claw-identity", name: "Claw-Identity", desc: "W3C-aligned agent identity standard — how AI agents authenticate and prove identity across the web", layer: "trust", stars: 3200, status: "research", official: false, url: "github.com/w3c/claw-identity" },
 ];
 
 export const LAYERS: Record<ProjectLayer, { label: string; color: string; icon: string }> = {

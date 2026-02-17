@@ -1,14 +1,7 @@
 "use client";
 
 import type { Skill } from "@/data/skills";
-import { getSource, type SourceRef } from "@/data/sources";
-
-function getEffectiveSources(skill: Skill): SourceRef[] {
-  if (skill.sources && skill.sources.length > 0) return skill.sources;
-  const normalized = skill.source.toLowerCase().replace(/\s+/g, "-");
-  const sourceId = normalized === "clawhub" ? "clawhub" : normalized === "github" ? "github" : "community";
-  return [{ sourceId }];
-}
+import { getSource, getEffectiveSources } from "@/data/sources";
 
 export default function SourceBadges({
   skill,
