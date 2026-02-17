@@ -1,0 +1,10 @@
+{
+  "name": "ClawVerse",
+  "description": "Aggregated skill registry for the OpenClaw ecosystem",
+  "registry_url": "https://clawverse.io/api/v1/registry",
+  "search_url": "https://clawverse.io/api/v1/registry?action=search&q={query}",
+  "skill_detail_url": "https://clawverse.io/api/skills/{slug}",
+  "homepage": "https://clawverse.io",
+  "capabilities": ["search", "filter", "security-ratings", "platform-filter"],
+  "version": "1.0.0"
+}

@@ -1,13 +1,14 @@
 import Link from "next/link";
 import WeeklyPicksBanner from "@/components/WeeklyPicksBanner";
 import CosmicBackground from "@/components/CosmicBackground";
-import { DATA_LAST_UPDATED } from "@/data/metadata";
+import { DATA_LAST_UPDATED, DATA_COUNTS } from "@/data/metadata";
+import { SKILLS } from "@/data/skills";
 
 const STATS = [
-  { label: "GitHub Stars", value: "195K+" },
-  { label: "ClawHub Skills", value: "5,705" },
-  { label: "Moltbook Agents", value: "2.5M+" },
-  { label: "Deploy Options", value: "24" },
+  { label: "Tracked Skills", value: String(DATA_COUNTS.skills) },
+  { label: "Ecosystem Projects", value: String(DATA_COUNTS.projects) },
+  { label: "Deploy Options", value: String(DATA_COUNTS.deployOptions) },
+  { label: "Verified Skills", value: String(SKILLS.filter((s) => s.security === "verified").length) },
 ];
 
 const SECTIONS = [
@@ -20,7 +21,7 @@ const SECTIONS = [
   {
     href: "/deploy",
     title: "Deploy Hub",
-    desc: "10+ deployment options compared neutrally. Find the right fit for you.",
+    desc: `${DATA_COUNTS.deployOptions} deployment options compared neutrally. Find the right fit for you.`,
     accent: "#f97316",
   },
   {
@@ -125,6 +126,49 @@ export default function HomePage() {
             </span>
           </Link>
         ))}
+      </section>
+
+      {/* Registry API */}
+      <section className="mt-10">
+        <div className="rounded-[14px] border border-accent-cyan/20 bg-accent-cyan/[0.04] p-6">
+          <h2 className="font-display mb-2 text-lg font-bold text-[#38bdf8]">
+            Skill Registry API
+          </h2>
+          <p className="mb-4 text-sm text-text-secondary">
+            Use ClawVerse as a skill discovery endpoint for your OpenClaw agents.
+            Point your agent to our registry and search {DATA_COUNTS.skills} skills
+            with security ratings, platform filters, and permission data.
+          </p>
+          <div className="space-y-2">
+            <div className="rounded-lg bg-void/80 px-4 py-2.5">
+              <code className="font-code text-xs text-accent-cyan">
+                GET /api/v1/registry
+              </code>
+              <span className="ml-3 text-xs text-text-muted">
+                Registry manifest &amp; capabilities
+              </span>
+            </div>
+            <div className="rounded-lg bg-void/80 px-4 py-2.5">
+              <code className="font-code text-xs text-accent-cyan">
+                GET /api/v1/registry?action=search&amp;q=chart&amp;security=verified
+              </code>
+              <span className="ml-3 text-xs text-text-muted">
+                Search skills
+              </span>
+            </div>
+            <div className="rounded-lg bg-void/80 px-4 py-2.5">
+              <code className="font-code text-xs text-[#a78bfa]">
+                GET /api/skills/&#123;slug&#125;
+              </code>
+              <span className="ml-3 text-xs text-text-muted">
+                Skill detail JSON
+              </span>
+            </div>
+          </div>
+          <p className="mt-3 text-[11px] text-text-muted">
+            Auto-discovery: <code className="font-code text-[11px] text-accent-cyan">/.well-known/openclaw-registry.json</code>
+          </p>
+        </div>
       </section>
 
       {/* Submit CTA */}

@@ -1,9 +1,22 @@
-/** Global data freshness metadata for ClawVerse */
-export const DATA_LAST_UPDATED = "2026-02-16";
+import { SKILLS } from "./skills";
+import { PROJECTS } from "./projects";
+import { DEPLOY_OPTIONS } from "./deploy";
+import { PULSE_ITEMS } from "./pulse";
+
+/** Auto-computed from the most recent lastUpdated date across all skills */
+function computeLastUpdated(): string {
+  const skillDates = SKILLS.map((s) => s.lastUpdated).filter(Boolean);
+  const pulseDates = PULSE_ITEMS.map((p) => p.date).filter(Boolean);
+  const allDates = [...skillDates, ...pulseDates].sort();
+  return allDates.length > 0 ? allDates[allDates.length - 1] : "unknown";
+}
+
+/** Global data freshness metadata for ClawVerse — auto-computed from actual data */
+export const DATA_LAST_UPDATED = computeLastUpdated();
 
 export const DATA_COUNTS = {
-  skills: 59,
-  projects: 89,
-  deployOptions: 24,
-  pulseItems: 21,
+  skills: SKILLS.length,
+  projects: PROJECTS.length,
+  deployOptions: DEPLOY_OPTIONS.length,
+  pulseItems: PULSE_ITEMS.length,
 } as const;
