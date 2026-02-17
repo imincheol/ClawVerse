@@ -1,10 +1,30 @@
 {
   "name": "ClawVerse",
-  "description": "Aggregated skill registry for the OpenClaw ecosystem",
+  "version": "2.0.0",
+  "description": "Aggregated skill registry for the OpenClaw ecosystem — ClawHub + awesome-openclaw-skills + GitHub + community sources with security ratings",
   "registry_url": "https://clawverse.io/api/v1/registry",
   "search_url": "https://clawverse.io/api/v1/registry?action=search&q={query}",
+  "sources_url": "https://clawverse.io/api/v1/registry?action=sources",
   "skill_detail_url": "https://clawverse.io/api/skills/{slug}",
+  "skill_install_url": "https://clawverse.io/api/skills/{slug}/install",
+  "skill_manifest_url": "https://clawverse.io/api/skills/{slug}/manifest",
+  "webhooks_url": "https://clawverse.io/api/v1/webhooks",
   "homepage": "https://clawverse.io",
-  "capabilities": ["search", "filter", "security-ratings", "platform-filter"],
-  "version": "1.0.0"
+  "capabilities": [
+    "search",
+    "filter",
+    "security-ratings",
+    "platform-filter",
+    "multi-source",
+    "install-commands",
+    "manifest",
+    "webhooks",
+    "api-key-auth"
+  ],
+  "authentication": {
+    "type": "api-key",
+    "header": "X-ClawVerse-Key",
+    "required_for": ["install-tracking", "webhooks"]
+  },
+  "aggregated_sources": ["clawhub", "awesome-openclaw-skills", "github", "community", "moltbooks", "openclawskill"]
 }

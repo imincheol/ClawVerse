@@ -135,9 +135,9 @@ export default function HomePage() {
             Skill Registry API
           </h2>
           <p className="mb-4 text-sm text-text-secondary">
-            Use ClawVerse as a skill discovery endpoint for your OpenClaw agents.
-            Point your agent to our registry and search {DATA_COUNTS.skills} skills
-            with security ratings, platform filters, and permission data.
+            Use ClawVerse as a unified skill discovery endpoint. Search {DATA_COUNTS.skills} skills
+            aggregated from ClawHub, awesome-openclaw-skills, Moltbooks, OpenClawSkill.ai,
+            and GitHub — with security ratings and one-click install commands.
           </p>
           <div className="space-y-2">
             <div className="rounded-lg bg-void/80 px-4 py-2.5">
@@ -145,7 +145,7 @@ export default function HomePage() {
                 GET /api/v1/registry
               </code>
               <span className="ml-3 text-xs text-text-muted">
-                Registry manifest &amp; capabilities
+                Registry manifest, sources, capabilities
               </span>
             </div>
             <div className="rounded-lg bg-void/80 px-4 py-2.5">
@@ -153,20 +153,37 @@ export default function HomePage() {
                 GET /api/v1/registry?action=search&amp;q=chart&amp;security=verified
               </code>
               <span className="ml-3 text-xs text-text-muted">
-                Search skills
+                Search with filters
               </span>
             </div>
             <div className="rounded-lg bg-void/80 px-4 py-2.5">
               <code className="font-code text-xs text-[#a78bfa]">
-                GET /api/skills/&#123;slug&#125;
+                GET /api/skills/&#123;slug&#125;/install
               </code>
               <span className="ml-3 text-xs text-text-muted">
-                Skill detail JSON
+                Install commands from all sources
+              </span>
+            </div>
+            <div className="rounded-lg bg-void/80 px-4 py-2.5">
+              <code className="font-code text-xs text-[#a78bfa]">
+                GET /api/skills/&#123;slug&#125;/manifest
+              </code>
+              <span className="ml-3 text-xs text-text-muted">
+                MCP-compatible skill manifest
+              </span>
+            </div>
+            <div className="rounded-lg bg-void/80 px-4 py-2.5">
+              <code className="font-code text-xs text-[#f97316]">
+                POST /api/v1/webhooks
+              </code>
+              <span className="ml-3 text-xs text-text-muted">
+                Subscribe to new skills &amp; security alerts
               </span>
             </div>
           </div>
           <p className="mt-3 text-[11px] text-text-muted">
             Auto-discovery: <code className="font-code text-[11px] text-accent-cyan">/.well-known/openclaw-registry.json</code>
+            {" | "}Auth: <code className="font-code text-[11px] text-accent-violet">X-ClawVerse-Key</code>
           </p>
         </div>
       </section>

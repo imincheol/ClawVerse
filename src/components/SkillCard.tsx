@@ -5,6 +5,7 @@ import { Skill, SECURITY_CONFIG, PROTOCOL_CONFIG, MAINTAINER_CONFIG } from "@/da
 import SecurityBadge from "./SecurityBadge";
 import AddToStackButton from "./AddToStackButton";
 import PermissionTooltip from "./PermissionTooltip";
+import SourceBadges from "./SourceBadges";
 
 export default function SkillCard({ skill }: { skill: Skill }) {
   const sec = SECURITY_CONFIG[skill.security];
@@ -85,9 +86,7 @@ export default function SkillCard({ skill }: { skill: Skill }) {
           >
             {maint.icon}
           </span>
-          <span className="rounded-md bg-white/[0.05] px-2 py-0.5 text-[11px]">
-            {skill.source}
-          </span>
+          <SourceBadges skill={skill} compact />
         </div>
       </div>
 

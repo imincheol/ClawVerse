@@ -1,5 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSkillBySlug } from "@/lib/data/skills";
+import { getInstallCommands, getSource, type SourceRef } from "@/data/sources";
+
+function getEffectiveSources(skill: { source: string; sources?: SourceRef[] }): SourceRef[] {
+  if (skill.sources && skill.sources.length > 0) return skill.sources;
+  const normalized = skill.source.toLowerCase().replace(/\s+/g, "-");
+  const sourceId = normalized === "clawhub" ? "clawhub" : normalized === "github" ? "github" : "community";
+  return [{ sourceId }];
+}
 
 export async function GET(
   _request: NextRequest,
@@ -15,10 +23,33 @@ export async function GET(
     );
   }
 
+  const sources = getEffectiveSources(skill);
+  const installCommands = getInstallCommands(skill.slug, sources);
+
   return NextResponse.json({
-    skill,
+    skill: {
+      ...skill,
+      // Enrich with resolved source details
+      available_sources: sources.map((ref) => {
+        const source = getSource(ref.sourceId);
+        return {
+          id: ref.sourceId,
+          name: source?.name || ref.sourceId,
+          url: ref.url || source?.skillUrlPattern.replace("{slug}", skill.slug),
+          has_security_scan: source?.hasSecurityScan || false,
+        };
+      }),
+      install_commands: installCommands.map((cmd) => ({
+        source: cmd.source.id,
+        source_name: cmd.source.name,
+        command: cmd.command,
+        url: cmd.url,
+      })),
+    },
     _links: {
       self: `/api/skills/${skill.slug}`,
+      install: `/api/skills/${skill.slug}/install`,
+      manifest: `/api/skills/${skill.slug}/manifest`,
       list: "/api/skills",
       registry: "/api/v1/registry",
       html: `/skills/${skill.slug}`,
