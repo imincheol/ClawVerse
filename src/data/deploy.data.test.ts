@@ -19,7 +19,16 @@ describe("DEPLOY_OPTIONS data integrity", () => {
     }
   });
 
-  it("should have 22 deploy options total", () => {
-    expect(DEPLOY_OPTIONS).toHaveLength(28);
+  // Use minimum-count assertion so adding new deploy options never breaks the test.
+  it("should have at least 28 deploy options", () => {
+    expect(DEPLOY_OPTIONS.length).toBeGreaterThanOrEqual(28);
+  });
+
+  it("should have non-empty required fields", () => {
+    for (const option of DEPLOY_OPTIONS) {
+      expect(option.slug).toBeTruthy();
+      expect(option.name).toBeTruthy();
+      expect(option.desc).toBeTruthy();
+    }
   });
 });

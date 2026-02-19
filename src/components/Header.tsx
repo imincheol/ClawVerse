@@ -7,6 +7,7 @@ import AuthButton from "./AuthButton";
 
 const NAV_ITEMS = [
   { href: "/skills", label: "Skills", count: "5,705" },
+  { href: "/agents", label: "Agents", count: "20" },
   { href: "/deploy", label: "Deploy" },
   { href: "/projects", label: "Projects", count: "26" },
   { href: "/pulse", label: "Pulse" },

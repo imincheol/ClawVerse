@@ -9,6 +9,21 @@ describe("SOURCE_REGISTRY", () => {
     expect(SOURCE_REGISTRY.moltbooks).toBeDefined();
     expect(SOURCE_REGISTRY.openclawskill).toBeDefined();
   });
+
+  it("should have required fields for each source", () => {
+    for (const [key, source] of Object.entries(SOURCE_REGISTRY)) {
+      expect(source.id).toBe(key);
+      expect(source.name).toBeTruthy();
+      expect(source.shortName).toBeTruthy();
+      expect(source.url).toBeTruthy();
+      expect(source.color).toBeTruthy();
+      expect(source.icon).toBeTruthy();
+      expect(source.skillUrlPattern).toBeTruthy();
+      expect(source.description).toBeTruthy();
+      expect(typeof source.hasSecurityScan).toBe("boolean");
+      expect(typeof source.totalSkills).toBe("number");
+    }
+  });
 });
 
 describe("getSource", () => {
@@ -26,6 +41,12 @@ describe("getSource", () => {
 
   it("should return null for unknown source", () => {
     expect(getSource("nonexistent")).toBeNull();
+  });
+
+  it("should handle source IDs with spaces", () => {
+    const source = getSource("awesome openclaw skills");
+    expect(source).not.toBeNull();
+    expect(source?.id).toBe("awesome-openclaw-skills");
   });
 });
 
@@ -70,6 +91,51 @@ describe("getEffectiveSources", () => {
     const sourceIds = refs.map((r) => r.sourceId);
     expect(sourceIds).not.toContain("awesome-openclaw-skills");
   });
+
+  it("should add openclawskill for popular skills with 4000+ installs", () => {
+    const refs = getEffectiveSources({
+      source: "ClawHub",
+      installs: 5000,
+      security: "verified",
+    });
+    expect(refs.some((s) => s.sourceId === "openclawskill")).toBe(true);
+  });
+
+  it("should not add openclawskill for blocked skills", () => {
+    const refs = getEffectiveSources({
+      source: "ClawHub",
+      installs: 5000,
+      security: "blocked",
+    });
+    expect(refs.some((s) => s.sourceId === "openclawskill")).toBe(false);
+  });
+
+  it("should add awesome-openclaw-skills for popular GitHub skills", () => {
+    const refs = getEffectiveSources({
+      source: "GitHub",
+      installs: 2500,
+      security: "reviewed",
+    });
+    expect(refs.some((s) => s.sourceId === "awesome-openclaw-skills")).toBe(true);
+  });
+
+  it("should not add awesome-openclaw-skills for flagged GitHub skills", () => {
+    const refs = getEffectiveSources({
+      source: "GitHub",
+      installs: 3000,
+      security: "flagged",
+    });
+    expect(refs.some((s) => s.sourceId === "awesome-openclaw-skills")).toBe(false);
+  });
+
+  it("should map Community source to community primary", () => {
+    const refs = getEffectiveSources({
+      source: "Community",
+      installs: 100,
+      security: "unreviewed",
+    });
+    expect(refs[0].sourceId).toBe("community");
+  });
 });
 
 describe("getInstallCommands", () => {
@@ -78,6 +144,14 @@ describe("getInstallCommands", () => {
     expect(commands).toHaveLength(1);
     expect(commands[0].command).toContain("browser-automation");
     expect(commands[0].source.id).toBe("clawhub");
+  });
+
+  it("should handle multiple sources", () => {
+    const commands = getInstallCommands("test-skill", [
+      { sourceId: "clawhub" },
+      { sourceId: "github" },
+    ]);
+    expect(commands).toHaveLength(2);
   });
 
   it("should skip unknown sources", () => {
@@ -89,5 +163,12 @@ describe("getInstallCommands", () => {
     const commands = getInstallCommands("test-skill", [{ sourceId: "community" }]);
     expect(commands).toHaveLength(1);
     expect(commands[0].command).toContain("# Visit");
+  });
+
+  it("should use override URL if provided in SourceRef", () => {
+    const commands = getInstallCommands("test-skill", [
+      { sourceId: "clawhub", url: "https://custom.url/test" },
+    ]);
+    expect(commands[0].url).toBe("https://custom.url/test");
   });
 });
