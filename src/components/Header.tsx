@@ -6,6 +6,7 @@ import { useState } from "react";
 import { DATA_COUNTS } from "@/data/metadata";
 import { compactNumber } from "@/lib/format";
 import GradientText from "./GradientText";
+import AuthButton from "./AuthButton";
 
 const NAV_ITEMS = [
   { href: "/skills", label: "Skills", count: compactNumber(DATA_COUNTS.skills) },
@@ -69,6 +70,7 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-3">
+          <AuthButton />
           <Link
             href="/submit"
             className="rounded-[10px] border border-accent-orange/40 bg-accent-orange/10 px-4 py-1.5 text-[13px] font-semibold text-[#fb923c] no-underline transition-colors hover:bg-accent-orange/20"
