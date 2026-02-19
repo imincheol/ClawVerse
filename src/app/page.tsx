@@ -1,14 +1,17 @@
 import Link from "next/link";
 import WeeklyPicksBanner from "@/components/WeeklyPicksBanner";
 import CosmicBackground from "@/components/CosmicBackground";
+import GradientText from "@/components/GradientText";
 import { DATA_LAST_UPDATED, DATA_COUNTS } from "@/data/metadata";
-import { SKILLS } from "@/data/skills";
+import { compactNumber } from "@/lib/format";
 
 const STATS = [
-  { label: "Tracked Skills", value: String(DATA_COUNTS.skills) },
-  { label: "Ecosystem Projects", value: String(DATA_COUNTS.projects) },
-  { label: "Deploy Options", value: String(DATA_COUNTS.deployOptions) },
-  { label: "Verified Skills", value: String(SKILLS.filter((s) => s.security === "verified").length) },
+  { label: "Skills", value: compactNumber(DATA_COUNTS.skills) },
+  { label: "MCP Servers", value: compactNumber(DATA_COUNTS.mcpServers) },
+  { label: "Plugins", value: compactNumber(DATA_COUNTS.plugins) },
+  { label: "Agents", value: compactNumber(DATA_COUNTS.agents) },
+  { label: "Deploy Options", value: compactNumber(DATA_COUNTS.deployOptions) },
+  { label: "Projects", value: compactNumber(DATA_COUNTS.projects) },
 ];
 
 const SECTIONS = [
@@ -19,22 +22,34 @@ const SECTIONS = [
     accent: "#8b5cf6",
   },
   {
+    href: "/mcp",
+    title: "MCP Servers",
+    desc: "Model Context Protocol servers from Official Registry, MCP.so, Smithery, and Glama.",
+    accent: "#38bdf8",
+  },
+  {
+    href: "/plugins",
+    title: "Plugins",
+    desc: "OpenClaw plugins — channels, tools, AI providers, and memory backends.",
+    accent: "#a78bfa",
+  },
+  {
+    href: "/agents",
+    title: "Agents Hub",
+    desc: "AI agent personas, crew templates, and orchestration workflows.",
+    accent: "#22c55e",
+  },
+  {
     href: "/deploy",
     title: "Deploy Hub",
-    desc: `${DATA_COUNTS.deployOptions} deployment options compared neutrally. Find the right fit for you.`,
+    desc: `${DATA_COUNTS.deployOptions} deployment options compared neutrally. Find the right fit.`,
     accent: "#f97316",
   },
   {
     href: "/projects",
     title: "Project Directory",
     desc: "Every project in the OpenClaw ecosystem, from core to experimental.",
-    accent: "#38bdf8",
-  },
-  {
-    href: "/pulse",
-    title: "Pulse",
-    desc: "News, trends, and security alerts from the OpenClaw ecosystem.",
-    accent: "#22c55e",
+    accent: "#fbbf24",
   },
 ];
 
@@ -45,15 +60,10 @@ export default function HomePage() {
       {/* Hero */}
       <section className="py-16 text-center">
         <div className="mb-4 text-5xl">&#x1F99E;</div>
-        <h1
-          className="font-display mb-4 text-4xl font-bold md:text-5xl"
-          style={{
-            background: "linear-gradient(135deg, #c084fc, #f97316)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-          }}
-        >
-          ClawVerse
+        <h1 className="mb-4">
+          <GradientText className="font-display text-4xl font-bold md:text-5xl">
+            ClawVerse
+          </GradientText>
         </h1>
         <p className="mb-2 text-lg text-text-secondary">
           Every Claw. One Universe.
@@ -81,7 +91,7 @@ export default function HomePage() {
         </div>
 
         {/* Stats */}
-        <div className="mx-auto grid max-w-2xl grid-cols-2 gap-3 md:grid-cols-4">
+        <div className="mx-auto grid max-w-3xl grid-cols-3 gap-3 md:grid-cols-6">
           {STATS.map((s) => (
             <div
               key={s.label}
@@ -104,7 +114,7 @@ export default function HomePage() {
       <WeeklyPicksBanner />
 
       {/* Section Cards */}
-      <section className="grid gap-4 md:grid-cols-2">
+      <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {SECTIONS.map((sec) => (
           <Link
             key={sec.href}

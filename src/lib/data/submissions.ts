@@ -25,7 +25,7 @@ async function getServiceSupabase() {
 }
 
 export interface SubmissionInput {
-  type: "skill" | "project" | "deploy" | "security_report";
+  type: "skill" | "agent" | "project" | "deploy" | "security_report";
   name: string;
   url?: string;
   description?: string;
@@ -225,12 +225,13 @@ export async function flagSkillByName(
   if (!supabase) return { success: false, error: "No database connection" };
 
   try {
-    // Try exact match first, then slug match
-    const slug = slugify(name);
+    // Sanitize input to prevent PostgREST filter injection
+    const sanitized = name.replace(/[^a-zA-Z0-9\s\-_.]/g, "");
+    const slug = slugify(sanitized);
     const { error } = await supabase
       .from("skills")
       .update({ security: "flagged", updated_at: new Date().toISOString() })
-      .or(`name.ilike.%${name}%,slug.eq.${slug}`);
+      .or(`name.ilike.%${sanitized}%,slug.eq.${slug}`);
 
     if (error) return { success: false, error: error.message };
     return { success: true };

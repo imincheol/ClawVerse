@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { CATEGORIES } from "@/data/skills";
 import { LAYERS } from "@/data/projects";
 import { AGENT_ROLES } from "@/data/agents";
@@ -22,11 +22,50 @@ const SEVERITY_OPTIONS = [
   { value: "critical", label: "Critical — Confirmed malicious code" },
 ];
 
+function isValidUrl(str: string): boolean {
+  try {
+    const url = new URL(str);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+type FieldErrors = Partial<Record<string, string>>;
+
+function validate(type: SubmitType, formData: { name: string; url: string; desc: string; category: string; severity: string }): FieldErrors {
+  const errors: FieldErrors = {};
+
+  if (!formData.name.trim()) {
+    errors.name = "Name is required";
+  } else if (formData.name.trim().length < 2) {
+    errors.name = "Name must be at least 2 characters";
+  }
+
+  if (type !== "report" && !formData.url.trim()) {
+    errors.url = "URL is required";
+  } else if (formData.url.trim() && !isValidUrl(formData.url.trim())) {
+    errors.url = "Please enter a valid URL (https://...)";
+  }
+
+  if (type === "report" && !formData.desc.trim()) {
+    errors.desc = "Description is required for security reports";
+  }
+
+  if (type === "report" && !formData.severity) {
+    errors.severity = "Severity is required for security reports";
+  }
+
+  return errors;
+}
+
 export default function SubmitPage() {
   const [type, setType] = useState<SubmitType>("skill");
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [formData, setFormData] = useState({
     name: "",
     url: "",
@@ -35,10 +74,30 @@ export default function SubmitPage() {
     severity: "",
   });
 
-  const update = (field: string, value: string) =>
+  const update = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    // Clear field error on change
+    if (fieldErrors[field]) {
+      setFieldErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
 
-  const handleSubmit = async () => {
+  const markTouched = (field: string) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
+
+  const handleSubmit = useCallback(async () => {
+    const errors = validate(type, formData);
+    setFieldErrors(errors);
+    // Mark all fields as touched
+    setTouched({ name: true, url: true, desc: true, severity: true });
+
+    if (Object.keys(errors).length > 0) return;
+
     setSubmitting(true);
     setError(null);
 
@@ -48,9 +107,9 @@ export default function SubmitPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           type: type === "report" ? "security_report" : type,
-          name: formData.name,
-          url: formData.url || undefined,
-          description: formData.desc || undefined,
+          name: formData.name.trim(),
+          url: formData.url.trim() || undefined,
+          description: formData.desc.trim() || undefined,
           category: formData.category || undefined,
           severity: type === "report" ? formData.severity || undefined : undefined,
         }),
@@ -67,15 +126,13 @@ export default function SubmitPage() {
     } finally {
       setSubmitting(false);
     }
-  };
+  }, [type, formData]);
 
   if (submitted) {
     return (
       <div className="mx-auto max-w-md py-20 text-center">
         <div className="mb-4 text-5xl">&#x1F99E;</div>
-        <h2
-          className="font-display mb-2 text-xl font-bold text-text-primary"
-        >
+        <h2 className="font-display mb-2 text-xl font-bold text-text-primary">
           Submitted!
         </h2>
         <p className="mb-6 text-sm text-text-secondary">
@@ -85,6 +142,8 @@ export default function SubmitPage() {
           onClick={() => {
             setSubmitted(false);
             setFormData({ name: "", url: "", desc: "", category: "", severity: "" });
+            setFieldErrors({});
+            setTouched({});
           }}
           className="rounded-xl border-none px-8 py-2.5 font-semibold text-white"
           style={{
@@ -97,12 +156,12 @@ export default function SubmitPage() {
     );
   }
 
+  const showError = (field: string) => touched[field] && fieldErrors[field];
+
   return (
     <div className="mx-auto max-w-xl">
       <div className="mb-7">
-        <h1
-          className="font-display mb-1.5 text-[28px] font-bold"
-        >
+        <h1 className="font-display mb-1.5 text-[28px] font-bold">
           Submit to ClawVerse
         </h1>
         <p className="text-sm text-text-secondary">
@@ -112,16 +171,21 @@ export default function SubmitPage() {
       </div>
 
       {/* Type Tabs */}
-      <div className="mb-6 flex flex-wrap gap-2">
+      <div className="mb-6 flex flex-wrap gap-2" role="group" aria-label="Submission type">
         {SUBMIT_TYPES.map((t) => (
           <button
             key={t.value}
-            onClick={() => setType(t.value)}
+            onClick={() => {
+              setType(t.value);
+              setFieldErrors({});
+              setTouched({});
+            }}
             className={`rounded-lg border px-3.5 py-1.5 text-xs font-medium transition-all ${
               type === t.value
                 ? "border-accent-purple/50 bg-accent-purple/15 text-accent-violet"
                 : "border-border bg-card text-text-secondary hover:border-border-hover"
             }`}
+            aria-pressed={type === t.value}
           >
             {t.label}
           </button>
@@ -130,7 +194,7 @@ export default function SubmitPage() {
 
       {/* Error */}
       {error && (
-        <div className="mb-4 rounded-[10px] border border-sec-red/20 bg-sec-red/10 px-4 py-2.5 text-[13px] text-[#fca5a5]">
+        <div className="mb-4 rounded-[10px] border border-sec-red/20 bg-sec-red/10 px-4 py-2.5 text-[13px] text-[#fca5a5]" role="alert">
           {error}
         </div>
       )}
@@ -142,13 +206,25 @@ export default function SubmitPage() {
           <input
             value={formData.name}
             onChange={(e) => update("name", e.target.value)}
+            onBlur={() => markTouched("name")}
             placeholder={
               type === "report"
                 ? "e.g. crypto-wallet-sync"
                 : "e.g. my-awesome-skill"
             }
-            className="mt-1.5 w-full rounded-[10px] border border-border bg-card px-3.5 py-2.5 text-sm text-text-primary"
+            className={`mt-1.5 w-full rounded-[10px] border px-3.5 py-2.5 text-sm text-text-primary ${
+              showError("name")
+                ? "border-sec-red/50 bg-sec-red/[0.04]"
+                : "border-border bg-card"
+            }`}
+            aria-invalid={!!showError("name")}
+            aria-describedby={showError("name") ? "name-error" : undefined}
           />
+          {showError("name") && (
+            <span id="name-error" className="mt-1 block text-[12px] text-[#fca5a5]" role="alert">
+              {fieldErrors.name}
+            </span>
+          )}
         </label>
 
         <label className="text-[13px] text-text-secondary">
@@ -156,9 +232,21 @@ export default function SubmitPage() {
           <input
             value={formData.url}
             onChange={(e) => update("url", e.target.value)}
+            onBlur={() => markTouched("url")}
             placeholder="https://github.com/..."
-            className="mt-1.5 w-full rounded-[10px] border border-border bg-card px-3.5 py-2.5 text-sm text-text-primary"
+            className={`mt-1.5 w-full rounded-[10px] border px-3.5 py-2.5 text-sm text-text-primary ${
+              showError("url")
+                ? "border-sec-red/50 bg-sec-red/[0.04]"
+                : "border-border bg-card"
+            }`}
+            aria-invalid={!!showError("url")}
+            aria-describedby={showError("url") ? "url-error" : undefined}
           />
+          {showError("url") && (
+            <span id="url-error" className="mt-1 block text-[12px] text-[#fca5a5]" role="alert">
+              {fieldErrors.url}
+            </span>
+          )}
         </label>
 
         <label className="text-[13px] text-text-secondary">
@@ -166,14 +254,26 @@ export default function SubmitPage() {
           <textarea
             value={formData.desc}
             onChange={(e) => update("desc", e.target.value)}
+            onBlur={() => markTouched("desc")}
             placeholder={
               type === "report"
                 ? "What security issue have you found? (API key theft, malicious code, etc.)"
                 : "Brief description"
             }
             rows={3}
-            className="mt-1.5 w-full resize-vertical rounded-[10px] border border-border bg-card px-3.5 py-2.5 font-[inherit] text-sm text-text-primary"
+            className={`mt-1.5 w-full resize-vertical rounded-[10px] border px-3.5 py-2.5 font-[inherit] text-sm text-text-primary ${
+              showError("desc")
+                ? "border-sec-red/50 bg-sec-red/[0.04]"
+                : "border-border bg-card"
+            }`}
+            aria-invalid={!!showError("desc")}
+            aria-describedby={showError("desc") ? "desc-error" : undefined}
           />
+          {showError("desc") && (
+            <span id="desc-error" className="mt-1 block text-[12px] text-[#fca5a5]" role="alert">
+              {fieldErrors.desc}
+            </span>
+          )}
         </label>
 
         {type !== "report" && (
@@ -208,11 +308,18 @@ export default function SubmitPage() {
 
         {type === "report" && (
           <label className="text-[13px] text-text-secondary">
-            Severity
+            Severity *
             <select
               value={formData.severity}
               onChange={(e) => update("severity", e.target.value)}
-              className="mt-1.5 w-full rounded-[10px] border border-border bg-void px-3.5 py-2.5 text-sm text-text-primary"
+              onBlur={() => markTouched("severity")}
+              className={`mt-1.5 w-full rounded-[10px] border px-3.5 py-2.5 text-sm text-text-primary ${
+                showError("severity")
+                  ? "border-sec-red/50 bg-sec-red/[0.04]"
+                  : "border-border bg-void"
+              }`}
+              aria-invalid={!!showError("severity")}
+              aria-describedby={showError("severity") ? "severity-error" : undefined}
             >
               <option value="">Select...</option>
               {SEVERITY_OPTIONS.map((o) => (
@@ -221,13 +328,18 @@ export default function SubmitPage() {
                 </option>
               ))}
             </select>
+            {showError("severity") && (
+              <span id="severity-error" className="mt-1 block text-[12px] text-[#fca5a5]" role="alert">
+                {fieldErrors.severity}
+              </span>
+            )}
           </label>
         )}
       </div>
 
       <button
         onClick={handleSubmit}
-        disabled={submitting || !formData.name}
+        disabled={submitting}
         className="mt-6 w-full rounded-xl border-none py-3 text-[15px] font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
         style={{
           background:

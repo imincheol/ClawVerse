@@ -3,16 +3,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { DATA_COUNTS } from "@/data/metadata";
+import { compactNumber } from "@/lib/format";
+import GradientText from "./GradientText";
 import AuthButton from "./AuthButton";
 
 const NAV_ITEMS = [
-  { href: "/skills", label: "Skills", count: "5,705" },
-  { href: "/agents", label: "Agents", count: "20" },
-  { href: "/deploy", label: "Deploy" },
-  { href: "/projects", label: "Projects", count: "26" },
-  { href: "/pulse", label: "Pulse" },
-  { href: "/stacks", label: "Stacks" },
-  { href: "/api-docs", label: "API" },
+  { href: "/skills", label: "Skills", count: compactNumber(DATA_COUNTS.skills) },
+  { href: "/mcp", label: "MCP", count: compactNumber(DATA_COUNTS.mcpServers) },
+  { href: "/plugins", label: "Plugins", count: compactNumber(DATA_COUNTS.plugins) },
+  { href: "/agents", label: "Agents", count: compactNumber(DATA_COUNTS.agents) },
+  { href: "/deploy", label: "Deploy", count: compactNumber(DATA_COUNTS.deployOptions) },
+  { href: "/projects", label: "Projects", count: compactNumber(DATA_COUNTS.projects) },
+  { href: "/pulse", label: "Pulse", count: compactNumber(DATA_COUNTS.pulseItems) },
 ];
 
 export default function Header() {
@@ -26,39 +29,33 @@ export default function Header() {
           <span className="text-[22px]" role="img" aria-label="lobster">
             &#x1F99E;
           </span>
-          <span
-            className="font-display text-xl font-bold"
-            style={{
-              background: "linear-gradient(135deg, #c084fc, #f97316)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
-          >
+          <GradientText className="font-display text-xl font-bold">
             ClawVerse
-          </span>
+          </GradientText>
           <span className="ml-1 rounded-md border border-border px-2 py-0.5 text-[11px] text-text-muted">
             .io
           </span>
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav className="hidden items-center gap-0.5 md:flex lg:gap-1" aria-label="Main navigation">
           {NAV_ITEMS.map((item) => {
             const isActive = pathname.startsWith(item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-[13px] no-underline transition-all ${
+                className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[13px] no-underline transition-all lg:gap-1.5 lg:px-3 ${
                   isActive
                     ? "bg-accent-purple/15 font-semibold text-accent-violet"
                     : "text-text-secondary hover:text-text-primary"
                 }`}
+                aria-current={isActive ? "page" : undefined}
               >
                 {item.label}
                 {item.count && (
                   <span
-                    className={`rounded-full px-1.5 py-px text-[10px] ${
+                    className={`hidden rounded-full px-1.5 py-px text-[10px] lg:inline ${
                       isActive
                         ? "bg-accent-purple/20 text-[#c084fc]"
                         : "bg-white/[0.06] text-text-muted"
@@ -85,7 +82,9 @@ export default function Header() {
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="flex h-9 w-9 items-center justify-center rounded-lg border border-border text-text-secondary md:hidden"
-            aria-label="Toggle menu"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-nav"
           >
             <svg
               width="18"
@@ -115,8 +114,8 @@ export default function Header() {
 
       {/* Mobile Dropdown */}
       {menuOpen && (
-        <div className="border-t border-border bg-void/95 backdrop-blur-xl md:hidden">
-          <nav className="mx-auto flex max-w-[1200px] flex-col gap-1 px-6 py-3">
+        <div id="mobile-nav" className="border-t border-border bg-void/95 backdrop-blur-xl md:hidden">
+          <nav className="mx-auto flex max-w-[1200px] flex-col gap-1 px-6 py-3" aria-label="Mobile navigation">
             {NAV_ITEMS.map((item) => {
               const isActive = pathname.startsWith(item.href);
               return (
@@ -129,6 +128,7 @@ export default function Header() {
                       ? "bg-accent-purple/15 font-semibold text-accent-violet"
                       : "text-text-secondary hover:bg-white/[0.03] hover:text-text-primary"
                   }`}
+                  aria-current={isActive ? "page" : undefined}
                 >
                   {item.label}
                   {item.count && (
