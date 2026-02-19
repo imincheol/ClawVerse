@@ -123,6 +123,7 @@ export default function McpPage() {
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search MCP servers..."
             className="w-full rounded-xl border border-border bg-card py-2.5 pl-4 pr-3.5 text-sm text-text-primary"
+            aria-label="Search MCP servers"
           />
         </div>
         <select
@@ -161,7 +162,7 @@ export default function McpPage() {
       </div>
 
       {/* Category Pills */}
-      <div className="mb-6 flex flex-wrap gap-1.5">
+      <div className="mb-6 flex flex-wrap gap-1.5" role="group" aria-label="Filter by category">
         {MCP_CATEGORIES.map((c) => (
           <button
             key={c.id}
@@ -178,7 +179,7 @@ export default function McpPage() {
       </div>
 
       {/* Results Count */}
-      <div className="mb-3.5 text-xs text-text-muted">
+      <div className="mb-3.5 text-xs text-text-muted" aria-live="polite">
         {filtered.length} server{filtered.length !== 1 ? "s" : ""} shown
       </div>
 

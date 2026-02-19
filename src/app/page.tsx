@@ -1,6 +1,7 @@
 import Link from "next/link";
 import WeeklyPicksBanner from "@/components/WeeklyPicksBanner";
 import CosmicBackground from "@/components/CosmicBackground";
+import GradientText from "@/components/GradientText";
 import { DATA_LAST_UPDATED, DATA_COUNTS } from "@/data/metadata";
 import { compactNumber } from "@/lib/format";
 
@@ -59,15 +60,10 @@ export default function HomePage() {
       {/* Hero */}
       <section className="py-16 text-center">
         <div className="mb-4 text-5xl">&#x1F99E;</div>
-        <h1
-          className="font-display mb-4 text-4xl font-bold md:text-5xl"
-          style={{
-            background: "linear-gradient(135deg, #c084fc, #f97316)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-          }}
-        >
-          ClawVerse
+        <h1 className="mb-4">
+          <GradientText className="font-display text-4xl font-bold md:text-5xl">
+            ClawVerse
+          </GradientText>
         </h1>
         <p className="mb-2 text-lg text-text-secondary">
           Every Claw. One Universe.

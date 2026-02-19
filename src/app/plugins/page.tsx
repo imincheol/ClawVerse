@@ -105,6 +105,7 @@ export default function PluginsPage() {
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search plugins..."
             className="w-full rounded-xl border border-border bg-card py-2.5 pl-4 pr-3.5 text-sm text-text-primary"
+            aria-label="Search plugins"
           />
         </div>
         <select
@@ -132,7 +133,7 @@ export default function PluginsPage() {
       </div>
 
       {/* Type Pills */}
-      <div className="mb-6 flex flex-wrap gap-1.5">
+      <div className="mb-6 flex flex-wrap gap-1.5" role="group" aria-label="Filter by type">
         {PLUGIN_TYPES.map((t) => (
           <button
             key={t.id}
@@ -154,7 +155,7 @@ export default function PluginsPage() {
       </div>
 
       {/* Results Count */}
-      <div className="mb-3.5 text-xs text-text-muted">
+      <div className="mb-3.5 text-xs text-text-muted" aria-live="polite">
         {filtered.length} plugin{filtered.length !== 1 ? "s" : ""} shown
       </div>
 
