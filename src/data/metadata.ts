@@ -2,6 +2,7 @@ import { SKILLS } from "./skills";
 import { PROJECTS } from "./projects";
 import { DEPLOY_OPTIONS } from "./deploy";
 import { PULSE_ITEMS } from "./pulse";
+import { AGENTS } from "./agents";
 
 /** Auto-computed from the most recent lastUpdated date across all skills */
 function computeLastUpdated(): string {
@@ -19,4 +20,5 @@ export const DATA_COUNTS = {
   projects: PROJECTS.length,
   deployOptions: DEPLOY_OPTIONS.length,
   pulseItems: PULSE_ITEMS.length,
+  agents: AGENTS.length,
 } as const;

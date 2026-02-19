@@ -3,15 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import AuthButton from "./AuthButton";
+import { DATA_COUNTS } from "@/data/metadata";
 
 const NAV_ITEMS = [
-  { href: "/skills", label: "Skills", count: "5,705" },
-  { href: "/agents", label: "Agents", count: "20" },
-  { href: "/deploy", label: "Deploy" },
-  { href: "/projects", label: "Projects", count: "26" },
-  { href: "/pulse", label: "Pulse" },
-  { href: "/stacks", label: "Stacks" },
+  { href: "/skills", label: "Skills", count: DATA_COUNTS.skills.toLocaleString() },
+  { href: "/agents", label: "Agents", count: DATA_COUNTS.agents.toLocaleString() },
+  { href: "/deploy", label: "Deploy", count: DATA_COUNTS.deployOptions.toLocaleString() },
+  { href: "/projects", label: "Projects", count: DATA_COUNTS.projects.toLocaleString() },
+  { href: "/pulse", label: "Pulse", count: DATA_COUNTS.pulseItems.toLocaleString() },
   { href: "/api-docs", label: "API" },
 ];
 
@@ -73,7 +72,6 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <AuthButton />
           <Link
             href="/submit"
             className="rounded-[10px] border border-accent-orange/40 bg-accent-orange/10 px-4 py-1.5 text-[13px] font-semibold text-[#fb923c] no-underline transition-colors hover:bg-accent-orange/20"
