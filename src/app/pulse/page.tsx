@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense } from "react";
 import { PULSE_ITEMS, PULSE_TAG_CONFIG, type PulseTag } from "@/data/pulse";
+import { DATA_LAST_UPDATED } from "@/data/metadata";
 
 const ALL_TAGS: (PulseTag | "all")[] = [
   "all",
@@ -48,12 +49,17 @@ function PulseContent() {
               OpenClaw ecosystem news, trends, and security alerts.
             </p>
           </div>
-          <Link
-            href="/pulse/security"
-            className="shrink-0 rounded-xl border border-sec-red/20 bg-sec-red/[0.06] px-4 py-2 text-[12px] font-semibold text-[#fca5a5] no-underline transition-colors hover:bg-sec-red/10"
-          >
-            Security Intelligence Center &rarr;
-          </Link>
+          <div className="flex shrink-0 flex-col items-end gap-2">
+            <Link
+              href="/pulse/security"
+              className="rounded-xl border border-sec-red/20 bg-sec-red/[0.06] px-4 py-2 text-[12px] font-semibold text-[#fca5a5] no-underline transition-colors hover:bg-sec-red/10"
+            >
+              Security Intelligence Center &rarr;
+            </Link>
+            <span className="text-[11px] text-text-muted">
+              Last updated: {DATA_LAST_UPDATED}
+            </span>
+          </div>
         </div>
       </div>
 

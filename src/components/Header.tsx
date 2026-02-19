@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { href: "/projects", label: "Projects", count: "26" },
   { href: "/pulse", label: "Pulse" },
   { href: "/stacks", label: "Stacks" },
+  { href: "/api-docs", label: "API" },
 ];
 
 export default function Header() {

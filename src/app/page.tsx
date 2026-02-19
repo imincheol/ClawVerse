@@ -1,12 +1,14 @@
 import Link from "next/link";
 import WeeklyPicksBanner from "@/components/WeeklyPicksBanner";
 import CosmicBackground from "@/components/CosmicBackground";
+import { DATA_LAST_UPDATED, DATA_COUNTS } from "@/data/metadata";
+import { SKILLS } from "@/data/skills";
 
 const STATS = [
-  { label: "GitHub Stars", value: "182K+" },
-  { label: "ClawHub Skills", value: "5,705" },
-  { label: "Moltbook Agents", value: "37K+" },
-  { label: "Deploy Options", value: "10+" },
+  { label: "Tracked Skills", value: String(DATA_COUNTS.skills) },
+  { label: "Ecosystem Projects", value: String(DATA_COUNTS.projects) },
+  { label: "Deploy Options", value: String(DATA_COUNTS.deployOptions) },
+  { label: "Verified Skills", value: String(SKILLS.filter((s) => s.security === "verified").length) },
 ];
 
 const SECTIONS = [
@@ -19,7 +21,7 @@ const SECTIONS = [
   {
     href: "/deploy",
     title: "Deploy Hub",
-    desc: "10+ deployment options compared neutrally. Find the right fit for you.",
+    desc: `${DATA_COUNTS.deployOptions} deployment options compared neutrally. Find the right fit for you.`,
     accent: "#f97316",
   },
   {
@@ -60,6 +62,10 @@ export default function HomePage() {
           Discover, share, and connect every project built on the OpenClaw
           universe. Aggregated skills, verified security, neutral deploy
           comparison, and a complete project directory.
+        </p>
+
+        <p className="mb-6 text-[11px] text-text-muted">
+          Data last updated: {DATA_LAST_UPDATED}
         </p>
 
         {/* Security Alert */}
@@ -120,6 +126,66 @@ export default function HomePage() {
             </span>
           </Link>
         ))}
+      </section>
+
+      {/* Registry API */}
+      <section className="mt-10">
+        <div className="rounded-[14px] border border-accent-cyan/20 bg-accent-cyan/[0.04] p-6">
+          <h2 className="font-display mb-2 text-lg font-bold text-[#38bdf8]">
+            Skill Registry API
+          </h2>
+          <p className="mb-4 text-sm text-text-secondary">
+            Use ClawVerse as a unified skill discovery endpoint. Search {DATA_COUNTS.skills} skills
+            aggregated from ClawHub, awesome-openclaw-skills, Moltbooks, OpenClawSkill.ai,
+            and GitHub — with security ratings and one-click install commands.
+          </p>
+          <div className="space-y-2">
+            <div className="rounded-lg bg-void/80 px-4 py-2.5">
+              <code className="font-code text-xs text-accent-cyan">
+                GET /api/v1/registry
+              </code>
+              <span className="ml-3 text-xs text-text-muted">
+                Registry manifest, sources, capabilities
+              </span>
+            </div>
+            <div className="rounded-lg bg-void/80 px-4 py-2.5">
+              <code className="font-code text-xs text-accent-cyan">
+                GET /api/v1/registry?action=search&amp;q=chart&amp;security=verified
+              </code>
+              <span className="ml-3 text-xs text-text-muted">
+                Search with filters
+              </span>
+            </div>
+            <div className="rounded-lg bg-void/80 px-4 py-2.5">
+              <code className="font-code text-xs text-[#a78bfa]">
+                GET /api/skills/&#123;slug&#125;/install
+              </code>
+              <span className="ml-3 text-xs text-text-muted">
+                Install commands from all sources
+              </span>
+            </div>
+            <div className="rounded-lg bg-void/80 px-4 py-2.5">
+              <code className="font-code text-xs text-[#a78bfa]">
+                GET /api/skills/&#123;slug&#125;/manifest
+              </code>
+              <span className="ml-3 text-xs text-text-muted">
+                MCP-compatible skill manifest
+              </span>
+            </div>
+            <div className="rounded-lg bg-void/80 px-4 py-2.5">
+              <code className="font-code text-xs text-[#f97316]">
+                POST /api/v1/webhooks
+              </code>
+              <span className="ml-3 text-xs text-text-muted">
+                Subscribe to new skills &amp; security alerts
+              </span>
+            </div>
+          </div>
+          <p className="mt-3 text-[11px] text-text-muted">
+            Auto-discovery: <code className="font-code text-[11px] text-accent-cyan">/.well-known/openclaw-registry.json</code>
+            {" | "}Auth: <code className="font-code text-[11px] text-accent-violet">X-ClawVerse-Key</code>
+          </p>
+        </div>
       </section>
 
       {/* Submit CTA */}

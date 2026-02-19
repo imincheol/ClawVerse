@@ -3,6 +3,8 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { SKILLS, CATEGORIES } from "@/data/skills";
+import { DATA_LAST_UPDATED } from "@/data/metadata";
+import { SOURCE_REGISTRY } from "@/data/sources";
 import SkillCard from "@/components/SkillCard";
 
 const SECURITY_FILTERS = [
@@ -16,10 +18,11 @@ const SECURITY_FILTERS = [
 
 const SOURCE_FILTERS = [
   { value: "all", label: "Source: All" },
-  { value: "ClawHub", label: "ClawHub" },
-  { value: "GitHub", label: "GitHub" },
-  { value: "Community", label: "Community" },
-] as const;
+  ...Object.values(SOURCE_REGISTRY).map((s) => ({
+    value: s.id,
+    label: s.shortName,
+  })),
+];
 
 const SORT_OPTIONS = [
   { value: "installs", label: "Most Installs" },
@@ -64,7 +67,11 @@ export default function SkillsPage() {
         return false;
       if (secFilter !== "all" && s.security !== secFilter) return false;
       if (catFilter !== "all" && s.category !== catFilter) return false;
-      if (sourceFilter !== "all" && s.source !== sourceFilter) return false;
+      if (sourceFilter !== "all") {
+        const matchesPrimary = s.source.toLowerCase().replace(/\s+/g, "-") === sourceFilter;
+        const matchesSources = s.sources?.some((ref) => ref.sourceId === sourceFilter);
+        if (!matchesPrimary && !matchesSources) return false;
+      }
       return true;
     });
 
@@ -88,13 +95,18 @@ export default function SkillsPage() {
   return (
     <div>
       <div className="mb-7">
-        <h1
-          className="font-display mb-1.5 text-[28px] font-bold"
-        >
-          Skills Hub
-        </h1>
+        <div className="flex items-baseline justify-between gap-4">
+          <h1
+            className="font-display mb-1.5 text-[28px] font-bold"
+          >
+            Skills Hub
+          </h1>
+          <span className="shrink-0 text-[11px] text-text-muted">
+            Last updated: {DATA_LAST_UPDATED}
+          </span>
+        </div>
         <p className="text-sm text-text-secondary">
-          ClawHub + GitHub + Community — all skills in one place. Security
+          {Object.values(SOURCE_REGISTRY).map((s) => s.shortName).join(" + ")} — all skills in one place. Security
           verified.
         </p>
       </div>

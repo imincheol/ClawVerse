@@ -16,6 +16,8 @@ import ReviewSection from "@/components/ReviewSection";
 import AddToStackButton from "@/components/AddToStackButton";
 import PermissionTooltip from "@/components/PermissionTooltip";
 import PageViewTracker from "@/components/PageViewTracker";
+import InstallButton from "@/components/InstallButton";
+import SourceBadges from "@/components/SourceBadges";
 import { getPageViewStatsForPath } from "@/lib/data/metrics";
 
 export function generateStaticParams() {
@@ -202,14 +204,20 @@ export default async function SkillDetailPage({
           </div>
         </div>
 
-        {/* Source */}
+        {/* Available Sources */}
         <div className="mb-5">
           <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
-            Source
+            Available From
           </div>
-          <span className="text-[13px] text-text-secondary">
-            {skill.source}
-          </span>
+          <SourceBadges skill={skill} />
+        </div>
+
+        {/* Install */}
+        <div className="mb-5">
+          <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
+            Install
+          </div>
+          <InstallButton skill={skill} />
         </div>
 
         {/* Warnings */}
