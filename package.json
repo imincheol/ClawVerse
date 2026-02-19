@@ -19,6 +19,9 @@
     "react-dom": "19.2.3",
     "resend": "^6.9.2"
   },
+  "overrides": {
+    "minimatch": "^10.2.1"
+  },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",
