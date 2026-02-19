@@ -31,7 +31,7 @@ describe("generatePageMetadata", () => {
 
   it("should include openGraph fields", () => {
     const meta = generatePageMetadata("Projects", "All projects", "/projects");
-    const og = meta.openGraph;
+    const og = meta.openGraph as Record<string, unknown> | undefined;
     expect(og).toBeDefined();
     expect(og?.title).toBe("Projects | ClawVerse");
     expect(og?.description).toBe("All projects");
@@ -42,7 +42,7 @@ describe("generatePageMetadata", () => {
 
   it("should include twitter card fields", () => {
     const meta = generatePageMetadata("Pulse");
-    const tw = meta.twitter;
+    const tw = meta.twitter as Record<string, unknown> | undefined;
     expect(tw).toBeDefined();
     expect(tw?.card).toBe("summary_large_image");
     expect(tw?.title).toBe("Pulse | ClawVerse");

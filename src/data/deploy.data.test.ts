@@ -19,7 +19,7 @@ describe("DEPLOY_OPTIONS data integrity", () => {
     }
   });
 
-  it("should have 22 deploy options total", () => {
-    expect(DEPLOY_OPTIONS).toHaveLength(22);
+  it("should have 28 deploy options total", () => {
+    expect(DEPLOY_OPTIONS).toHaveLength(28);
   });
 });

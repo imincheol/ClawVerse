@@ -5,7 +5,7 @@ import type { SecurityLevel, SkillCategory } from "./skills";
 const VALID_SECURITY: SecurityLevel[] = ["verified", "reviewed", "unreviewed", "flagged", "blocked"];
 const VALID_CATEGORIES: SkillCategory[] = [
   "browser", "productivity", "media", "design", "communication",
-  "agent", "social", "finance", "iot", "utility",
+  "agent", "social", "finance", "iot", "utility", "visualize",
 ];
 
 describe("SKILLS data integrity", () => {
@@ -44,7 +44,7 @@ describe("SKILLS data integrity", () => {
     }
   });
 
-  it("should have 53 skills total", () => {
-    expect(SKILLS).toHaveLength(53);
+  it("should have 65 skills total", () => {
+    expect(SKILLS).toHaveLength(65);
   });
 });

@@ -28,7 +28,7 @@ describe("PROJECTS data integrity", () => {
     }
   });
 
-  it("should have 81 projects total", () => {
-    expect(PROJECTS).toHaveLength(81);
+  it("should have 99 projects total", () => {
+    expect(PROJECTS).toHaveLength(99);
   });
 });
