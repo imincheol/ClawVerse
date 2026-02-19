@@ -1,8 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { PROJECTS } from "./projects";
-import type { ProjectLayer, ProjectStatus } from "./projects";
+import { PROJECTS, LAYERS } from "./projects";
+import type { ProjectStatus } from "./projects";
 
-const VALID_LAYERS: ProjectLayer[] = ["core", "social", "collab", "trust", "experimental"];
+// Derive valid layers from LAYERS constant (source of truth)
+const VALID_LAYERS = Object.keys(LAYERS);
 const VALID_STATUSES: ProjectStatus[] = ["active", "viral", "research", "inactive"];
 
 describe("PROJECTS data integrity", () => {
@@ -28,7 +29,25 @@ describe("PROJECTS data integrity", () => {
     }
   });
 
-  it("should have 81 projects total", () => {
-    expect(PROJECTS).toHaveLength(81);
+  // Use minimum-count assertion so adding new projects never breaks the test.
+  it("should have at least 99 projects", () => {
+    expect(PROJECTS.length).toBeGreaterThanOrEqual(99);
+  });
+
+  it("should have non-empty required fields", () => {
+    for (const project of PROJECTS) {
+      expect(project.slug).toBeTruthy();
+      expect(project.name).toBeTruthy();
+      expect(project.desc).toBeTruthy();
+      expect(project.layer).toBeTruthy();
+      expect(project.status).toBeTruthy();
+    }
+  });
+
+  it("should have every layer represented by at least one project", () => {
+    const usedLayers = new Set(PROJECTS.map((p) => p.layer));
+    for (const layer of VALID_LAYERS) {
+      expect(usedLayers.has(layer)).toBe(true);
+    }
   });
 });
