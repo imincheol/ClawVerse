@@ -70,10 +70,11 @@ export default function AuthButton() {
     try {
       const supabase = createClient();
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "github",
         options: {
           redirectTo: `${siteUrl}/auth/callback`,
+          skipBrowserRedirect: true,
         },
       });
 
@@ -91,6 +92,14 @@ export default function AuthButton() {
         } else {
           setError(msg);
         }
+        setBusy(false);
+        return;
+      }
+
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        setError("Failed to get login URL. Check Supabase GitHub provider settings.");
         setBusy(false);
       }
     } catch (e) {
