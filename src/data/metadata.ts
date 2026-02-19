@@ -3,6 +3,8 @@ import { PROJECTS } from "./projects";
 import { DEPLOY_OPTIONS } from "./deploy";
 import { PULSE_ITEMS } from "./pulse";
 import { AGENTS } from "./agents";
+import { MCP_SERVERS } from "./mcp-servers";
+import { PLUGINS } from "./plugins";
 
 /** Auto-computed from the most recent lastUpdated date across all skills */
 function computeLastUpdated(): string {
@@ -21,4 +23,6 @@ export const DATA_COUNTS = {
   deployOptions: DEPLOY_OPTIONS.length,
   pulseItems: PULSE_ITEMS.length,
   agents: AGENTS.length,
+  mcpServers: MCP_SERVERS.length,
+  plugins: PLUGINS.length,
 } as const;

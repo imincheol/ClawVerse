@@ -4,14 +4,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { DATA_COUNTS } from "@/data/metadata";
+import { compactNumber } from "@/lib/format";
 
 const NAV_ITEMS = [
-  { href: "/skills", label: "Skills", count: DATA_COUNTS.skills.toLocaleString() },
-  { href: "/agents", label: "Agents", count: DATA_COUNTS.agents.toLocaleString() },
-  { href: "/deploy", label: "Deploy", count: DATA_COUNTS.deployOptions.toLocaleString() },
-  { href: "/projects", label: "Projects", count: DATA_COUNTS.projects.toLocaleString() },
-  { href: "/pulse", label: "Pulse", count: DATA_COUNTS.pulseItems.toLocaleString() },
-  { href: "/api-docs", label: "API" },
+  { href: "/skills", label: "Skills", count: compactNumber(DATA_COUNTS.skills) },
+  { href: "/mcp", label: "MCP", count: compactNumber(DATA_COUNTS.mcpServers) },
+  { href: "/plugins", label: "Plugins", count: compactNumber(DATA_COUNTS.plugins) },
+  { href: "/agents", label: "Agents", count: compactNumber(DATA_COUNTS.agents) },
+  { href: "/deploy", label: "Deploy", count: compactNumber(DATA_COUNTS.deployOptions) },
+  { href: "/projects", label: "Projects", count: compactNumber(DATA_COUNTS.projects) },
+  { href: "/pulse", label: "Pulse", count: compactNumber(DATA_COUNTS.pulseItems) },
 ];
 
 export default function Header() {
