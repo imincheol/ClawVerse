@@ -131,6 +131,30 @@ export default function DeployPage() {
         </p>
       </div>
 
+      {/* Data Sources */}
+      <div className="mb-5 rounded-xl border border-border bg-card px-4 py-3">
+        <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+          Sources
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <span
+            className="rounded-lg border px-2.5 py-1 text-[11px] font-medium"
+            style={{ background: "#8b5cf615", color: "#8b5cf6", borderColor: "#8b5cf625" }}
+          >
+            Official provider docs
+          </span>
+          <span
+            className="rounded-lg border px-2.5 py-1 text-[11px] font-medium"
+            style={{ background: "#22c55e15", color: "#22c55e", borderColor: "#22c55e25" }}
+          >
+            Community benchmarks
+          </span>
+          <span className="text-[11px] text-text-muted">
+            Independently reviewed by ClawVerse. Pricing last verified: {DATA_LAST_UPDATED}
+          </span>
+        </div>
+      </div>
+
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <div className="relative min-w-[240px] flex-1">
           <input

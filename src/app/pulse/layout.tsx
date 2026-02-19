@@ -1,8 +1,8 @@
 import { generatePageMetadata } from "@/lib/seo";
 
 export const metadata = generatePageMetadata(
-  "Pulse",
-  "OpenClaw ecosystem news, trends, and security alerts. Stay updated on the latest developments.",
+  "Pulse — News & Trends",
+  "OpenClaw ecosystem news, trends, and security alerts. Aggregated from OpenClaw GitHub, ClawHub, OWASP, and more.",
   "/pulse",
 );
 
