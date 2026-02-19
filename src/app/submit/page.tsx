@@ -3,11 +3,13 @@
 import { useState } from "react";
 import { CATEGORIES } from "@/data/skills";
 import { LAYERS } from "@/data/projects";
+import { AGENT_ROLES } from "@/data/agents";
 
-type SubmitType = "skill" | "project" | "deploy" | "report";
+type SubmitType = "skill" | "agent" | "project" | "deploy" | "report";
 
 const SUBMIT_TYPES: { value: SubmitType; label: string }[] = [
   { value: "skill", label: "Skill" },
+  { value: "agent", label: "Agent Template" },
   { value: "project", label: "Project" },
   { value: "deploy", label: "Deploy Service" },
   { value: "report", label: "Security Report" },
@@ -104,8 +106,8 @@ export default function SubmitPage() {
           Submit to ClawVerse
         </h1>
         <p className="text-sm text-text-secondary">
-          Help us grow the ecosystem. Submit skills, projects, deploy services,
-          or report security issues.
+          Help us grow the ecosystem. Submit skills, agent templates, projects,
+          deploy services, or report security issues.
         </p>
       </div>
 
@@ -176,7 +178,7 @@ export default function SubmitPage() {
 
         {type !== "report" && (
           <label className="text-[13px] text-text-secondary">
-            Category
+            {type === "agent" ? "Role" : "Category"}
             <select
               value={formData.category}
               onChange={(e) => update("category", e.target.value)}
@@ -189,11 +191,17 @@ export default function SubmitPage() {
                       {v.label}
                     </option>
                   ))
-                : CATEGORIES.filter((c) => c.id !== "all").map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.label}
-                    </option>
-                  ))}
+                : type === "agent"
+                  ? AGENT_ROLES.filter((r) => r.id !== "all").map((r) => (
+                      <option key={r.id} value={r.id}>
+                        {r.label}
+                      </option>
+                    ))
+                  : CATEGORIES.filter((c) => c.id !== "all").map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.label}
+                      </option>
+                    ))}
             </select>
           </label>
         )}

@@ -12,7 +12,7 @@ export default function AddToStackButton({
   itemType,
   itemSlug,
 }: {
-  itemType: "skill" | "project";
+  itemType: "skill" | "project" | "agent";
   itemSlug: string;
 }) {
   const [stacks, setStacks] = useState<Stack[]>([]);
