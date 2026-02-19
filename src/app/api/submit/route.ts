@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const validTypes = ["skill", "project", "deploy", "security_report"];
+    const validTypes = ["skill", "agent", "project", "deploy", "security_report"];
     if (!validTypes.includes(body.type)) {
       return NextResponse.json(
         { error: `type must be one of: ${validTypes.join(", ")}` },
