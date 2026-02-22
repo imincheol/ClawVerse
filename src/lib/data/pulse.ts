@@ -23,6 +23,8 @@ function mapDbToPulse(row: Record<string, unknown>): PulseItem {
     desc: (row.description as string) || "",
     date: ((row.published_at as string) || "").slice(0, 10),
     url: (row.url as string) || undefined,
+    source: (row.source as string) || undefined,
+    sourceUrl: (row.source_url as string) || undefined,
   };
 }
 

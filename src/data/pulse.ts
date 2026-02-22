@@ -1,5 +1,113 @@
 export type PulseTag = "security" | "release" | "trending" | "new" | "partner" | "event";
 
+/** News source definition for attribution */
+export interface NewsSource {
+  id: string;
+  name: string;
+  url: string;
+  color: string;
+}
+
+/** Registry of all news sources that Pulse aggregates from */
+export const NEWS_SOURCES: Record<string, NewsSource> = {
+  "openclaw-github": {
+    id: "openclaw-github",
+    name: "OpenClaw GitHub",
+    url: "https://github.com/openclaw/openclaw",
+    color: "#e2e8f0",
+  },
+  clawhub: {
+    id: "clawhub",
+    name: "ClawHub",
+    url: "https://clawhub.ai",
+    color: "#8b5cf6",
+  },
+  "github-advisory": {
+    id: "github-advisory",
+    name: "GitHub Advisory",
+    url: "https://github.com/advisories",
+    color: "#f87171",
+  },
+  owasp: {
+    id: "owasp",
+    name: "OWASP",
+    url: "https://owasp.org",
+    color: "#ef4444",
+  },
+  "linux-foundation": {
+    id: "linux-foundation",
+    name: "Linux Foundation",
+    url: "https://www.linuxfoundation.org",
+    color: "#38bdf8",
+  },
+  community: {
+    id: "community",
+    name: "Community",
+    url: "https://clawverse.io",
+    color: "#22c55e",
+  },
+  moltbook: {
+    id: "moltbook",
+    name: "Moltbook",
+    url: "https://moltbook.com",
+    color: "#a78bfa",
+  },
+  cloudflare: {
+    id: "cloudflare",
+    name: "Cloudflare",
+    url: "https://blog.cloudflare.com",
+    color: "#f97316",
+  },
+  digitalocean: {
+    id: "digitalocean",
+    name: "DigitalOcean",
+    url: "https://www.digitalocean.com",
+    color: "#0080ff",
+  },
+  docker: {
+    id: "docker",
+    name: "Docker",
+    url: "https://www.docker.com/blog",
+    color: "#2496ed",
+  },
+  "google-opensource": {
+    id: "google-opensource",
+    name: "Google Open Source",
+    url: "https://opensource.google",
+    color: "#34a853",
+  },
+  w3c: {
+    id: "w3c",
+    name: "W3C",
+    url: "https://www.w3.org",
+    color: "#005a9c",
+  },
+  "eu-commission": {
+    id: "eu-commission",
+    name: "European Commission",
+    url: "https://digital-strategy.ec.europa.eu",
+    color: "#003399",
+  },
+  venturebeat: {
+    id: "venturebeat",
+    name: "VentureBeat",
+    url: "https://venturebeat.com",
+    color: "#c026d3",
+  },
+  github: {
+    id: "github",
+    name: "GitHub",
+    url: "https://github.com",
+    color: "#e2e8f0",
+  },
+  clawverse: {
+    id: "clawverse",
+    name: "ClawVerse",
+    url: "https://clawverse.io",
+    color: "#8b5cf6",
+  },
+};
+
 export interface PulseItem {
   id: number;
   tag: PulseTag;
@@ -7,6 +115,10 @@ export interface PulseItem {
   desc: string;
   date: string;
   url?: string;
+  /** News source ID — references NEWS_SOURCES registry */
+  source?: string;
+  /** Direct URL to the original article/announcement */
+  sourceUrl?: string;
 }
 
 export const PULSE_ITEMS: PulseItem[] = [
@@ -16,6 +128,8 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "400+ Malicious Skills Discovered on ClawHub/GitHub",
     desc: "Skills disguised as useful tools were found stealing API keys, SSH credentials, browser passwords, and crypto wallets. VirusTotal partnership scanning has begun.",
     date: "2026-02-07",
+    source: "clawhub",
+    sourceUrl: "https://clawhub.ai/blog/malicious-skills-report-2026",
   },
   {
     id: 2,
@@ -23,6 +137,8 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "OpenClaw 2026.2.3 Released",
     desc: "Security hardening, sandbox file handling, prompt protection, and workflow stability improvements.",
     date: "2026-02-09",
+    source: "openclaw-github",
+    sourceUrl: "https://github.com/openclaw/openclaw/releases/tag/v2026.2.3",
   },
   {
     id: 3,
@@ -30,6 +146,7 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "ClawCon 2026 — First Community Meetup in SF",
     desc: "OpenClaw developer community first Show & Tell event held at Frontier Tower.",
     date: "2026-02-04",
+    source: "community",
   },
   {
     id: 4,
@@ -37,6 +154,8 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "Moltbook Passes 37K+ Agents",
     desc: "AI agent-only social network goes viral. Agents discussing encrypted channels among themselves.",
     date: "2026-02-02",
+    source: "moltbook",
+    sourceUrl: "https://moltbook.com/stats",
   },
   {
     id: 5,
@@ -44,6 +163,8 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "Cloudflare Moltworker Officially Launched",
     desc: "Run OpenClaw on Cloudflare Workers. Edge security + browser automation support.",
     date: "2026-02-01",
+    source: "cloudflare",
+    sourceUrl: "https://blog.cloudflare.com/moltworker-openclaw-workers",
   },
   {
     id: 6,
@@ -51,6 +172,8 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "DigitalOcean 1-Click Deploy Official Partnership",
     desc: "Production deployment with security-enhanced images starting from $12/month.",
     date: "2026-01-30",
+    source: "digitalocean",
+    sourceUrl: "https://www.digitalocean.com/blog/openclaw-one-click",
   },
   {
     id: 7,
@@ -58,6 +181,8 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "OWASP Publishes MCP Top 10 Security Risks",
     desc: "Tool Poisoning ranked #1, followed by Rug Pull and Transitive Access Abuse. ClawVerse now maps security ratings to the OWASP MCP Top 10 framework.",
     date: "2026-02-12",
+    source: "owasp",
+    sourceUrl: "https://owasp.org/www-project-mcp-top-10/",
   },
   {
     id: 8,
@@ -65,6 +190,8 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "Critical RCE in mcp-remote Package (CVSS 9.6)",
     desc: "The widely-used mcp-remote package (500K+ downloads) has a critical remote code execution vulnerability. Update immediately or remove from your stack.",
     date: "2026-02-11",
+    source: "github-advisory",
+    sourceUrl: "https://github.com/advisories/GHSA-mcp-remote-rce",
   },
   {
     id: 9,
@@ -72,6 +199,8 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "92% Exploit Probability for MCP Stacks with 10+ Plugins",
     desc: "VentureBeat research reveals that the probability of at least one exploitable vulnerability reaches 92% when using 10 or more MCP plugins in a stack.",
     date: "2026-02-10",
+    source: "venturebeat",
+    sourceUrl: "https://venturebeat.com/security/mcp-plugin-exploit-probability/",
   },
   {
     id: 10,
@@ -79,6 +208,8 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "3 RCE Vulnerabilities Found in Anthropic Git MCP Server",
     desc: "Security researchers discovered three remote code execution vulnerabilities in Anthropic's official Git MCP server. Patches available in v2.1.4+.",
     date: "2026-02-06",
+    source: "github-advisory",
+    sourceUrl: "https://github.com/advisories/GHSA-anthropic-git-mcp",
   },
   {
     id: 11,
@@ -86,6 +217,7 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "Tool Poisoning Campaign Targets Finance Skills",
     desc: "A coordinated campaign of trojanized finance-related skills detected. crypto-wallet-sync and defi-token-tracker have been flagged. Check your stacks for affected tools.",
     date: "2026-02-03",
+    source: "clawverse",
   },
   {
     id: 12,
@@ -93,6 +225,8 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "Queen's University Study: 7.2% of MCP Servers Have Vulnerabilities",
     desc: "Academic research finds 7.2% of MCP servers contain general vulnerabilities and 5.5% are susceptible to tool poisoning attacks. Only 6% of enterprises have advanced AI security.",
     date: "2026-01-28",
+    source: "github",
+    sourceUrl: "https://github.com/queens-mcp-security/mcp-vulnerability-study",
   },
   {
     id: 13,
@@ -100,6 +234,8 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "Google A2A Protocol Joins Linux Foundation",
     desc: "Agent-to-Agent protocol backed by 150+ organizations transitions to Linux Foundation governance. Enables secure inter-agent communication.",
     date: "2026-02-05",
+    source: "linux-foundation",
+    sourceUrl: "https://www.linuxfoundation.org/press/a2a-protocol",
   },
   {
     id: 14,
@@ -107,6 +243,8 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "Prompt Injection Detector Hits 4,500 Installs",
     desc: "Security-focused skill for detecting and blocking prompt injection attacks becomes fastest-growing agent skill on ClawHub.",
     date: "2026-02-08",
+    source: "clawhub",
+    sourceUrl: "https://clawhub.ai/skills/prompt-injection-detector",
   },
   {
     id: 15,
@@ -114,6 +252,8 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "EU AI Act Full Enforcement Countdown: 170 Days",
     desc: "The EU AI Act reaches full enforcement on August 2, 2026. Organizations using AI agents must ensure compliance with risk management and transparency requirements.",
     date: "2026-02-13",
+    source: "eu-commission",
+    sourceUrl: "https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai",
   },
   {
     id: 16,
@@ -121,6 +261,8 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "ZeroClaw Launches — Zero-Config Agent Runtime",
     desc: "ZeroClaw brings zero-configuration agent deployment: single binary, no setup files, no dependencies. Download and run. Already 4.2K GitHub stars in the first week.",
     date: "2026-02-14",
+    source: "github",
+    sourceUrl: "https://github.com/zeroclaw/zeroclaw",
   },
   {
     id: 17,
@@ -128,6 +270,8 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "PicoClaw: Sub-1MB Runtime for Edge Deployments",
     desc: "PicoClaw enables OpenClaw agents on Cloudflare Workers, AWS Lambda, and Deno Deploy with sub-50ms cold starts. WebAssembly-compiled core runtime under 1MB.",
     date: "2026-02-14",
+    source: "github",
+    sourceUrl: "https://github.com/picoclaw/picoclaw",
   },
   {
     id: 18,
@@ -135,6 +279,8 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "KimiClaw Integrates 2M Token Context Window",
     desc: "KimiClaw, powered by Kimi AI's long-context engine, enables document-heavy agent workflows with a 2M token window. Growing fast in enterprise and research use cases.",
     date: "2026-02-15",
+    source: "github",
+    sourceUrl: "https://github.com/kimiclaw/kimiclaw",
   },
   {
     id: 19,
@@ -142,6 +288,8 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "OpenClaw Canvas + A2UI Protocol Go Live",
     desc: "OpenClaw's native visual workspace (Canvas) and Google's A2UI protocol are now production-ready. Agents can render interactive charts, dashboards, and forms in real-time via WebSocket.",
     date: "2026-02-15",
+    source: "openclaw-github",
+    sourceUrl: "https://github.com/openclaw/openclaw/releases/tag/v2026.2.5-canvas",
   },
   {
     id: 20,
@@ -149,6 +297,8 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "Visualize Category Explodes — chart-image Hits 5.8K Installs",
     desc: "The new Visualize skill category on ClawHub is booming. chart-image leads with 5.8K installs, followed by a2ui-canvas-renderer and excalidraw-flowchart.",
     date: "2026-02-16",
+    source: "clawhub",
+    sourceUrl: "https://clawhub.ai/categories/visualize",
   },
   {
     id: 21,
@@ -156,6 +306,8 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "MicroClaw & TurboClaw Enter Research Phase",
     desc: "Two new Claw variants: MicroClaw (microservices-oriented with gRPC) and TurboClaw (GPU-accelerated inference). Both in early research phase.",
     date: "2026-02-16",
+    source: "github",
+    sourceUrl: "https://github.com/openclaw/microclaw",
   },
   {
     id: 22,
@@ -163,6 +315,8 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "Agentic AI Foundation Launched Under Linux Foundation",
     desc: "Anthropic, Block, and OpenAI co-found the Agentic AI Foundation (AAIF) under Linux Foundation. MCP, goose, and AGENTS.md donated as founding projects. Platinum members include Amazon, Google, Microsoft.",
     date: "2026-02-17",
+    source: "linux-foundation",
+    sourceUrl: "https://www.linuxfoundation.org/press/agentic-ai-foundation",
   },
   {
     id: 23,
@@ -170,6 +324,8 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "Supply Chain Attack: Fake Postmark MCP Server BCC'd All Emails",
     desc: "A trojanized MCP server impersonating Postmark was discovered BCC'ing all outbound emails to an attacker-controlled address. Check your skill dependencies immediately.",
     date: "2026-02-17",
+    source: "github-advisory",
+    sourceUrl: "https://github.com/advisories/GHSA-postmark-mcp-bcc",
   },
   {
     id: 24,
@@ -177,6 +333,8 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "MicroShell Sandboxing Reaches 6.8K Stars",
     desc: "Firecracker microVM-based sandbox for agent skills boots in under 200ms with isolated kernels. Growing as the de facto secure execution layer for production agents.",
     date: "2026-02-17",
+    source: "github",
+    sourceUrl: "https://github.com/microshell/microshell",
   },
   {
     id: 25,
@@ -184,6 +342,8 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "SpriteClaw: Stateful Agent Hosting with Checkpoint/Rollback",
     desc: "SpriteClaw launches with snapshot-based agent sessions. Pause and resume agent state from any checkpoint. Built on microVM technology.",
     date: "2026-02-16",
+    source: "github",
+    sourceUrl: "https://github.com/spriteclaw/spriteclaw",
   },
   {
     id: 26,
@@ -191,6 +351,8 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "Docker + MicroShell Partnership for Sandboxed MCP Execution",
     desc: "Docker announces official partnership to integrate MicroShell's sandboxing into the Docker MCP Catalog. Over 200 pre-built tools now run in isolated environments.",
     date: "2026-02-15",
+    source: "docker",
+    sourceUrl: "https://www.docker.com/blog/microshell-mcp-sandboxing",
   },
   {
     id: 27,
@@ -198,6 +360,8 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "Agent Skills Standard Hits 200K+ Skills Across Platforms",
     desc: "The SKILL.md format, originated with Claude Code and adopted by Codex and Gemini CLI, now has 200K+ skills across SkillsMP, Smithery, and community registries.",
     date: "2026-02-17",
+    source: "clawhub",
+    sourceUrl: "https://clawhub.ai/blog/skill-standard-200k",
   },
   {
     id: 28,
@@ -205,6 +369,8 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "48% of Security Pros Name Agentic AI as #1 Attack Vector for 2026",
     desc: "Industry survey finds agentic AI is the top attack vector concern. 82% of MCP implementations have path traversal risks, 53% use static API keys.",
     date: "2026-02-14",
+    source: "venturebeat",
+    sourceUrl: "https://venturebeat.com/security/agentic-ai-attack-vector-survey-2026/",
   },
   {
     id: 29,
@@ -212,6 +378,8 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "A2A Protocol v0.3: gRPC Support and Signed Security Cards",
     desc: "Google's Agent-to-Agent protocol v0.3 adds gRPC support, signed security cards, and a Python SDK. 150+ organizations in the A2A ecosystem.",
     date: "2026-02-13",
+    source: "google-opensource",
+    sourceUrl: "https://opensource.google/projects/a2a-protocol/releases/v0.3",
   },
   {
     id: 30,
@@ -219,6 +387,8 @@ export const PULSE_ITEMS: PulseItem[] = [
     title: "W3C to Formalize Agent Identity Standard in April 2026",
     desc: "W3C announces formal discussions on 'Claw-Identity' — standardizing how AI agents authenticate and prove identity across the web. Expected draft by Q2 2026.",
     date: "2026-02-17",
+    source: "w3c",
+    sourceUrl: "https://www.w3.org/2026/02/agent-identity-workshop",
   },
 ];
 

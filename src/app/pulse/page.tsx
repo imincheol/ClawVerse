@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense } from "react";
-import { PULSE_ITEMS, PULSE_TAG_CONFIG, type PulseTag } from "@/data/pulse";
+import { PULSE_ITEMS, PULSE_TAG_CONFIG, NEWS_SOURCES, type PulseTag } from "@/data/pulse";
 import { DATA_LAST_UPDATED } from "@/data/metadata";
 
 const ALL_TAGS: (PulseTag | "all")[] = [
@@ -43,7 +43,7 @@ function PulseContent() {
             <h1
               className="font-display mb-1.5 text-[28px] font-bold"
             >
-              Pulse
+              Pulse <span className="text-lg font-normal text-text-muted">&mdash; News &amp; Trends</span>
             </h1>
             <p className="text-sm text-text-secondary">
               OpenClaw ecosystem news, trends, and security alerts.
@@ -60,6 +60,33 @@ function PulseContent() {
               Last updated: {DATA_LAST_UPDATED}
             </span>
           </div>
+        </div>
+      </div>
+
+      {/* Data Sources */}
+      <div className="mb-5 rounded-xl border border-border bg-card px-4 py-3">
+        <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+          Sources
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {Object.values(NEWS_SOURCES)
+            .filter((s) => PULSE_ITEMS.some((item) => item.source === s.id))
+            .map((s) => (
+              <a
+                key={s.id}
+                href={s.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-lg px-2.5 py-1 text-[11px] font-medium no-underline transition-colors hover:brightness-125"
+                style={{
+                  background: s.color + "15",
+                  color: s.color,
+                  border: `1px solid ${s.color}25`,
+                }}
+              >
+                {s.name}
+              </a>
+            ))}
         </div>
       </div>
 
@@ -106,6 +133,7 @@ function PulseContent() {
       {filteredItems.map((item) => {
         const tagConfig = PULSE_TAG_CONFIG[item.tag];
         const isSecurityItem = item.tag === "security";
+        const newsSource = item.source ? NEWS_SOURCES[item.source] : null;
 
         return (
           <div
@@ -127,6 +155,29 @@ function PulseContent() {
                 {tagConfig.label}
               </span>
               <span className="text-xs text-text-muted">{item.date}</span>
+              {newsSource && (
+                <>
+                  <span className="text-text-muted/40">·</span>
+                  {item.sourceUrl ? (
+                    <a
+                      href={item.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[11px] font-medium no-underline transition-colors hover:brightness-125"
+                      style={{ color: newsSource.color }}
+                    >
+                      {newsSource.name}
+                    </a>
+                  ) : (
+                    <span
+                      className="text-[11px] font-medium"
+                      style={{ color: newsSource.color }}
+                    >
+                      {newsSource.name}
+                    </span>
+                  )}
+                </>
+              )}
             </div>
             <h3
               className={

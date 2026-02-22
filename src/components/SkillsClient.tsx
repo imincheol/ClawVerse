@@ -113,6 +113,34 @@ export default function SkillsClient({ skills, lastUpdated, sourceNames }: Skill
         </p>
       </div>
 
+      {/* Data Sources */}
+      <div className="mb-5 rounded-xl border border-border bg-card px-4 py-3">
+        <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+          Sources
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {Object.values(SOURCE_REGISTRY).map((s) => (
+            <a
+              key={s.id}
+              href={s.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg px-2.5 py-1 text-[11px] font-medium no-underline transition-colors hover:brightness-125"
+              style={{
+                background: s.color + "15",
+                color: s.color,
+                border: `1px solid ${s.color}25`,
+              }}
+            >
+              {s.name}
+              {s.totalSkills > 0 && (
+                <span className="ml-1 opacity-60">({s.totalSkills.toLocaleString()})</span>
+              )}
+            </a>
+          ))}
+        </div>
+      </div>
+
       {/* Security Alert Banner */}
       <div className="mb-5 flex items-center gap-3 rounded-xl border border-sec-red/15 bg-sec-red/[0.06] px-4 py-3">
         <span className="text-lg">&#x1F6E1;&#xFE0F;</span>
