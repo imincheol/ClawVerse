@@ -1,5 +1,6 @@
 import { PULSE_ITEMS as STATIC_PULSE } from "@/data/pulse";
 import type { PulseItem } from "@/data/pulse";
+import { uuidToNumericId } from "./uuid-id";
 
 let supabaseModule: typeof import("@/lib/supabase/server") | null = null;
 
@@ -17,7 +18,7 @@ async function getSupabase() {
 
 function mapDbToPulse(row: Record<string, unknown>): PulseItem {
   return {
-    id: typeof row.id === "string" ? row.id.charCodeAt(0) : (row.id as number),
+    id: typeof row.id === "string" ? uuidToNumericId(row.id) : (row.id as number),
     tag: row.tag as PulseItem["tag"],
     title: row.title as string,
     desc: (row.description as string) || "",

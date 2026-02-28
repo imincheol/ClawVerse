@@ -1,5 +1,6 @@
 import { SKILLS as STATIC_SKILLS } from "@/data/skills";
 import type { Skill } from "@/data/skills";
+import { uuidToNumericId } from "./uuid-id";
 
 let supabaseModule: typeof import("@/lib/supabase/server") | null = null;
 
@@ -27,7 +28,7 @@ export interface SkillFilters {
 
 function mapDbToSkill(row: Record<string, unknown>): Skill {
   return {
-    id: typeof row.id === "string" ? row.id.charCodeAt(0) : (row.id as number),
+    id: typeof row.id === "string" ? uuidToNumericId(row.id) : (row.id as number),
     slug: row.slug as string,
     name: row.name as string,
     desc: (row.description as string) || "",
@@ -88,8 +89,9 @@ export async function getSkills(filters: SkillFilters = {}): Promise<Skill[]> {
         query = query.order("installs", { ascending: false });
     }
 
-    if (filters.limit) query = query.limit(filters.limit);
-    if (filters.offset) query = query.range(filters.offset, filters.offset + (filters.limit || 50) - 1);
+    const effectiveLimit = filters.limit || 50;
+    const start = filters.offset || 0;
+    query = query.range(start, start + effectiveLimit - 1);
 
     const { data, error } = await query;
     if (error || !data) return filterStaticSkills(filters);
