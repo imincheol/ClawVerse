@@ -8,7 +8,6 @@ import {
   COMPLEXITY_CONFIG,
   FORMAT_CONFIG,
 } from "@/data/agents";
-import { SECURITY_CONFIG } from "@/data/skills";
 import SecurityBadge from "@/components/SecurityBadge";
 import AgentCard from "@/components/AgentCard";
 import ReviewSection from "@/components/ReviewSection";
@@ -50,7 +49,6 @@ export default async function AgentDetailPage({
   const roleConfig = AGENT_ROLE_CONFIG[agent.role];
   const complexityConfig = COMPLEXITY_CONFIG[agent.complexity];
   const formatConfig = FORMAT_CONFIG[agent.configFormat];
-  const sec = SECURITY_CONFIG[agent.security];
   const days = daysAgo(agent.lastUpdated);
 
   return (

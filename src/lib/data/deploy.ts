@@ -143,10 +143,12 @@ export async function getDeployOptions(filters: DeployFilters = {}): Promise<Dep
       query = query.eq("security", filters.security);
     }
     if (search) {
-      const safe = search.replace(/,/g, " ");
-      query = query.or(
-        `name.ilike.%${safe}%,description.ilike.%${safe}%,slug.ilike.%${safe}%,url.ilike.%${safe}%`
-      );
+      const safe = search.replace(/[,.()"'\\%]/g, " ").trim();
+      if (safe) {
+        query = query.or(
+          `name.ilike.%${safe}%,description.ilike.%${safe}%,slug.ilike.%${safe}%,url.ilike.%${safe}%`
+        );
+      }
     }
 
     switch (filters.sort) {

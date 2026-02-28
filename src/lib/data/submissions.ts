@@ -226,7 +226,7 @@ export async function flagSkillByName(
 
   try {
     // Sanitize input to prevent PostgREST filter injection
-    const sanitized = name.replace(/[^a-zA-Z0-9\s\-_.]/g, "");
+    const sanitized = name.replace(/[^a-zA-Z0-9\s\-_]/g, "");
     const slug = slugify(sanitized);
     const { error } = await supabase
       .from("skills")

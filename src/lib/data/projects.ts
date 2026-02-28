@@ -125,10 +125,12 @@ export async function getProjects(filters: ProjectFilters = {}): Promise<Project
     if (filters.layer && filters.layer !== "all") query = query.eq("layer", filters.layer);
     if (filters.status && filters.status !== "all") query = query.eq("status", filters.status);
     if (search) {
-      const safe = search.replace(/,/g, " ");
-      query = query.or(
-        `name.ilike.%${safe}%,description.ilike.%${safe}%,slug.ilike.%${safe}%,url.ilike.%${safe}%`
-      );
+      const safe = search.replace(/[,.()"'\\%]/g, " ").trim();
+      if (safe) {
+        query = query.or(
+          `name.ilike.%${safe}%,description.ilike.%${safe}%,slug.ilike.%${safe}%,url.ilike.%${safe}%`
+        );
+      }
     }
 
     switch (filters.sort) {

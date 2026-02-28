@@ -1,5 +1,14 @@
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://clawverse.io";
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function layout(content: string, unsubscribeUrl?: string): string {
   return `<!DOCTYPE html>
 <html>
@@ -32,12 +41,13 @@ function layout(content: string, unsubscribeUrl?: string): string {
 
 export function submissionConfirmation(name: string, type: string): { subject: string; html: string } {
   const typeLabel = type === "security_report" ? "Security Report" : type.charAt(0).toUpperCase() + type.slice(1);
+  const safeName = escapeHtml(name);
   return {
     subject: `[ClawVerse] Your ${typeLabel} submission received`,
     html: layout(`
       <h2 style="color:#e2e8f0;font-size:20px;margin:0 0 16px;">Submission Received</h2>
       <p style="color:#94a3b8;font-size:15px;line-height:1.6;margin:0 0 16px;">
-        Thank you for submitting <strong style="color:#e2e8f0;">${name}</strong> as a ${typeLabel}.
+        Thank you for submitting <strong style="color:#e2e8f0;">${safeName}</strong> as a ${typeLabel}.
       </p>
       <p style="color:#94a3b8;font-size:15px;line-height:1.6;margin:0 0 24px;">
         Our team will review your submission shortly. You'll receive an email once it's been reviewed.
@@ -49,13 +59,14 @@ export function submissionConfirmation(name: string, type: string): { subject: s
 
 export function submissionApproved(name: string, type: string): { subject: string; html: string } {
   const typeLabel = type === "security_report" ? "Security Report" : type.charAt(0).toUpperCase() + type.slice(1);
+  const safeName = escapeHtml(name);
   const viewUrl = type === "skill" ? `${SITE_URL}/skills` : type === "project" ? `${SITE_URL}/projects` : type === "deploy" ? `${SITE_URL}/deploy` : `${SITE_URL}/pulse/security`;
   return {
     subject: `[ClawVerse] Your ${typeLabel} "${name}" has been approved`,
     html: layout(`
       <h2 style="color:#e2e8f0;font-size:20px;margin:0 0 16px;">Submission Approved</h2>
       <div style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:8px;padding:16px;margin-bottom:16px;">
-        <p style="color:#22c55e;font-size:15px;margin:0;">Your ${typeLabel} <strong>"${name}"</strong> has been approved and is now live on ClawVerse.</p>
+        <p style="color:#22c55e;font-size:15px;margin:0;">Your ${typeLabel} <strong>"${safeName}"</strong> has been approved and is now live on ClawVerse.</p>
       </div>
       <a href="${viewUrl}" style="display:inline-block;background:#8b5cf6;color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;">View on ClawVerse</a>
     `),
@@ -64,14 +75,16 @@ export function submissionApproved(name: string, type: string): { subject: strin
 
 export function submissionRejected(name: string, type: string, reason?: string): { subject: string; html: string } {
   const typeLabel = type === "security_report" ? "Security Report" : type.charAt(0).toUpperCase() + type.slice(1);
+  const safeName = escapeHtml(name);
+  const safeReason = reason ? escapeHtml(reason) : undefined;
   return {
     subject: `[ClawVerse] Update on your ${typeLabel} "${name}"`,
     html: layout(`
       <h2 style="color:#e2e8f0;font-size:20px;margin:0 0 16px;">Submission Update</h2>
       <p style="color:#94a3b8;font-size:15px;line-height:1.6;margin:0 0 16px;">
-        After review, your ${typeLabel} <strong style="color:#e2e8f0;">"${name}"</strong> was not approved at this time.
+        After review, your ${typeLabel} <strong style="color:#e2e8f0;">"${safeName}"</strong> was not approved at this time.
       </p>
-      ${reason ? `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:16px;margin-bottom:16px;"><p style="color:#94a3b8;font-size:14px;margin:0;"><strong style="color:#e2e8f0;">Reason:</strong> ${reason}</p></div>` : ""}
+      ${safeReason ? `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:16px;margin-bottom:16px;"><p style="color:#94a3b8;font-size:14px;margin:0;"><strong style="color:#e2e8f0;">Reason:</strong> ${safeReason}</p></div>` : ""}
       <p style="color:#94a3b8;font-size:15px;line-height:1.6;margin:0 0 24px;">
         Feel free to resubmit with updated information.
       </p>
@@ -90,6 +103,8 @@ export function securityAlert(skillName: string, severity: string, description: 
     low: "#eab308",
   };
   const color = severityColors[severity.toLowerCase()] || "#f97316";
+  const safeName = escapeHtml(skillName);
+  const safeDesc = escapeHtml(description);
 
   return {
     subject: `[ClawVerse Security] ${severity.toUpperCase()} alert: ${skillName}`,
@@ -98,9 +113,9 @@ export function securityAlert(skillName: string, severity: string, description: 
       <div style="background:rgba(239,68,68,0.1);border:1px solid ${color};border-radius:8px;padding:16px;margin-bottom:16px;">
         <p style="color:#e2e8f0;font-size:15px;margin:0 0 8px;">
           <span style="background:${color};color:#fff;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:700;">${severity.toUpperCase()}</span>
-          &nbsp; ${skillName}
+          &nbsp; ${safeName}
         </p>
-        <p style="color:#94a3b8;font-size:14px;margin:0;">${description}</p>
+        <p style="color:#94a3b8;font-size:14px;margin:0;">${safeDesc}</p>
       </div>
       <a href="${SITE_URL}/pulse/security" style="display:inline-block;background:#ef4444;color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;">Review in Admin</a>
     `),
@@ -130,8 +145,8 @@ export function weeklyNewsletter(
     ? picks
         .map(
           (p) => `<tr><td style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-          <p style="color:#e2e8f0;font-size:15px;font-weight:600;margin:0;">${p.url ? `<a href="${p.url}" style="color:#a78bfa;text-decoration:none;">${p.name}</a>` : p.name}</p>
-          <p style="color:#94a3b8;font-size:13px;margin:4px 0 0;">${p.description}</p>
+          <p style="color:#e2e8f0;font-size:15px;font-weight:600;margin:0;">${p.url ? `<a href="${escapeHtml(p.url)}" style="color:#a78bfa;text-decoration:none;">${escapeHtml(p.name)}</a>` : escapeHtml(p.name)}</p>
+          <p style="color:#94a3b8;font-size:13px;margin:4px 0 0;">${escapeHtml(p.description)}</p>
         </td></tr>`
         )
         .join("")
@@ -141,7 +156,7 @@ export function weeklyNewsletter(
     ? alerts
         .map(
           (a) => `<li style="color:#94a3b8;font-size:14px;margin-bottom:4px;">
-          <span style="color:#ef4444;font-weight:600;">[${a.severity.toUpperCase()}]</span> ${a.title}
+          <span style="color:#ef4444;font-weight:600;">[${escapeHtml(a.severity.toUpperCase())}]</span> ${escapeHtml(a.title)}
         </li>`
         )
         .join("")
@@ -151,7 +166,7 @@ export function weeklyNewsletter(
     ? newSkills
         .map(
           (s) =>
-            `<li style="color:#94a3b8;font-size:14px;margin-bottom:4px;"><strong style="color:#e2e8f0;">${s.name}</strong> &mdash; ${s.description}</li>`
+            `<li style="color:#94a3b8;font-size:14px;margin-bottom:4px;"><strong style="color:#e2e8f0;">${escapeHtml(s.name)}</strong> &mdash; ${escapeHtml(s.description)}</li>`
         )
         .join("")
     : '<li style="color:#64748b;font-size:14px;">No new skills this week.</li>';

@@ -1,6 +1,8 @@
 {
   "framework": "nextjs",
   "crons": [
+    { "path": "/api/cron/github-sync", "schedule": "0 3 * * *" },
+    { "path": "/api/cron/clawhub-sync", "schedule": "0 4 * * *" },
     { "path": "/api/cron/virustotal-scan", "schedule": "0 2 * * *" },
     { "path": "/api/cron/newsletter", "schedule": "0 9 * * 1" }
   ]

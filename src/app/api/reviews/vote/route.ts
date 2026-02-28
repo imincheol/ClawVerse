@@ -83,7 +83,8 @@ export async function POST(request: NextRequest) {
     });
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      console.error("Review vote error:", error.message);
+      return NextResponse.json({ error: "Failed to submit vote" }, { status: 500 });
     }
 
     return NextResponse.json({ action: "created" }, { status: 201 });

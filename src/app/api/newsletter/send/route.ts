@@ -19,7 +19,8 @@ async function getSupabase() {
 }
 
 function generateUnsubscribeToken(email: string): string {
-  const secret = process.env.NEWSLETTER_CRON_SECRET || "dev-secret";
+  const secret = process.env.NEWSLETTER_CRON_SECRET || process.env.CRON_SECRET;
+  if (!secret) throw new Error("Newsletter secret is not configured");
   return crypto.createHmac("sha256", secret).update(email).digest("hex");
 }
 

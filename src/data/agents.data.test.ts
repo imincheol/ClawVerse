@@ -111,7 +111,7 @@ describe("AGENTS data integrity", () => {
   });
 
   it("should have at least one agent of each type", () => {
-    const usedTypes = new Set(AGENTS.map((a) => a.type));
+    const usedTypes = new Set<string>(AGENTS.map((a) => a.type));
     for (const t of VALID_TYPES) {
       expect(usedTypes.has(t)).toBe(true);
     }
