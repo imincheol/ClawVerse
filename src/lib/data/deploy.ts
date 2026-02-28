@@ -30,6 +30,9 @@ function mapDbToDeploy(row: Record<string, unknown>): DeployOption {
     url: (row.url as string) || "",
     pros: (row.pros as string[]) || [],
     cons: (row.cons as string[]) || [],
+    features: (row.features as string[]) || [],
+    setupSteps: (row.setup_steps as string[]) || [],
+    alternatives: (row.alternatives as string[]) || [],
   };
 }
 

@@ -39,6 +39,12 @@ async function seedSkills() {
     installs: s.installs,
     rating: s.rating,
     review_count: s.reviews,
+    virustotal_status: s.virustotal_status || null,
+    github_url: s.githubUrl || null,
+    protocols: s.protocols || [],
+    last_updated: s.lastUpdated || null,
+    maintainer_activity: s.maintainerActivity || "active",
+    sources: s.sources ? JSON.stringify(s.sources) : "[]",
   }));
 
   const { error } = await supabase
@@ -91,6 +97,9 @@ async function seedDeployOptions() {
     best_for: d.bestFor,
     pros: d.pros,
     cons: d.cons,
+    features: d.features || [],
+    setup_steps: d.setupSteps || [],
+    alternatives: d.alternatives || [],
   }));
 
   const { error } = await supabase
@@ -112,23 +121,23 @@ async function seedPulse() {
     description: p.desc,
     url: p.url || null,
     published_at: p.date,
+    source: p.source || null,
+    source_url: p.sourceUrl || null,
   }));
 
-  const { error } = await supabase.from("pulse_items").upsert(rows, {
-    onConflict: "id",
-    ignoreDuplicates: true,
-  });
+  // pulse_items has no unique slug, so delete and re-insert
+  const { error: deleteError } = await supabase
+    .from("pulse_items")
+    .delete()
+    .neq("id", "00000000-0000-0000-0000-000000000000");
 
+  if (deleteError) {
+    console.error("Pulse delete error:", deleteError.message);
+  }
+
+  const { error } = await supabase.from("pulse_items").insert(rows);
   if (error) {
-    // pulse_items has no unique slug, so insert instead
-    const { error: insertError } = await supabase
-      .from("pulse_items")
-      .insert(rows);
-    if (insertError) {
-      console.error("Pulse seed error:", insertError.message);
-    } else {
-      console.log(`  ✓ ${rows.length} pulse items seeded`);
-    }
+    console.error("Pulse seed error:", error.message);
   } else {
     console.log(`  ✓ ${rows.length} pulse items seeded`);
   }
