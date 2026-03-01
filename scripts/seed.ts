@@ -14,6 +14,9 @@ import { SKILLS } from "../src/data/skills";
 import { PROJECTS } from "../src/data/projects";
 import { DEPLOY_OPTIONS } from "../src/data/deploy";
 import { PULSE_ITEMS } from "../src/data/pulse";
+import { AGENTS } from "../src/data/agents";
+import { MCP_SERVERS } from "../src/data/mcp-servers";
+import { PLUGINS } from "../src/data/plugins";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -143,6 +146,100 @@ async function seedPulse() {
   }
 }
 
+async function seedAgents() {
+  console.log(`Seeding ${AGENTS.length} agents...`);
+  const rows = AGENTS.map((a) => ({
+    slug: a.slug,
+    name: a.name,
+    description: a.desc,
+    type: a.type,
+    role: a.role,
+    frameworks: a.frameworks,
+    complexity: a.complexity,
+    agent_count: a.agentCount,
+    config_format: a.configFormat,
+    security: a.security,
+    downloads: a.downloads,
+    rating: a.rating,
+    review_count: a.reviews,
+    source: a.source,
+    source_url: a.sourceUrl || null,
+    tags: a.tags,
+    author: a.author,
+    last_updated: a.lastUpdated || null,
+  }));
+
+  const { error } = await supabase
+    .from("agents")
+    .upsert(rows, { onConflict: "slug" });
+
+  if (error) {
+    console.error("Agents seed error:", error.message);
+  } else {
+    console.log(`  ✓ ${rows.length} agents seeded`);
+  }
+}
+
+async function seedMcpServers() {
+  console.log(`Seeding ${MCP_SERVERS.length} MCP servers...`);
+  const rows = MCP_SERVERS.map((m) => ({
+    slug: m.slug,
+    name: m.name,
+    description: m.desc,
+    source: m.source,
+    source_url: m.sourceUrl || null,
+    category: m.category,
+    security: m.security,
+    runtime: m.runtime,
+    tools: m.tools,
+    downloads: m.downloads,
+    rating: m.rating,
+    review_count: m.reviews,
+    author: m.author,
+    platforms: m.platforms,
+    last_updated: m.lastUpdated || null,
+  }));
+
+  const { error } = await supabase
+    .from("mcp_servers")
+    .upsert(rows, { onConflict: "slug" });
+
+  if (error) {
+    console.error("MCP servers seed error:", error.message);
+  } else {
+    console.log(`  ✓ ${rows.length} MCP servers seeded`);
+  }
+}
+
+async function seedPlugins() {
+  console.log(`Seeding ${PLUGINS.length} plugins...`);
+  const rows = PLUGINS.map((p) => ({
+    slug: p.slug,
+    name: p.name,
+    description: p.desc,
+    type: p.type,
+    source: p.source,
+    source_url: p.sourceUrl || null,
+    security: p.security,
+    downloads: p.downloads,
+    rating: p.rating,
+    review_count: p.reviews,
+    author: p.author,
+    platforms: p.platforms,
+    last_updated: p.lastUpdated || null,
+  }));
+
+  const { error } = await supabase
+    .from("plugins")
+    .upsert(rows, { onConflict: "slug" });
+
+  if (error) {
+    console.error("Plugins seed error:", error.message);
+  } else {
+    console.log(`  ✓ ${rows.length} plugins seeded`);
+  }
+}
+
 async function main() {
   console.log("ClawVerse Seed Script");
   console.log("=====================");
@@ -153,6 +250,9 @@ async function main() {
   await seedProjects();
   await seedDeployOptions();
   await seedPulse();
+  await seedAgents();
+  await seedMcpServers();
+  await seedPlugins();
 
   console.log("\nDone!");
 }

@@ -318,3 +318,185 @@ VALUES
   ('new', 'Cloudflare Moltworker Officially Launched', 'Run OpenClaw on Cloudflare Workers. Edge security + browser automation support.', NULL, '2026-02-01T00:00:00Z'),
   ('partner', 'DigitalOcean 1-Click Deploy Official Partnership', 'Production deployment with security-enhanced images starting from $12/month.', NULL, '2026-01-30T00:00:00Z')
 ON CONFLICT DO NOTHING;
+
+
+-- ============================================================
+-- Agents (20 records)
+-- ============================================================
+
+INSERT INTO agents (slug, name, description, type, role, frameworks, complexity, agent_count, config_format, security, downloads, rating, review_count, source, source_url, tags, author, last_updated)
+VALUES
+  -- Persona: Researcher (3)
+  ('deep-research-analyst', 'Deep Research Analyst', 'Multi-source research agent that synthesizes information from web, academic papers, and databases into structured reports with citations', 'persona', 'researcher', ARRAY['OpenClaw','Claude Code','LangGraph'], 'single', 1, 'markdown', 'verified', 8420, 4.8, 186, 'souls.directory', 'https://souls.directory/deep-research-analyst', ARRAY['research','citations','academic','synthesis'], 'ai-research-lab', '2026-02-15'),
+  ('competitive-intel-agent', 'Competitive Intel Agent', 'Monitors competitor activities, pricing changes, and market movements. Generates weekly briefings with actionable insights', 'persona', 'researcher', ARRAY['OpenClaw','CrewAI'], 'single', 1, 'markdown', 'reviewed', 3210, 4.4, 67, 'GitHub', 'https://github.com/agent-templates/competitive-intel', ARRAY['competitive-analysis','market-research','briefing'], 'market-agents', '2026-02-08'),
+  ('arxiv-paper-reviewer', 'arXiv Paper Reviewer', 'Reads and critiques academic papers from arXiv, providing structured summaries, methodology analysis, and reproducibility assessment', 'persona', 'researcher', ARRAY['OpenClaw','LangGraph'], 'single', 1, 'markdown', 'reviewed', 2780, 4.6, 52, 'Community', NULL, ARRAY['academic','papers','review','arXiv'], 'scholar-agents', '2026-01-28'),
+
+  -- Persona: Developer (3)
+  ('fullstack-engineer', 'Full-Stack Engineer', 'Implements features end-to-end with TypeScript, React, Node.js. Follows TDD, writes clean code, and creates PRs with proper descriptions', 'persona', 'developer', ARRAY['OpenClaw','Claude Code','Codex'], 'single', 1, 'markdown', 'verified', 12350, 4.7, 284, 'OnlyCrabs', 'https://onlycrabs.ai/fullstack-engineer', ARRAY['typescript','react','nodejs','tdd','fullstack'], 'dev-personas', '2026-02-16'),
+  ('rust-systems-dev', 'Rust Systems Developer', 'Systems programming specialist focusing on memory safety, performance optimization, and async Rust patterns', 'persona', 'developer', ARRAY['OpenClaw','Claude Code'], 'single', 1, 'markdown', 'verified', 4890, 4.6, 98, 'souls.directory', NULL, ARRAY['rust','systems','performance','async'], 'rustacean-agents', '2026-02-10'),
+  ('smart-contract-auditor', 'Smart Contract Auditor', 'Solidity/Vyper smart contract developer and auditor. Identifies vulnerabilities, gas optimizations, and follows OpenZeppelin patterns', 'persona', 'developer', ARRAY['OpenClaw'], 'single', 1, 'markdown', 'reviewed', 2340, 4.3, 41, 'GitHub', NULL, ARRAY['solidity','audit','web3','security'], 'web3-agents', '2026-01-22'),
+
+  -- Persona: Reviewer (2)
+  ('senior-code-reviewer', 'Senior Code Reviewer', 'Reviews pull requests with focus on architecture, security, performance, and maintainability. Provides actionable feedback with code suggestions', 'persona', 'reviewer', ARRAY['OpenClaw','Claude Code','Codex'], 'single', 1, 'markdown', 'verified', 9870, 4.8, 213, 'OnlyCrabs', NULL, ARRAY['code-review','architecture','best-practices'], 'review-agents', '2026-02-14'),
+  ('technical-writer-reviewer', 'Technical Writing Reviewer', 'Reviews documentation for clarity, accuracy, and completeness. Checks code examples, API references, and suggests improvements', 'persona', 'reviewer', ARRAY['OpenClaw','Claude Code'], 'single', 1, 'markdown', 'reviewed', 1980, 4.4, 35, 'Community', NULL, ARRAY['documentation','writing','review','api-docs'], 'docs-team', '2026-02-01'),
+
+  -- Persona: Writer (2)
+  ('technical-blog-writer', 'Technical Blog Writer', 'Writes developer-focused blog posts with code examples, diagrams, and SEO optimization. Supports multiple frameworks and languages', 'persona', 'writer', ARRAY['OpenClaw','CrewAI'], 'single', 1, 'markdown', 'reviewed', 5670, 4.5, 124, 'souls.directory', NULL, ARRAY['blog','content','seo','technical-writing'], 'content-agents', '2026-02-09'),
+  ('api-docs-generator', 'API Docs Generator', 'Generates comprehensive API documentation from code. Supports OpenAPI, GraphQL schemas, and creates interactive examples', 'persona', 'writer', ARRAY['OpenClaw','Claude Code'], 'single', 1, 'markdown', 'verified', 4120, 4.6, 87, 'ClawHub', NULL, ARRAY['api','documentation','openapi','graphql'], 'doc-agents', '2026-02-12'),
+
+  -- Persona: Other roles (3)
+  ('project-manager-agent', 'Project Manager', 'Breaks down epics into tasks, tracks progress, identifies blockers, and generates sprint reports. Integrates with Jira and Linear', 'persona', 'manager', ARRAY['OpenClaw','CrewAI','AutoGen'], 'single', 1, 'yaml', 'reviewed', 3450, 4.3, 72, 'CrewAI', 'https://marketplace.crewai.com/project-manager', ARRAY['project-management','sprint','jira','linear'], 'pm-agents', '2026-02-06'),
+  ('security-penetration-tester', 'Security Penetration Tester', 'Performs automated security assessments on web applications. Checks OWASP Top 10, generates vulnerability reports with remediation steps', 'persona', 'security', ARRAY['OpenClaw','Claude Code'], 'single', 1, 'markdown', 'verified', 6780, 4.7, 156, 'GitHub', 'https://github.com/security-agents/pentest-agent', ARRAY['security','pentest','owasp','vulnerability'], 'sec-agents', '2026-02-13'),
+  ('ui-ux-designer', 'UI/UX Designer', 'Creates wireframes, user flows, and design specifications. Generates Figma-compatible component specs and accessibility guidelines', 'persona', 'designer', ARRAY['OpenClaw'], 'single', 1, 'markdown', 'reviewed', 2890, 4.4, 58, 'souls.directory', NULL, ARRAY['design','wireframe','ux','accessibility','figma'], 'design-agents', '2026-01-30'),
+
+  -- Crew Templates (4)
+  ('code-review-team', 'Code Review Team', '3-agent team: Security Auditor scans for vulnerabilities, Style Enforcer checks conventions, Performance Analyst identifies bottlenecks', 'crew', 'reviewer', ARRAY['OpenClaw','CrewAI','LangGraph'], 'team', 4, 'yaml', 'verified', 7650, 4.8, 168, 'CrewAI', 'https://marketplace.crewai.com/code-review-team', ARRAY['code-review','security','performance','team'], 'crewai-official', '2026-02-17'),
+  ('content-creation-crew', 'Content Creation Crew', '4-agent content pipeline: Researcher gathers data, Writer drafts content, Editor polishes, SEO Specialist optimizes', 'crew', 'writer', ARRAY['CrewAI','OpenClaw'], 'team', 4, 'yaml', 'reviewed', 5340, 4.5, 112, 'CrewAI', 'https://marketplace.crewai.com/content-creation', ARRAY['content','writing','seo','pipeline'], 'crewai-official', '2026-02-11'),
+  ('startup-mvp-squad', 'Startup MVP Squad', '5-agent team for rapid prototyping: PM defines scope, Designer creates mockups, Frontend builds UI, Backend builds API, QA tests', 'crew', 'manager', ARRAY['OpenClaw','CrewAI','AutoGen'], 'team', 5, 'yaml', 'reviewed', 4210, 4.4, 89, 'GitHub', 'https://github.com/agent-crews/startup-mvp-squad', ARRAY['startup','mvp','rapid-prototyping','fullstack'], 'agent-crews', '2026-02-05'),
+  ('incident-response-team', 'Incident Response Team', '3-agent security team: Detector monitors for anomalies, Analyzer investigates incidents, Responder executes playbooks', 'crew', 'security', ARRAY['OpenClaw','LangGraph'], 'team', 3, 'yaml', 'verified', 3890, 4.7, 82, 'GitHub', 'https://github.com/security-agents/incident-response', ARRAY['incident-response','security','monitoring','playbook'], 'sec-agents', '2026-02-14'),
+
+  -- Workflow Patterns (3)
+  ('research-synthesize-pipeline', 'Research-Synthesize Pipeline', 'Sequential workflow: Fan-out to 3-5 parallel researchers, collect results, synthesize into unified report with confidence scores', 'workflow', 'researcher', ARRAY['OpenClaw','LangGraph','Claude Code'], 'pipeline', 6, 'json', 'verified', 6120, 4.7, 134, 'GitHub', 'https://github.com/agent-workflows/research-pipeline', ARRAY['research','parallel','synthesis','pipeline'], 'workflow-labs', '2026-02-16'),
+  ('ci-cd-agent-pipeline', 'CI/CD Agent Pipeline', 'Automated deployment workflow: Code Review -> Security Scan -> Build -> Test -> Stage -> Deploy with rollback capability', 'workflow', 'devops', ARRAY['OpenClaw','LangGraph'], 'pipeline', 6, 'yaml', 'reviewed', 3450, 4.5, 74, 'GitHub', NULL, ARRAY['ci-cd','deployment','devops','automation'], 'devops-agents', '2026-02-07'),
+  ('evaluator-optimizer-loop', 'Evaluator-Optimizer Loop', 'Iterative improvement pattern: Executor generates output, Evaluator scores quality, loop continues until threshold met', 'workflow', 'general', ARRAY['OpenClaw','LangGraph','AutoGen','CrewAI'], 'pipeline', 2, 'json', 'verified', 5670, 4.6, 121, 'GitHub', 'https://github.com/agent-workflows/eval-optimize', ARRAY['optimization','iterative','quality','pattern'], 'workflow-labs', '2026-02-12')
+ON CONFLICT (slug) DO UPDATE SET
+  name = EXCLUDED.name,
+  description = EXCLUDED.description,
+  type = EXCLUDED.type,
+  role = EXCLUDED.role,
+  frameworks = EXCLUDED.frameworks,
+  complexity = EXCLUDED.complexity,
+  agent_count = EXCLUDED.agent_count,
+  config_format = EXCLUDED.config_format,
+  security = EXCLUDED.security,
+  downloads = EXCLUDED.downloads,
+  rating = EXCLUDED.rating,
+  review_count = EXCLUDED.review_count,
+  source = EXCLUDED.source,
+  source_url = EXCLUDED.source_url,
+  tags = EXCLUDED.tags,
+  author = EXCLUDED.author,
+  last_updated = EXCLUDED.last_updated,
+  updated_at = now();
+
+
+-- ============================================================
+-- MCP Servers (30 records)
+-- ============================================================
+
+INSERT INTO mcp_servers (slug, name, description, source, source_url, category, security, runtime, tools, downloads, rating, review_count, author, platforms, last_updated)
+VALUES
+  -- Development (5)
+  ('github-mcp', 'GitHub MCP Server', 'Repository management, file operations, issues, PRs, branches, and advanced search via GitHub API', 'Official MCP Registry', 'https://github.com/modelcontextprotocol/servers/tree/main/src/github', 'development', 'verified', 'stdio', 24, 48200, 4.8, 520, 'MCP Team', ARRAY['Claude Code','Cursor','Cline','OpenClaw'], '2026-02-15'),
+  ('filesystem-mcp', 'Filesystem MCP Server', 'Secure file operations with configurable access controls — read, write, search, and directory management', 'Official MCP Registry', 'https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem', 'development', 'verified', 'stdio', 11, 42100, 4.7, 480, 'MCP Team', ARRAY['Claude Code','Cursor','Cline','OpenClaw'], '2026-02-14'),
+  ('gitlab-mcp', 'GitLab MCP Server', 'GitLab API integration for repositories, merge requests, pipelines, and issue tracking', 'MCP.so', 'https://mcp.so/server/gitlab-mcp', 'development', 'reviewed', 'stdio', 18, 12400, 4.5, 142, 'Community', ARRAY['Claude Code','Cursor','OpenClaw'], '2026-02-10'),
+  ('docker-mcp', 'Docker MCP Server', 'Manage Docker containers, images, volumes, and compose stacks via natural language', 'Smithery', 'https://smithery.ai/server/docker-mcp', 'development', 'reviewed', 'stdio', 15, 9800, 4.4, 98, 'Community', ARRAY['Claude Code','OpenClaw'], '2026-02-08'),
+  ('linear-mcp', 'Linear MCP Server', 'Project management with Linear — create issues, manage sprints, track progress', 'Official MCP Registry', 'https://github.com/modelcontextprotocol/servers/tree/main/src/linear', 'development', 'verified', 'stdio', 12, 8600, 4.6, 87, 'MCP Team', ARRAY['Claude Code','Cursor','OpenClaw'], '2026-02-12'),
+
+  -- Database (4)
+  ('postgres-mcp', 'PostgreSQL MCP Server', 'Connect to PostgreSQL databases — query, inspect schemas, and manage data with read-only safety', 'Official MCP Registry', 'https://github.com/modelcontextprotocol/servers/tree/main/src/postgres', 'database', 'verified', 'stdio', 8, 35600, 4.7, 390, 'MCP Team', ARRAY['Claude Code','Cursor','Cline','OpenClaw'], '2026-02-14'),
+  ('sqlite-mcp', 'SQLite MCP Server', 'Local SQLite database operations — create tables, run queries, and analyze data', 'Official MCP Registry', 'https://github.com/modelcontextprotocol/servers/tree/main/src/sqlite', 'database', 'verified', 'stdio', 6, 28300, 4.6, 310, 'MCP Team', ARRAY['Claude Code','Cursor','Cline','OpenClaw'], '2026-02-13'),
+  ('redis-mcp', 'Redis MCP Server', 'Redis key-value operations, pub/sub, and cache management', 'MCP.so', NULL, 'database', 'reviewed', 'stdio', 10, 7200, 4.3, 68, 'Community', ARRAY['Claude Code','OpenClaw'], '2026-01-28'),
+  ('supabase-mcp', 'Supabase MCP Server', 'Full Supabase platform access — database, auth, storage, and edge functions', 'Smithery', 'https://smithery.ai/server/supabase-mcp', 'database', 'verified', 'stdio', 16, 15800, 4.7, 172, 'Supabase', ARRAY['Claude Code','Cursor','OpenClaw'], '2026-02-11'),
+
+  -- Productivity (4)
+  ('google-drive-mcp', 'Google Drive MCP Server', 'Search, read, and manage Google Drive files and folders', 'Official MCP Registry', 'https://github.com/modelcontextprotocol/servers/tree/main/src/google-drive', 'productivity', 'verified', 'stdio', 8, 22400, 4.5, 248, 'MCP Team', ARRAY['Claude Code','Cursor','OpenClaw'], '2026-02-10'),
+  ('notion-mcp', 'Notion MCP Server', 'Read and write Notion pages, databases, and blocks', 'MCP.so', 'https://mcp.so/server/notion-mcp', 'productivity', 'verified', 'stdio', 12, 18600, 4.6, 204, 'Community', ARRAY['Claude Code','Cursor','OpenClaw'], '2026-02-09'),
+  ('google-calendar-mcp', 'Google Calendar MCP', 'Manage calendar events, check availability, and schedule meetings', 'Glama', 'https://glama.ai/mcp/servers/google-calendar', 'productivity', 'reviewed', 'stdio', 7, 11200, 4.4, 118, 'Community', ARRAY['Claude Code','OpenClaw'], '2026-02-05'),
+  ('obsidian-mcp', 'Obsidian MCP Server', 'Read, write, search, and manage Obsidian vault notes and metadata', 'MCP.so', 'https://mcp.so/server/obsidian-mcp', 'productivity', 'reviewed', 'stdio', 9, 8900, 4.5, 92, 'Community', ARRAY['Claude Code','OpenClaw'], '2026-02-03'),
+
+  -- Browser (3)
+  ('playwright-mcp', 'Playwright MCP Server', 'Browser automation via Playwright accessibility tree — the most popular browser MCP server', 'Official MCP Registry', 'https://github.com/microsoft/playwright-mcp', 'browser', 'verified', 'stdio', 15, 52000, 4.9, 620, 'Microsoft', ARRAY['Claude Code','Cursor','Cline','OpenClaw','Codex'], '2026-02-16'),
+  ('puppeteer-mcp', 'Puppeteer MCP Server', 'Browser automation and web scraping via Puppeteer with screenshot support', 'Official MCP Registry', 'https://github.com/modelcontextprotocol/servers/tree/main/src/puppeteer', 'browser', 'verified', 'stdio', 10, 18400, 4.5, 196, 'MCP Team', ARRAY['Claude Code','OpenClaw'], '2026-02-08'),
+  ('browserbase-mcp', 'Browserbase MCP Server', 'Cloud browser sessions for web automation — no local browser needed', 'Smithery', 'https://smithery.ai/server/browserbase-mcp', 'browser', 'reviewed', 'stdio', 8, 6200, 4.3, 54, 'Browserbase', ARRAY['Claude Code','Cursor','OpenClaw'], '2026-01-30'),
+
+  -- Communication (3)
+  ('slack-mcp', 'Slack MCP Server', 'Send messages, manage channels, search history, and interact with Slack workspaces', 'Official MCP Registry', 'https://github.com/modelcontextprotocol/servers/tree/main/src/slack', 'communication', 'verified', 'stdio', 9, 19200, 4.6, 210, 'MCP Team', ARRAY['Claude Code','OpenClaw'], '2026-02-11'),
+  ('discord-mcp', 'Discord MCP Server', 'Discord bot operations — send messages, manage servers, and handle interactions', 'MCP.so', NULL, 'communication', 'reviewed', 'stdio', 11, 7800, 4.3, 72, 'Community', ARRAY['Claude Code','OpenClaw'], '2026-01-25'),
+  ('email-mcp', 'Email MCP Server', 'Send and read emails via SMTP/IMAP with template support', 'Glama', NULL, 'communication', 'reviewed', 'stdio', 6, 5400, 4.2, 48, 'Community', ARRAY['Claude Code','OpenClaw'], '2026-01-20'),
+
+  -- Cloud & DevOps (3)
+  ('aws-mcp', 'AWS MCP Server', 'AWS service management — S3, Lambda, EC2, CloudWatch, and more', 'Smithery', 'https://smithery.ai/server/aws-mcp', 'cloud', 'reviewed', 'stdio', 22, 14200, 4.5, 156, 'Community', ARRAY['Claude Code','OpenClaw'], '2026-02-07'),
+  ('kubernetes-mcp', 'Kubernetes MCP Server', 'Manage K8s clusters — pods, deployments, services, and logs', 'MCP.so', NULL, 'devops', 'reviewed', 'stdio', 14, 8100, 4.4, 78, 'Community', ARRAY['Claude Code','OpenClaw'], '2026-02-01'),
+  ('cloudflare-mcp', 'Cloudflare MCP Server', 'Manage Cloudflare Workers, KV, R2, D1, and DNS from your agent', 'Official MCP Registry', NULL, 'cloud', 'verified', 'stdio', 18, 11600, 4.6, 124, 'Cloudflare', ARRAY['Claude Code','Cursor','OpenClaw'], '2026-02-13'),
+
+  -- Data & AI (3)
+  ('brave-search-mcp', 'Brave Search MCP Server', 'Web and local search using Brave Search API', 'Official MCP Registry', 'https://github.com/modelcontextprotocol/servers/tree/main/src/brave-search', 'data', 'verified', 'stdio', 2, 31200, 4.6, 342, 'MCP Team', ARRAY['Claude Code','Cursor','Cline','OpenClaw'], '2026-02-14'),
+  ('tavily-mcp', 'Tavily Search MCP Server', 'AI-optimized web search with content extraction and summarization', 'Smithery', NULL, 'data', 'reviewed', 'stdio', 3, 9400, 4.5, 96, 'Tavily', ARRAY['Claude Code','Cursor','OpenClaw'], '2026-02-06'),
+  ('rag-mcp', 'RAG MCP Server', 'Retrieval-augmented generation with vector search over local documents', 'MCP.so', NULL, 'ai', 'reviewed', 'stdio', 5, 6800, 4.3, 62, 'Community', ARRAY['Claude Code','OpenClaw'], '2026-01-22'),
+
+  -- Security (2)
+  ('vault-mcp', 'HashiCorp Vault MCP', 'Secret management — read, write, and rotate secrets from Vault', 'MCP.so', NULL, 'security', 'verified', 'stdio', 7, 5200, 4.6, 44, 'Community', ARRAY['Claude Code','OpenClaw'], '2026-02-04'),
+  ('sentry-mcp', 'Sentry MCP Server', 'Error tracking and performance monitoring via Sentry API', 'Smithery', 'https://smithery.ai/server/sentry-mcp', 'security', 'verified', 'stdio', 8, 7600, 4.5, 68, 'Sentry', ARRAY['Claude Code','Cursor','OpenClaw'], '2026-02-09'),
+
+  -- Media (2)
+  ('imagemagick-mcp', 'ImageMagick MCP Server', 'Image manipulation — resize, convert, composite, and transform images', 'MCP.so', NULL, 'media', 'reviewed', 'stdio', 8, 4800, 4.2, 38, 'Community', ARRAY['Claude Code','OpenClaw'], '2026-01-18'),
+  ('ffmpeg-mcp', 'FFmpeg MCP Server', 'Video and audio processing — transcode, trim, merge, and extract', 'MCP.so', NULL, 'media', 'reviewed', 'stdio', 6, 3600, 4.1, 28, 'Community', ARRAY['Claude Code','OpenClaw'], '2026-01-12'),
+
+  -- Finance (1)
+  ('stripe-mcp', 'Stripe MCP Server', 'Payment processing — customers, invoices, subscriptions, and webhooks', 'Smithery', NULL, 'finance', 'verified', 'stdio', 14, 6400, 4.6, 56, 'Community', ARRAY['Claude Code','OpenClaw'], '2026-02-10')
+ON CONFLICT (slug) DO UPDATE SET
+  name = EXCLUDED.name,
+  description = EXCLUDED.description,
+  source = EXCLUDED.source,
+  source_url = EXCLUDED.source_url,
+  category = EXCLUDED.category,
+  security = EXCLUDED.security,
+  runtime = EXCLUDED.runtime,
+  tools = EXCLUDED.tools,
+  downloads = EXCLUDED.downloads,
+  rating = EXCLUDED.rating,
+  review_count = EXCLUDED.review_count,
+  author = EXCLUDED.author,
+  platforms = EXCLUDED.platforms,
+  last_updated = EXCLUDED.last_updated,
+  updated_at = now();
+
+
+-- ============================================================
+-- Plugins (20 records)
+-- ============================================================
+
+INSERT INTO plugins (slug, name, description, type, source, source_url, security, downloads, rating, review_count, author, platforms, last_updated)
+VALUES
+  -- Channel Plugins (5)
+  ('whatsapp-channel', 'WhatsApp Channel', 'Connect OpenClaw agents to WhatsApp Business API — send and receive messages, media, and templates', 'channel', 'ClawHub', NULL, 'verified', 18400, 4.7, 198, 'OpenClaw Team', ARRAY['OpenClaw'], '2026-02-14'),
+  ('telegram-channel', 'Telegram Channel', 'Full Telegram bot integration — messages, inline keyboards, groups, and media', 'channel', 'ClawHub', NULL, 'verified', 15200, 4.6, 168, 'OpenClaw Team', ARRAY['OpenClaw'], '2026-02-12'),
+  ('discord-channel', 'Discord Channel', 'Discord bot plugin — slash commands, threads, embeds, and voice channel support', 'channel', 'ClawHub', NULL, 'verified', 12800, 4.5, 142, 'OpenClaw Team', ARRAY['OpenClaw'], '2026-02-10'),
+  ('slack-channel', 'Slack Channel', 'Slack app integration — messages, threads, reactions, and slash commands', 'channel', 'ClawHub', NULL, 'verified', 11200, 4.6, 128, 'OpenClaw Team', ARRAY['OpenClaw'], '2026-02-08'),
+  ('webchat-channel', 'WebChat Channel', 'Embeddable web chat widget with customizable themes and file upload support', 'channel', 'ClawHub', NULL, 'verified', 9800, 4.4, 102, 'OpenClaw Team', ARRAY['OpenClaw'], '2026-02-06'),
+
+  -- Tool Plugins (5)
+  ('code-interpreter', 'Code Interpreter', 'Execute Python, JavaScript, and shell code in sandboxed environments with file I/O', 'tool', 'ClawHub', NULL, 'verified', 22600, 4.8, 246, 'OpenClaw Team', ARRAY['OpenClaw'], '2026-02-15'),
+  ('web-browser-tool', 'Web Browser Tool', 'Browse the web, extract content, take screenshots, and fill forms', 'tool', 'ClawHub', NULL, 'reviewed', 16400, 4.5, 178, 'Community', ARRAY['OpenClaw'], '2026-02-11'),
+  ('file-manager', 'File Manager', 'Advanced file operations — upload, download, convert, compress, and share files', 'tool', 'ClawHub', NULL, 'verified', 14200, 4.6, 156, 'OpenClaw Team', ARRAY['OpenClaw'], '2026-02-09'),
+  ('api-connector', 'API Connector', 'Generic REST/GraphQL API plugin — define endpoints and let agents call external services', 'tool', 'GitHub', 'https://github.com/openclaw-plugins/api-connector', 'reviewed', 8800, 4.3, 92, 'Community', ARRAY['OpenClaw'], '2026-02-04'),
+  ('database-tool', 'Database Tool', 'Connect to PostgreSQL, MySQL, MongoDB — run queries and manage data from chat', 'tool', 'ClawHub', NULL, 'reviewed', 7600, 4.4, 78, 'Community', ARRAY['OpenClaw'], '2026-01-28'),
+
+  -- Provider Plugins (5)
+  ('openai-provider', 'OpenAI Provider', 'Use GPT-4o, GPT-4.1, o3 models as the AI backend for OpenClaw agents', 'provider', 'ClawHub', NULL, 'verified', 28400, 4.7, 312, 'OpenClaw Team', ARRAY['OpenClaw'], '2026-02-16'),
+  ('anthropic-provider', 'Anthropic Provider', 'Use Claude 4.5 Sonnet, Claude 4.6 Opus as the AI backend', 'provider', 'ClawHub', NULL, 'verified', 24600, 4.8, 278, 'OpenClaw Team', ARRAY['OpenClaw'], '2026-02-16'),
+  ('google-provider', 'Google AI Provider', 'Use Gemini 3 Flash/Pro models as the AI backend', 'provider', 'ClawHub', NULL, 'verified', 16800, 4.5, 182, 'OpenClaw Team', ARRAY['OpenClaw'], '2026-02-14'),
+  ('ollama-provider', 'Ollama Provider', 'Run local LLMs via Ollama — Llama, Mistral, Qwen, DeepSeek and more', 'provider', 'ClawHub', NULL, 'verified', 19200, 4.6, 208, 'Community', ARRAY['OpenClaw'], '2026-02-12'),
+  ('groq-provider', 'Groq Provider', 'Ultra-fast inference with Groq LPU — Llama and Mixtral at blazing speed', 'provider', 'ClawHub', NULL, 'verified', 12400, 4.5, 134, 'Community', ARRAY['OpenClaw'], '2026-02-08'),
+
+  -- Memory Plugins (5)
+  ('qdrant-memory', 'Qdrant Memory', 'Vector-based long-term memory using Qdrant — semantic search over conversation history', 'memory', 'ClawHub', NULL, 'verified', 8600, 4.6, 94, 'Community', ARRAY['OpenClaw'], '2026-02-10'),
+  ('pinecone-memory', 'Pinecone Memory', 'Cloud-native vector memory with Pinecone — scalable semantic retrieval', 'memory', 'ClawHub', NULL, 'verified', 7200, 4.5, 78, 'Community', ARRAY['OpenClaw'], '2026-02-06'),
+  ('chromadb-memory', 'ChromaDB Memory', 'Local vector memory using ChromaDB — no cloud dependency, fast embedding search', 'memory', 'GitHub', 'https://github.com/openclaw-plugins/chroma-memory', 'reviewed', 5800, 4.3, 54, 'Community', ARRAY['OpenClaw'], '2026-01-25'),
+  ('redis-memory', 'Redis Memory', 'Redis-backed conversation memory with TTL and tagging support', 'memory', 'ClawHub', NULL, 'reviewed', 4600, 4.2, 42, 'Community', ARRAY['OpenClaw'], '2026-01-20'),
+  ('sqlite-memory', 'SQLite Memory', 'Lightweight local memory using SQLite with FTS5 full-text search', 'memory', 'GitHub', 'https://github.com/openclaw-plugins/sqlite-memory', 'reviewed', 3400, 4.1, 32, 'Community', ARRAY['OpenClaw'], '2026-01-15')
+ON CONFLICT (slug) DO UPDATE SET
+  name = EXCLUDED.name,
+  description = EXCLUDED.description,
+  type = EXCLUDED.type,
+  source = EXCLUDED.source,
+  source_url = EXCLUDED.source_url,
+  security = EXCLUDED.security,
+  downloads = EXCLUDED.downloads,
+  rating = EXCLUDED.rating,
+  review_count = EXCLUDED.review_count,
+  author = EXCLUDED.author,
+  platforms = EXCLUDED.platforms,
+  last_updated = EXCLUDED.last_updated,
+  updated_at = now();

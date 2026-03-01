@@ -1,5 +1,5 @@
-import { AGENTS as STATIC_AGENTS } from "@/data/agents";
-import type { Agent } from "@/data/agents";
+import { PLUGINS as STATIC_PLUGINS } from "@/data/plugins";
+import type { Plugin } from "@/data/plugins";
 import { uuidToNumericId } from "./uuid-id";
 
 let supabaseModule: typeof import("@/lib/supabase/server") | null = null;
@@ -16,50 +16,44 @@ async function getSupabase() {
   }
 }
 
-function mapDbToAgent(row: Record<string, unknown>): Agent {
+function mapDbToPlugin(row: Record<string, unknown>): Plugin {
   return {
     id: typeof row.id === "string" ? uuidToNumericId(row.id) : (row.id as number),
     slug: row.slug as string,
     name: row.name as string,
     desc: (row.description as string) || "",
-    type: row.type as Agent["type"],
-    role: row.role as Agent["role"],
-    frameworks: (row.frameworks as string[]) || [],
-    complexity: row.complexity as Agent["complexity"],
-    agentCount: (row.agent_count as number) || 1,
-    configFormat: (row.config_format as Agent["configFormat"]) || "markdown",
-    security: row.security as Agent["security"],
+    type: row.type as Plugin["type"],
+    source: (row.source as string) || "",
+    sourceUrl: (row.source_url as string) || undefined,
+    security: row.security as Plugin["security"],
     downloads: (row.downloads as number) || 0,
     rating: Number(row.rating) || 0,
     reviews: (row.review_count as number) || 0,
-    source: (row.source as string) || "",
-    sourceUrl: (row.source_url as string) || undefined,
-    tags: (row.tags as string[]) || [],
     author: (row.author as string) || "",
+    platforms: (row.platforms as string[]) || [],
     lastUpdated: (row.last_updated as string) || new Date().toISOString().slice(0, 10),
   };
 }
 
-export interface AgentFilters {
+export interface PluginFilters {
   search?: string;
   type?: string;
-  role?: string;
-  framework?: string;
+  source?: string;
   security?: string;
   sort?: string;
   limit?: number;
   offset?: number;
 }
 
-export async function getAgents(filters: AgentFilters = {}): Promise<Agent[]> {
+export async function getPlugins(filters: PluginFilters = {}): Promise<Plugin[]> {
   const supabase = await getSupabase();
 
   if (!supabase) {
-    return filterStaticAgents(filters);
+    return filterStaticPlugins(filters);
   }
 
   try {
-    let query = supabase.from("agents").select("*");
+    let query = supabase.from("plugins").select("*");
 
     if (filters.search) {
       query = query.textSearch("search_vector", filters.search, { type: "websearch" });
@@ -67,11 +61,8 @@ export async function getAgents(filters: AgentFilters = {}): Promise<Agent[]> {
     if (filters.type && filters.type !== "all") {
       query = query.eq("type", filters.type);
     }
-    if (filters.role && filters.role !== "all") {
-      query = query.eq("role", filters.role);
-    }
-    if (filters.framework && filters.framework !== "all") {
-      query = query.contains("frameworks", [filters.framework]);
+    if (filters.source && filters.source !== "all") {
+      query = query.eq("source", filters.source);
     }
     if (filters.security && filters.security !== "all") {
       query = query.eq("security", filters.security);
@@ -87,9 +78,6 @@ export async function getAgents(filters: AgentFilters = {}): Promise<Agent[]> {
       case "newest":
         query = query.order("created_at", { ascending: false });
         break;
-      case "security":
-        query = query.order("security", { ascending: true });
-        break;
       case "downloads":
       default:
         query = query.order("downloads", { ascending: false });
@@ -100,63 +88,56 @@ export async function getAgents(filters: AgentFilters = {}): Promise<Agent[]> {
     query = query.range(start, start + effectiveLimit - 1);
 
     const { data, error } = await query;
-    if (error || !data) return filterStaticAgents(filters);
+    if (error || !data) return filterStaticPlugins(filters);
 
-    return data.map(mapDbToAgent);
+    return data.map(mapDbToPlugin);
   } catch {
-    return filterStaticAgents(filters);
+    return filterStaticPlugins(filters);
   }
 }
 
-export async function getAgentBySlug(slug: string): Promise<Agent | null> {
+export async function getPluginBySlug(slug: string): Promise<Plugin | null> {
   const supabase = await getSupabase();
 
   if (!supabase) {
-    return STATIC_AGENTS.find((a) => a.slug === slug) || null;
+    return STATIC_PLUGINS.find((p) => p.slug === slug) || null;
   }
 
   try {
     const { data, error } = await supabase
-      .from("agents")
+      .from("plugins")
       .select("*")
       .eq("slug", slug)
       .single();
 
-    if (error || !data) return STATIC_AGENTS.find((a) => a.slug === slug) || null;
-    return mapDbToAgent(data);
+    if (error || !data) return STATIC_PLUGINS.find((p) => p.slug === slug) || null;
+    return mapDbToPlugin(data);
   } catch {
-    return STATIC_AGENTS.find((a) => a.slug === slug) || null;
+    return STATIC_PLUGINS.find((p) => p.slug === slug) || null;
   }
 }
 
-function filterStaticAgents(filters: AgentFilters): Agent[] {
-  let result = [...STATIC_AGENTS];
+function filterStaticPlugins(filters: PluginFilters): Plugin[] {
+  let result = [...STATIC_PLUGINS];
 
   if (filters.search) {
     const q = filters.search.toLowerCase();
     result = result.filter(
-      (a) =>
-        a.name.toLowerCase().includes(q) ||
-        a.desc.toLowerCase().includes(q) ||
-        a.tags.some((t) => t.toLowerCase().includes(q))
+      (p) =>
+        p.name.toLowerCase().includes(q) ||
+        p.desc.toLowerCase().includes(q)
     );
   }
   if (filters.type && filters.type !== "all") {
-    result = result.filter((a) => a.type === filters.type);
+    result = result.filter((p) => p.type === filters.type);
   }
-  if (filters.role && filters.role !== "all") {
-    result = result.filter((a) => a.role === filters.role);
-  }
-  if (filters.framework && filters.framework !== "all") {
-    result = result.filter((a) =>
-      a.frameworks.some((fw) => fw.toLowerCase() === filters.framework!.toLowerCase())
-    );
+  if (filters.source && filters.source !== "all") {
+    result = result.filter((p) => p.source === filters.source);
   }
   if (filters.security && filters.security !== "all") {
-    result = result.filter((a) => a.security === filters.security);
+    result = result.filter((p) => p.security === filters.security);
   }
 
-  const SECURITY_ORDER: Record<string, number> = { verified: 0, reviewed: 1, unreviewed: 2, flagged: 3, blocked: 4 };
   switch (filters.sort) {
     case "rating":
       result.sort((a, b) => b.rating - a.rating);
@@ -166,9 +147,6 @@ function filterStaticAgents(filters: AgentFilters): Agent[] {
       break;
     case "newest":
       result.sort((a, b) => b.id - a.id);
-      break;
-    case "security":
-      result.sort((a, b) => (SECURITY_ORDER[a.security] ?? 9) - (SECURITY_ORDER[b.security] ?? 9));
       break;
     case "downloads":
     default:
