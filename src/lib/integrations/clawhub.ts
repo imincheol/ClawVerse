@@ -37,8 +37,9 @@ export async function fetchClawHubSkills(
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function syncClawHubSkills(supabase: any) {
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+export async function syncClawHubSkills(supabase: SupabaseClient) {
   let synced = 0;
   let errors = 0;
   let page = 1;

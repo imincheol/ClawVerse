@@ -8,7 +8,7 @@
   --color-border-hover: rgba(255, 255, 255, 0.12);
   --color-text-primary: #e2e8f0;
   --color-text-secondary: #94a3b8;
-  --color-text-muted: #64748b;
+  --color-text-muted: #a0aec0;
   --color-accent-purple: #8b5cf6;
   --color-accent-violet: #a78bfa;
   --color-accent-orange: #f97316;
@@ -47,11 +47,22 @@ body {
   border-radius: 3px;
 }
 
-input:focus,
-textarea:focus,
-select:focus {
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
   border-color: rgba(139, 92, 246, 0.5) !important;
-  outline: none;
+  outline: 2px solid rgba(139, 92, 246, 0.6);
+  outline-offset: 2px;
+}
+
+/* Keyboard focus ring for all interactive elements */
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid rgba(139, 92, 246, 0.6);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 /* Cosmic animations */

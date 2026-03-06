@@ -75,7 +75,8 @@ export async function POST(request: NextRequest) {
     );
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      console.error("Newsletter subscribe error:", error.message);
+      return NextResponse.json({ error: "Subscription failed. Please try again." }, { status: 500 });
     }
 
     const masked = email.replace(/^(.)(.*)(@.*)$/, (_: string, a: string, b: string, c: string) => a + "*".repeat(b.length) + c);
@@ -126,7 +127,8 @@ export async function DELETE(request: NextRequest) {
       .eq("email", email);
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      console.error("Newsletter unsubscribe error:", error.message);
+      return NextResponse.json({ error: "Failed to unsubscribe" }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, message: "You have been unsubscribed from ClawVerse newsletter." });

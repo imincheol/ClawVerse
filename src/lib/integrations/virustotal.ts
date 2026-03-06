@@ -67,8 +67,9 @@ export async function scanUrl(url: string): Promise<{
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function scanUnreviewedSkills(supabase: any) {
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+export async function scanUnreviewedSkills(supabase: SupabaseClient) {
   const { data: skills } = await supabase
     .from("skills")
     .select("id, slug, source_url")

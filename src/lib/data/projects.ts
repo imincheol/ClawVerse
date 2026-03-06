@@ -1,5 +1,6 @@
 import { PROJECTS as STATIC_PROJECTS } from "@/data/projects";
 import type { Project } from "@/data/projects";
+import { uuidToNumericId } from "./uuid-id";
 
 let supabaseModule: typeof import("@/lib/supabase/server") | null = null;
 
@@ -17,7 +18,7 @@ async function getSupabase() {
 
 function mapDbToProject(row: Record<string, unknown>): Project {
   return {
-    id: typeof row.id === "string" ? row.id.charCodeAt(0) : (row.id as number),
+    id: typeof row.id === "string" ? uuidToNumericId(row.id) : (row.id as number),
     slug: row.slug as string,
     name: row.name as string,
     desc: (row.description as string) || "",
@@ -125,10 +126,12 @@ export async function getProjects(filters: ProjectFilters = {}): Promise<Project
     if (filters.layer && filters.layer !== "all") query = query.eq("layer", filters.layer);
     if (filters.status && filters.status !== "all") query = query.eq("status", filters.status);
     if (search) {
-      const safe = search.replace(/,/g, " ");
-      query = query.or(
-        `name.ilike.%${safe}%,description.ilike.%${safe}%,slug.ilike.%${safe}%,url.ilike.%${safe}%`
-      );
+      const safe = search.replace(/[,.()"'\\%]/g, " ").trim();
+      if (safe) {
+        query = query.or(
+          `name.ilike.%${safe}%,description.ilike.%${safe}%,slug.ilike.%${safe}%,url.ilike.%${safe}%`
+        );
+      }
     }
 
     switch (filters.sort) {

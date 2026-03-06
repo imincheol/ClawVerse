@@ -8,7 +8,6 @@ import {
   COMPLEXITY_CONFIG,
   FORMAT_CONFIG,
 } from "@/data/agents";
-import { SECURITY_CONFIG } from "@/data/skills";
 import SecurityBadge from "./SecurityBadge";
 import AddToStackButton from "./AddToStackButton";
 
@@ -17,8 +16,6 @@ export default function AgentCard({ agent }: { agent: Agent }) {
   const roleConfig = AGENT_ROLE_CONFIG[agent.role];
   const complexityConfig = COMPLEXITY_CONFIG[agent.complexity];
   const formatConfig = FORMAT_CONFIG[agent.configFormat];
-  const sec = SECURITY_CONFIG[agent.security];
-
   return (
     <Link
       href={`/agents/${agent.slug}`}

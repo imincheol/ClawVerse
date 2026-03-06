@@ -32,6 +32,14 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  const validTargetTypes = ["skill", "project", "deploy", "agent", "mcp", "plugin"];
+  if (!validTargetTypes.includes(targetType)) {
+    return NextResponse.json(
+      { error: `target_type must be one of: ${validTargetTypes.join(", ")}` },
+      { status: 400 }
+    );
+  }
+
   const supabase = await getSupabase();
   if (!supabase) {
     return NextResponse.json({ reviews: [], count: 0, page, limit, hasMore: false });
@@ -163,6 +171,14 @@ export async function POST(request: NextRequest) {
     if (!body.target_type || !body.target_id || !body.rating) {
       return NextResponse.json(
         { error: "target_type, target_id, and rating are required" },
+        { status: 400 }
+      );
+    }
+
+    const validTargetTypes = ["skill", "project", "deploy", "agent", "mcp", "plugin"];
+    if (!validTargetTypes.includes(body.target_type)) {
+      return NextResponse.json(
+        { error: `target_type must be one of: ${validTargetTypes.join(", ")}` },
         { status: 400 }
       );
     }

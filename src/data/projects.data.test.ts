@@ -45,7 +45,7 @@ describe("PROJECTS data integrity", () => {
   });
 
   it("should have every layer represented by at least one project", () => {
-    const usedLayers = new Set(PROJECTS.map((p) => p.layer));
+    const usedLayers = new Set<string>(PROJECTS.map((p) => p.layer));
     for (const layer of VALID_LAYERS) {
       expect(usedLayers.has(layer)).toBe(true);
     }

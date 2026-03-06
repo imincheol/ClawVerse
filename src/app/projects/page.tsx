@@ -39,6 +39,7 @@ export default function ProjectsPage() {
   const [count, setCount] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const requestIdRef = useRef(0);
 
   useEffect(() => {
@@ -77,17 +78,21 @@ export default function ProjectsPage() {
 
     try {
       const r = await fetch(`/api/projects?${params.toString()}`);
+      if (!r.ok) throw new Error(`Server error (${r.status})`);
       const data = await r.json();
       if (requestId === requestIdRef.current) {
         setProjects(data.projects || []);
         setCount(data.count || 0);
         setHasMore(Boolean(data.hasMore));
+        setError(null);
       }
-    } catch {
+    } catch (err) {
+      console.error("Projects fetch failed:", err);
       if (requestId === requestIdRef.current) {
         setProjects([]);
         setCount(0);
         setHasMore(false);
+        setError("Failed to load projects. Please try again.");
       }
     } finally {
       if (requestId === requestIdRef.current) {
@@ -244,7 +249,17 @@ export default function ProjectsPage() {
         {loading ? "Loading..." : `Showing ${projects.length} of ${count} projects`}
       </div>
 
-      {loading ? (
+      {error ? (
+        <div className="py-16 text-center">
+          <p className="mb-3 text-sm text-sec-red">{error}</p>
+          <button
+            onClick={() => void loadProjects({ page, sortBy, layerFilter, statusFilter, search: debouncedSearch })}
+            className="rounded-[10px] border border-accent-purple/40 bg-accent-purple/10 px-5 py-2 text-[13px] text-accent-violet transition-colors hover:bg-accent-purple/20"
+          >
+            Retry
+          </button>
+        </div>
+      ) : loading ? (
         <div className="py-16 text-center text-text-muted">Loading projects...</div>
       ) : projects.length === 0 ? (
         <div className="py-16 text-center text-text-muted">

@@ -1,5 +1,6 @@
 import { DEPLOY_OPTIONS as STATIC_DEPLOY } from "@/data/deploy";
 import type { DeployOption } from "@/data/deploy";
+import { uuidToNumericId } from "./uuid-id";
 
 let supabaseModule: typeof import("@/lib/supabase/server") | null = null;
 
@@ -17,7 +18,7 @@ async function getSupabase() {
 
 function mapDbToDeploy(row: Record<string, unknown>): DeployOption {
   return {
-    id: typeof row.id === "string" ? row.id.charCodeAt(0) : (row.id as number),
+    id: typeof row.id === "string" ? uuidToNumericId(row.id) : (row.id as number),
     slug: row.slug as string,
     name: row.name as string,
     desc: (row.description as string) || "",
@@ -30,6 +31,9 @@ function mapDbToDeploy(row: Record<string, unknown>): DeployOption {
     url: (row.url as string) || "",
     pros: (row.pros as string[]) || [],
     cons: (row.cons as string[]) || [],
+    features: (row.features as string[]) || [],
+    setupSteps: (row.setup_steps as string[]) || [],
+    alternatives: (row.alternatives as string[]) || [],
   };
 }
 
@@ -143,10 +147,12 @@ export async function getDeployOptions(filters: DeployFilters = {}): Promise<Dep
       query = query.eq("security", filters.security);
     }
     if (search) {
-      const safe = search.replace(/,/g, " ");
-      query = query.or(
-        `name.ilike.%${safe}%,description.ilike.%${safe}%,slug.ilike.%${safe}%,url.ilike.%${safe}%`
-      );
+      const safe = search.replace(/[,.()"'\\%]/g, " ").trim();
+      if (safe) {
+        query = query.or(
+          `name.ilike.%${safe}%,description.ilike.%${safe}%,slug.ilike.%${safe}%,url.ilike.%${safe}%`
+        );
+      }
     }
 
     switch (filters.sort) {

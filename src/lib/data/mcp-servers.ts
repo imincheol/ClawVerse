@@ -1,5 +1,5 @@
-import { SKILLS as STATIC_SKILLS } from "@/data/skills";
-import type { Skill } from "@/data/skills";
+import { MCP_SERVERS as STATIC_MCP } from "@/data/mcp-servers";
+import type { McpServer } from "@/data/mcp-servers";
 import { uuidToNumericId } from "./uuid-id";
 
 let supabaseModule: typeof import("@/lib/supabase/server") | null = null;
@@ -16,60 +16,58 @@ async function getSupabase() {
   }
 }
 
-export interface SkillFilters {
-  search?: string;
-  security?: string;
-  category?: string;
-  source?: string;
-  sort?: string;
-  limit?: number;
-  offset?: number;
-}
-
-function mapDbToSkill(row: Record<string, unknown>): Skill {
+function mapDbToMcp(row: Record<string, unknown>): McpServer {
   return {
     id: typeof row.id === "string" ? uuidToNumericId(row.id) : (row.id as number),
     slug: row.slug as string,
     name: row.name as string,
     desc: (row.description as string) || "",
-    source: row.source as string,
-    sources: row.sources ? (row.sources as Skill["sources"]) : undefined,
-    githubUrl: (row.github_url as string) || undefined,
-    installs: (row.installs as number) || 0,
+    source: (row.source as string) || "",
+    sourceUrl: (row.source_url as string) || undefined,
+    category: row.category as McpServer["category"],
+    security: row.security as McpServer["security"],
+    runtime: (row.runtime as McpServer["runtime"]) || "stdio",
+    tools: (row.tools as number) || 0,
+    downloads: (row.downloads as number) || 0,
     rating: Number(row.rating) || 0,
     reviews: (row.review_count as number) || 0,
-    security: row.security as Skill["security"],
-    category: row.category as Skill["category"],
-    permissions: (row.permissions as string[]) || [],
+    author: (row.author as string) || "",
     platforms: (row.platforms as string[]) || [],
-    virustotal_status: (row.virustotal_status as Skill["virustotal_status"]) || undefined,
-    protocols: (row.protocols as Skill["protocols"]) || ["MCP"],
     lastUpdated: (row.last_updated as string) || new Date().toISOString().slice(0, 10),
-    maintainerActivity: (row.maintainer_activity as Skill["maintainerActivity"]) || "moderate",
   };
 }
 
-export async function getSkills(filters: SkillFilters = {}): Promise<Skill[]> {
+export interface McpFilters {
+  search?: string;
+  category?: string;
+  source?: string;
+  security?: string;
+  sort?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export async function getMcpServers(filters: McpFilters = {}): Promise<McpServer[]> {
   const supabase = await getSupabase();
 
   if (!supabase) {
-    return filterStaticSkills(filters);
+    return filterStaticMcp(filters);
   }
 
   try {
-    let query = supabase.from("skills").select("*");
+    let query = supabase.from("mcp_servers").select("*");
 
     if (filters.search) {
       query = query.textSearch("search_vector", filters.search, { type: "websearch" });
-    }
-    if (filters.security && filters.security !== "all") {
-      query = query.eq("security", filters.security);
     }
     if (filters.category && filters.category !== "all") {
       query = query.eq("category", filters.category);
     }
     if (filters.source && filters.source !== "all") {
       query = query.eq("source", filters.source);
+    }
+    if (filters.security && filters.security !== "all") {
+      query = query.eq("security", filters.security);
     }
 
     switch (filters.sort) {
@@ -82,11 +80,12 @@ export async function getSkills(filters: SkillFilters = {}): Promise<Skill[]> {
       case "newest":
         query = query.order("created_at", { ascending: false });
         break;
-      case "security":
-        query = query.order("security", { ascending: true });
+      case "tools":
+        query = query.order("tools", { ascending: false });
         break;
+      case "downloads":
       default:
-        query = query.order("installs", { ascending: false });
+        query = query.order("downloads", { ascending: false });
     }
 
     const effectiveLimit = filters.limit || 50;
@@ -94,55 +93,57 @@ export async function getSkills(filters: SkillFilters = {}): Promise<Skill[]> {
     query = query.range(start, start + effectiveLimit - 1);
 
     const { data, error } = await query;
-    if (error || !data) return filterStaticSkills(filters);
+    if (error || !data) return filterStaticMcp(filters);
 
-    return data.map(mapDbToSkill);
+    return data.map(mapDbToMcp);
   } catch {
-    return filterStaticSkills(filters);
+    return filterStaticMcp(filters);
   }
 }
 
-export async function getSkillBySlug(slug: string): Promise<Skill | null> {
+export async function getMcpServerBySlug(slug: string): Promise<McpServer | null> {
   const supabase = await getSupabase();
 
   if (!supabase) {
-    return STATIC_SKILLS.find((s) => s.slug === slug) || null;
+    return STATIC_MCP.find((m) => m.slug === slug) || null;
   }
 
   try {
     const { data, error } = await supabase
-      .from("skills")
+      .from("mcp_servers")
       .select("*")
       .eq("slug", slug)
       .single();
 
-    if (error || !data) return STATIC_SKILLS.find((s) => s.slug === slug) || null;
-    return mapDbToSkill(data);
+    if (error || !data) return STATIC_MCP.find((m) => m.slug === slug) || null;
+    return mapDbToMcp(data);
   } catch {
-    return STATIC_SKILLS.find((s) => s.slug === slug) || null;
+    return STATIC_MCP.find((m) => m.slug === slug) || null;
   }
 }
 
-function filterStaticSkills(filters: SkillFilters): Skill[] {
-  let result = [...STATIC_SKILLS];
+function filterStaticMcp(filters: McpFilters): McpServer[] {
+  let result = [...STATIC_MCP];
 
   if (filters.search) {
     const q = filters.search.toLowerCase();
     result = result.filter(
-      (s) => s.name.toLowerCase().includes(q) || s.desc.toLowerCase().includes(q)
+      (m) =>
+        m.name.toLowerCase().includes(q) ||
+        m.desc.toLowerCase().includes(q) ||
+        m.category.toLowerCase().includes(q)
     );
   }
-  if (filters.security && filters.security !== "all") {
-    result = result.filter((s) => s.security === filters.security);
-  }
   if (filters.category && filters.category !== "all") {
-    result = result.filter((s) => s.category === filters.category);
+    result = result.filter((m) => m.category === filters.category);
   }
   if (filters.source && filters.source !== "all") {
-    result = result.filter((s) => s.source === filters.source);
+    result = result.filter((m) => m.source === filters.source);
+  }
+  if (filters.security && filters.security !== "all") {
+    result = result.filter((m) => m.security === filters.security);
   }
 
-  const SECURITY_ORDER: Record<string, number> = { verified: 0, reviewed: 1, unreviewed: 2, flagged: 3, blocked: 4 };
   switch (filters.sort) {
     case "rating":
       result.sort((a, b) => b.rating - a.rating);
@@ -153,11 +154,12 @@ function filterStaticSkills(filters: SkillFilters): Skill[] {
     case "newest":
       result.sort((a, b) => b.id - a.id);
       break;
-    case "security":
-      result.sort((a, b) => (SECURITY_ORDER[a.security] ?? 9) - (SECURITY_ORDER[b.security] ?? 9));
+    case "tools":
+      result.sort((a, b) => b.tools - a.tools);
       break;
+    case "downloads":
     default:
-      result.sort((a, b) => b.installs - a.installs);
+      result.sort((a, b) => b.downloads - a.downloads);
   }
 
   if (filters.offset) result = result.slice(filters.offset);
