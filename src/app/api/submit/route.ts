@@ -20,7 +20,7 @@ async function getSupabase() {
 }
 
 export async function POST(request: NextRequest) {
-  const guard = await guardMutationRequest(request, { requireCsrf: false });
+  const guard = await guardMutationRequest(request, { requireCsrf: true });
   if (guard) return guard;
 
   const ip = getClientIp(request);
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
 
     if (body.email) {
       const { subject, html } = submissionConfirmation(body.name, body.type);
-      sendEmail({ to: body.email, subject, html }).catch(() => {});
+      sendEmail({ to: body.email, subject, html }).catch((err: unknown) => console.error("[submit] Email send failed:", err));
     }
 
     if (
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
           body.severity,
           body.description || "No description provided"
         );
-        sendEmail({ to: adminEmail, subject, html }).catch(() => {});
+        sendEmail({ to: adminEmail, subject, html }).catch((err: unknown) => console.error("[submit] Email send failed:", err));
       }
     }
 

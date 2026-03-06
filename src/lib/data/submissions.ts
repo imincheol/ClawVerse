@@ -225,13 +225,12 @@ export async function flagSkillByName(
   if (!supabase) return { success: false, error: "No database connection" };
 
   try {
-    // Sanitize input to prevent PostgREST filter injection
-    const sanitized = name.replace(/[^a-zA-Z0-9\s\-_]/g, "");
-    const slug = slugify(sanitized);
+    // Use exact slug match to prevent PostgREST filter injection
+    const slug = slugify(name.replace(/[^a-zA-Z0-9\s\-_]/g, ""));
     const { error } = await supabase
       .from("skills")
       .update({ security: "flagged", updated_at: new Date().toISOString() })
-      .or(`name.ilike.%${sanitized}%,slug.eq.${slug}`);
+      .eq("slug", slug);
 
     if (error) return { success: false, error: error.message };
     return { success: true };

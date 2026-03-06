@@ -42,11 +42,15 @@ function SortHeader({
   onSort: (key: SortKey) => void;
 }) {
   return (
-    <th
-      className="cursor-pointer px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-text-muted transition-colors hover:text-text-primary"
-      onClick={() => onSort(col)}
-    >
-      {label} {sortKey === col ? (sortAsc ? "▲" : "▼") : ""}
+    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-text-muted">
+      <button
+        type="button"
+        onClick={() => onSort(col)}
+        className="w-full cursor-pointer bg-transparent text-left text-xs font-semibold uppercase tracking-wide text-text-muted transition-colors hover:text-text-primary"
+        aria-label={`Sort by ${label}`}
+      >
+        {label} {sortKey === col ? (sortAsc ? "▲" : "▼") : ""}
+      </button>
     </th>
   );
 }

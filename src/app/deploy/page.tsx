@@ -48,6 +48,7 @@ export default function DeployPage() {
   const [count, setCount] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const requestIdRef = useRef(0);
 
   useEffect(() => {
@@ -86,17 +87,21 @@ export default function DeployPage() {
 
     try {
       const r = await fetch(`/api/deploy?${params.toString()}`);
+      if (!r.ok) throw new Error(`Server error (${r.status})`);
       const data = await r.json();
       if (requestId === requestIdRef.current) {
         setOptions(data.options || []);
         setCount(data.count || 0);
         setHasMore(Boolean(data.hasMore));
+        setError(null);
       }
-    } catch {
+    } catch (err) {
+      console.error("Deploy options fetch failed:", err);
       if (requestId === requestIdRef.current) {
         setOptions([]);
         setCount(0);
         setHasMore(false);
+        setError("Failed to load deploy options. Please try again.");
       }
     } finally {
       if (requestId === requestIdRef.current) {
@@ -220,7 +225,17 @@ export default function DeployPage() {
         {loading ? "Loading..." : `Showing ${options.length} of ${count} deploy options`}
       </div>
 
-      {loading ? (
+      {error ? (
+        <div className="py-16 text-center">
+          <p className="mb-3 text-sm text-sec-red">{error}</p>
+          <button
+            onClick={() => void loadDeployOptions({ page, sortBy, levelFilter, secFilter, search: debouncedSearch })}
+            className="rounded-[10px] border border-accent-purple/40 bg-accent-purple/10 px-5 py-2 text-[13px] text-accent-violet transition-colors hover:bg-accent-purple/20"
+          >
+            Retry
+          </button>
+        </div>
+      ) : loading ? (
         <div className="py-16 text-center text-text-muted">Loading deploy options...</div>
       ) : options.length === 0 ? (
         <div className="py-16 text-center text-text-muted">

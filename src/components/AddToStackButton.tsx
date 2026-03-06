@@ -57,6 +57,9 @@ export default function AddToStackButton({
         }}
         className="flex h-7 w-7 items-center justify-center rounded-md border border-border text-xs text-text-muted transition-colors hover:border-accent-purple/40 hover:text-accent-violet"
         title="Add to stack"
+        aria-label="Add to stack"
+        aria-expanded={showDropdown}
+        aria-haspopup="listbox"
       >
         +
       </button>

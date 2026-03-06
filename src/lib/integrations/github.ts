@@ -38,8 +38,9 @@ export async function fetchGitHubStars(repoUrl: string): Promise<number | null> 
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function syncProjectStars(supabase: any) {
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+export async function syncProjectStars(supabase: SupabaseClient) {
   const { data: projects } = await supabase
     .from("projects")
     .select("id, url, github_url")
@@ -67,19 +68,21 @@ export async function syncProjectStars(supabase: any) {
         errors++;
       } else {
         synced++;
-        await supabase
-          .from("project_growth_snapshots")
-          .upsert(
-            {
-              project_id: project.id,
-              snapshot_date: new Date().toISOString().slice(0, 10),
-              stars,
-              source: "github-api",
-            },
-            { onConflict: "project_id,snapshot_date,source" }
-          )
-          .then(() => undefined)
-          .catch(() => undefined);
+        try {
+          await supabase
+            .from("project_growth_snapshots")
+            .upsert(
+              {
+                project_id: project.id,
+                snapshot_date: new Date().toISOString().slice(0, 10),
+                stars,
+                source: "github-api",
+              },
+              { onConflict: "project_id,snapshot_date,source" }
+            );
+        } catch {
+          // Snapshot insert is best-effort
+        }
       }
     }
 
